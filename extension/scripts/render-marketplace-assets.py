@@ -201,7 +201,7 @@ def render_diagnostics(model: dict, benchmark: dict):
     rounded(draw, (28, 472, 1172, 608), PANEL_2, 16, BORDER)
     draw.text((54, 493), "Active source", font=TINY, fill=MUTED)
     draw.text((54, 522), "Bundled starter model", font=BOLD, fill=TEXT)
-    draw.text((54, 565), "Languages: C# • JavaScript/TypeScript • Python • JSX/TSX • Vue • Razor", font=SMALL, fill=MUTED)
+    draw.text((54, 565), "Bundled data: JavaScript/TypeScript • Python", font=SMALL, fill=MUTED)
     footer(draw, "Model v3")
     image.save(ASSETS / "diagnostics.png", optimize=True)
 
