@@ -21,7 +21,8 @@ LANGUAGE_EXTENSIONS = {
 }
 IGNORED_DIRECTORIES = {
     '.git', '.hg', '.svn', '.venv', 'venv', 'node_modules',
-    'dist', 'build', 'out', '__pycache__', 'benchmarks'
+    'dist', 'build', 'out', '__pycache__', 'benchmarks',
+    'test', 'tests', 'fixtures',
 }
 
 

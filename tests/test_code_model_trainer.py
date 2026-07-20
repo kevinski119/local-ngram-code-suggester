@@ -57,6 +57,9 @@ class CodeModelTrainerTests(unittest.TestCase):
 
     def test_ignored_dependency_directories(self):
         self.assertTrue(is_ignored_path(os.path.join('project', 'node_modules', 'file.js')))
+        self.assertTrue(is_ignored_path(os.path.join('project', 'src', 'test', 'file.ts')))
+        self.assertTrue(is_ignored_path(os.path.join('project', 'tests', 'file.py')))
+        self.assertTrue(is_ignored_path(os.path.join('project', 'fixtures', 'sample.js')))
         self.assertFalse(is_ignored_path(os.path.join('project', 'src', 'file.js')))
 
     def test_train_and_save_compressed_model(self):
