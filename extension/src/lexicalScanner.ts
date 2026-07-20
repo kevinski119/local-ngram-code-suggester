@@ -202,7 +202,7 @@ export function scanText(
                 cursor++;
             }
             tokens.push({
-                value: '<NUM>',
+                value: text.slice(start, cursor),
                 normalized: '<NUM>',
                 kind: 'number',
                 start,

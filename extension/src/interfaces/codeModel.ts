@@ -25,6 +25,11 @@ export interface CodeModel {
     token_frequencies?: {
         [extension: string]: { [token: string]: number }
     };
+    member_access?: {
+        [extension: string]: {
+            [receiver: string]: { [member: string]: number }
+        }
+    };
     file_extensions: string[];
     total_patterns: number;
     smoothing?: string;

@@ -10,6 +10,10 @@ Fast, private, comment-aware code completion that runs locally.
 - Comments are excluded from code context and training.
 - Variable-order n-grams with exact backoff instead of model-wide fuzzy scans.
 - Bounded multi-token suggestions with Fast, Balanced, and Quality presets.
+- Focused automatic frequency control and shorter five-token suggestions.
+- Conservative cross-project learning from saved, error-free files. A pattern
+  needs support from multiple projects and never outweighs the bundled model.
+- Receiver-aware API member patterns and useful numeric expressions.
 - Optional local project adaptation and free language-pack support.
 - Local diagnostics with no telemetry.
 
@@ -40,6 +44,14 @@ use a configured trusted catalog. No pack is downloaded without user action.
 Tokenization, completion, project context, and diagnostics stay on your
 machine. Network access is limited to user-initiated pack catalog/download
 operations or explicitly opted-in pack update checks.
+
+Cross-project learning stays in VS Code global storage on this machine. It
+stores hashed project identities, caps each project's contribution, ignores
+files with reported errors, and requires multiple-project support before a
+pattern can be suggested. Learned library identifiers are namespaced by detected
+pip, npm, Java, or .NET imports and activate only when the same dependency is
+present. Run **Local N-Gram: Clear Cross-Project Learning** at any time to erase
+it.
 
 ## Attribution
 

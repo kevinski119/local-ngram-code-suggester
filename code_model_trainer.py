@@ -88,6 +88,7 @@ class CodeNGramModel:
         self.alpha = alpha
         self.vocab = defaultdict(set)
         self.token_frequencies = defaultdict(Counter)
+        self.member_access = defaultdict(lambda: defaultdict(Counter))
         self.normalized_contexts = True
         self.corpus = {
             'sources': ['user-provided'],
@@ -112,6 +113,14 @@ class CodeNGramModel:
         tokens = scan_text(content, ext)['tokens']
         self.vocab[ext].update(token.value for token in tokens)
         self.token_frequencies[ext].update(token.value for token in tokens)
+        for index in range(len(tokens) - 2):
+            receiver, dot, member = tokens[index:index + 3]
+            if (
+                dot.value == '.'
+                and receiver.kind == 'identifier'
+                and member.kind == 'identifier'
+            ):
+                self.member_access[ext][receiver.value][member.value] += 1
         for order in range(self.min_order, self.max_order + 1):
             if len(tokens) < order:
                 continue
@@ -143,11 +152,16 @@ class CodeNGramModel:
         
         serializable_vocab = {}
         serializable_token_frequencies = {}
+        serializable_member_access = {}
         for ext, tokens in sorted(self.vocab.items()):
             serializable_vocab[ext] = sorted(tokens)
             serializable_token_frequencies[ext] = dict(
                 sorted(self.token_frequencies[ext].items())
             )
+            serializable_member_access[ext] = {
+                receiver: dict(sorted(members.items()))
+                for receiver, members in sorted(self.member_access[ext].items())
+            }
         
         return {
             'format_version': self.format_version,
@@ -165,6 +179,7 @@ class CodeNGramModel:
             'tokenizer_profile_version': self.tokenizer_profile_version,
             'vocab': serializable_vocab,
             'token_frequencies': serializable_token_frequencies,
+            'member_access': serializable_member_access,
             'file_extensions': sorted(self.file_extensions),
             'total_patterns': self.total_patterns,
             'smoothing': self.smoothing,
@@ -242,6 +257,10 @@ class CodeNGramModel:
         self.token_frequencies = defaultdict(Counter)
         for ext, counts in data.get('token_frequencies', {}).items():
             self.token_frequencies[ext] = Counter(counts)
+        self.member_access = defaultdict(lambda: defaultdict(Counter))
+        for ext, receivers in data.get('member_access', {}).items():
+            for receiver, members in receivers.items():
+                self.member_access[ext][receiver] = Counter(members)
 
         self.corpus = data.get('corpus', self.corpus)
         

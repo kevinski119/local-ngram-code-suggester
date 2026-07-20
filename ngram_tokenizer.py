@@ -22,6 +22,9 @@ REGEX_PREFIX_TOKENS = {
     '(', '[', '{', ',', ':', ';', '=', '==', '===', '!', '!=', '!==',
     '&&', '||', '?', 'return', 'case', '=>',
 }
+ALLOWED_WORDS_AFTER_CLOSING = {
+    'and', 'else', 'instanceof', 'or', 'throws',
+}
 
 
 with open(PROFILE_PATH, 'r', encoding='utf-8') as profile_file:
@@ -59,6 +62,25 @@ def get_language_profile(language_id_or_extension=None, text=''):
                 return profile
 
     return next(profile for profile in LANGUAGE_PROFILES if profile['id'] == 'typescript')
+
+
+def is_plausible_token_transition(previous_token, next_token, profile_id):
+    """Python parity for the runtime's conservative beam syntax guard."""
+    if previous_token not in {')', ']'}:
+        return True
+    is_word = (
+        bool(next_token)
+        and (next_token[0].isalpha() or next_token[0] in '_$')
+        and all(
+            character.isalnum() or character in '_$-'
+            for character in next_token
+        )
+    )
+    if not is_word:
+        return True
+    if next_token in ALLOWED_WORDS_AFTER_CLOSING:
+        return True
+    return profile_id == 'java' and next_token == 'permits'
 
 
 def _starts_with(text, needle, offset, case_insensitive=False):
@@ -242,7 +264,7 @@ def scan_text(text, language_id_or_extension=None, cursor_offset=None):
                 and text[cursor] in '0123456789ABCDEFabcdef_xXobOB.n'
             ):
                 cursor += 1
-            tokens.append(Token('<NUM>', '<NUM>', 'number', start, cursor))
+            tokens.append(Token(text[start:cursor], '<NUM>', 'number', start, cursor))
             continue
 
         if character in OPERATOR_CHARS:

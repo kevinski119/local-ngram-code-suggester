@@ -19,7 +19,8 @@ export async function run(): Promise<void> {
     for (const command of [
         'codeSuggester.reloadModel',
         'codeSuggester.showDiagnostics',
-        'codeSuggester.manageLanguagePacks'
+        'codeSuggester.manageLanguagePacks',
+        'codeSuggester.clearCrossProjectLearning'
     ]) {
         assert.ok(commands.includes(command), `${command} should be registered`);
     }

@@ -71,6 +71,20 @@ def predict(
         weight = 0.65 ** (max_order - order)
         for token, count in counts.items():
             scores[token] = scores.get(token, 0.0) + (count / total) * weight
+    if len(raw_context) >= 2 and raw_context[-1] == '.':
+        receiver = raw_context[-2]
+        members = (
+            model.get('member_access', {})
+            .get(extension, {})
+            .get(receiver, {})
+        )
+        total = sum(members.values())
+        if total:
+            for token, count in members.items():
+                scores[token] = max(
+                    scores.get(token, 0.0),
+                    0.75 + 0.25 * (count / total),
+                )
     return [
         token
         for token, score in sorted(

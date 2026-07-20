@@ -19,6 +19,32 @@ export function shouldSuppressAfterLineBoundary(
     return currentLinePrefix.trimEnd().endsWith(finalToken);
 }
 
+const ALLOWED_WORDS_AFTER_CLOSING = new Set([
+    'and', 'else', 'instanceof', 'or', 'throws'
+]);
+
+/**
+ * Reject obvious token collisions caused by the compact model not retaining
+ * newlines. Operators and punctuation remain valid after a closing expression,
+ * but an unrelated word cannot be appended directly after `)` or `]`.
+ */
+export function isPlausibleTokenTransition(
+    previousToken: string | undefined,
+    nextToken: string,
+    profileId: string
+): boolean {
+    if (previousToken !== ')' && previousToken !== ']') {
+        return true;
+    }
+    if (!/^[A-Za-z_$][A-Za-z0-9_$-]*$/.test(nextToken)) {
+        return true;
+    }
+    if (ALLOWED_WORDS_AFTER_CLOSING.has(nextToken)) {
+        return true;
+    }
+    return profileId === 'java' && nextToken === 'permits';
+}
+
 export function generateBackoffSuggestions(
     model: CodeModel,
     rawContext: string[],

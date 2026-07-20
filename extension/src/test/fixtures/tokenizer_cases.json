@@ -45,7 +45,7 @@
         "name": "json structure and escaped string",
         "language": "json",
         "text": "{\"url\":\"https://example.test/a//b\",\"enabled\":true,\"count\":42}",
-        "tokens": ["{", "<STR>", ":", "<STR>", ",", "<STR>", ":", "true", ",", "<STR>", ":", "<NUM>", "}"],
+        "tokens": ["{", "<STR>", ":", "<STR>", ",", "<STR>", ":", "true", ",", "<STR>", ":", "42", "}"],
         "normalized": ["{", "<STR>", ":", "<STR>", ",", "<STR>", ":", "true", ",", "<STR>", ":", "<NUM>", "}"]
     },
     {

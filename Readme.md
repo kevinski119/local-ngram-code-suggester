@@ -19,6 +19,14 @@ subscription, telemetry, or mandatory network connection.
 - N-gram orders 2–6 with normalized contexts and exact interpolated backoff.
 - Fast, Balanced, and Quality performance presets.
 - Multi-token inline suggestions with a configurable latency budget.
+- Frequency control and a five-token default cap to keep ghost text focused.
+- Saved, error-free patterns can transfer across projects at low weight only
+  after independent project support; project identities are stored as hashes.
+- External-library identifiers are kept in dependency-specific namespaces, so
+  a project without `pygame` (or the matching npm/Java/.NET dependency) will
+  not receive that library's learned functions.
+- Receiver-aware member completion preserves useful API patterns such as
+  `screen.get_height() / 2` while numeric literals remain structural context.
 - Local model, cache, project, and p95 latency diagnostics.
 - Optional user-initiated language packs with size and SHA-256 verification.
 - Backward-compatible loading of v2 JSON and JSON.gz models.
@@ -72,10 +80,13 @@ packs must document corpus sources and redistribution licenses.
 | `codeSuggester.maxLatencyMs` | `35` | Inline completion computation budget |
 | `codeSuggester.minConfidence` | `0.85` | Hide weak cold-start predictions |
 | `codeSuggester.enableMultiToken` | `true` | Bounded multi-token inline completion |
+| `codeSuggester.maxInlineTokens` | `5` | Maximum length of one ghost-text suggestion |
+| `codeSuggester.suggestionFrequency` | `50` | Automatic suggestion frequency from 0 to 100 |
 | `codeSuggester.suggestInComments` | `false` | Permit code suggestions in comments |
 | `codeSuggester.modelPath` | bundled model | Custom model path |
 | `codeSuggester.useProjectContext` | `true` | Learn from open supported documents |
 | `codeSuggester.updateOnFileChange` | `false` | Re-index documents while editing |
+| `codeSuggester.crossProjectLearning` | `true` | Conservatively retain portable saved patterns |
 | `codeSuggester.languagePacks.autoUpdate` | `false` | Opt into pack update checks |
 | `codeSuggester.languagePacks.catalogUrl` | empty | Trusted optional pack catalog |
 

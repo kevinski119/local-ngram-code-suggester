@@ -20,7 +20,10 @@ BENCHMARK_PATH = ROOT / "benchmarks" / "latest.json"
 sys.path.insert(0, str(ROOT))
 
 from benchmarks.run_benchmark import predict  # noqa: E402
-from ngram_tokenizer import scan_text  # noqa: E402
+from ngram_tokenizer import (  # noqa: E402
+    is_plausible_token_transition,
+    scan_text,
+)
 
 
 WIDTH, HEIGHT = 1200, 675
@@ -144,7 +147,12 @@ def actual_completion(model: dict) -> str:
     normalized = [token.normalized for token in scan["tokens"]]
     generated: list[str] = []
     for _ in range(4):
-        choices = predict(model, ".py", raw, normalized, 1)
+        choices = predict(model, ".py", raw, normalized, 5)
+        previous = generated[-1] if generated else raw[-1]
+        choices = [
+            token for token in choices
+            if is_plausible_token_transition(previous, token, 'python')
+        ]
         if not choices:
             break
         token = choices[0]

@@ -12,9 +12,15 @@ import { CodeModel } from '../interfaces/codeModel';
 import {
     formatTokenSequence,
     generateBackoffSuggestions,
+    isPlausibleTokenTransition,
     shouldSuppressAfterLineBoundary
 } from '../ngramEngine';
 import { computeModelChecksum, verifyModelChecksum } from '../modelIntegrity';
+import { shouldOfferAutomaticSuggestion } from '../suggestionPolicy';
+import {
+    CrossProjectLearningModel,
+    detectExternalLibraries
+} from '../crossProjectLearningModel';
 import tokenizerCases from './fixtures/tokenizer_cases.json';
 
 type TestCase = {
@@ -28,7 +34,7 @@ const tests: TestCase[] = [
         run: () => {
             assert.deepEqual(
                 tokenizeText('const answer = call("hello", 42);'),
-                ['const', 'answer', '=', 'call', '(', '<STR>', ',', '<NUM>', ')', ';']
+                ['const', 'answer', '=', 'call', '(', '<STR>', ',', '42', ')', ';']
             );
         }
     },
@@ -187,6 +193,99 @@ const tests: TestCase[] = [
                 ['.py']
             );
             assert.equal(suggestions[0].token, '(');
+        }
+    },
+    {
+        name: 'isolates learned pip-library identifiers from unrelated projects',
+        run: () => {
+            const state = new Map<string, unknown>();
+            const store = {
+                get<T>(key: string, fallback: T): T {
+                    return (state.get(key) as T | undefined) ?? fallback;
+                },
+                update(key: string, value: unknown): Promise<void> {
+                    state.set(key, value);
+                    return Promise.resolve();
+                }
+            };
+            const learned = new CrossProjectLearningModel(store);
+            const code = 'import pygame\n' +
+                'height = screen.get_height()\n' +
+                'center = screen.get_height() / 2\n';
+            void learned.observe(code, 'python', '.py', 'project-a');
+            void learned.observe(code, 'python', '.py', 'project-b');
+            assert.deepEqual(detectExternalLibraries(code, 'python'), ['pygame']);
+            assert.deepEqual(
+                learned.generateSuggestions(
+                    ['<ID>', '.'],
+                    ['.py'],
+                    'project-c',
+                    5
+                ),
+                []
+            );
+            assert.equal(
+                learned.generateSuggestions(
+                    ['<ID>', '.'],
+                    ['.py'],
+                    'project-c',
+                    5,
+                    ['pygame']
+                )[0]?.token,
+                'get_height'
+            );
+        }
+    },
+    {
+        name: 'promotes learned patterns only after multiple projects support them',
+        run: () => {
+            const state = new Map<string, unknown>();
+            const store = {
+                get<T>(key: string, fallback: T): T {
+                    return (state.get(key) as T | undefined) ?? fallback;
+                },
+                update(key: string, value: unknown): Promise<void> {
+                    state.set(key, value);
+                    return Promise.resolve();
+                }
+            };
+            const learned = new CrossProjectLearningModel(store);
+            const code = 'center = screen.get_height() / 2\n' +
+                'bottom = screen.get_height() - 10\n';
+            void learned.observe(code, 'python', '.py', 'project-a');
+            assert.deepEqual(
+                learned.generateSuggestions(['<ID>', '.'], ['.py'], 'project-c', 5),
+                []
+            );
+            void learned.observe(code, 'python', '.py', 'project-b');
+            const suggestions = learned.generateSuggestions(
+                ['<ID>', '.'],
+                ['.py'],
+                'project-c',
+                5
+            );
+            assert.equal(suggestions[0]?.token, 'get_height');
+            assert.equal(suggestions[0]?.source, 'learned');
+        }
+    },
+    {
+        name: 'controls automatic suggestion frequency independently of confidence',
+        run: () => {
+            assert.equal(shouldOfferAutomaticSuggestion('value.', 20), true);
+            assert.equal(shouldOfferAutomaticSuggestion('val', 50), true);
+            assert.equal(shouldOfferAutomaticSuggestion('va', 50), false);
+            assert.equal(shouldOfferAutomaticSuggestion('anything', 0), false);
+            assert.equal(shouldOfferAutomaticSuggestion('x', 100), true);
+        }
+    },
+    {
+        name: 'rejects implausible words after closing expressions',
+        run: () => {
+            assert.equal(isPlausibleTokenTransition(')', 'if', 'python'), false);
+            assert.equal(isPlausibleTokenTransition(')', ':', 'python'), true);
+            assert.equal(isPlausibleTokenTransition(')', 'throws', 'java'), true);
+            assert.equal(isPlausibleTokenTransition(']', 'property', 'json'), false);
+            assert.equal(isPlausibleTokenTransition(']', ',', 'json'), true);
         }
     },
     {

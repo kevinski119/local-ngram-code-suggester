@@ -98,7 +98,7 @@ class CodeModelTrainerTests(unittest.TestCase):
             extensions,
             {'.cs', '.java', '.js', '.json', '.py', '.ts'},
         )
-        self.assertGreaterEqual(len(samples), 100)
+        self.assertGreaterEqual(len(samples), 250)
 
         model = CodeNGramModel(n=3)
         for extension, content in samples:
@@ -106,6 +106,10 @@ class CodeModelTrainerTests(unittest.TestCase):
         self.assertGreater(model.total_patterns, 40000)
         self.assertGreater(model.token_frequencies['.java']['return'], 0)
         self.assertGreater(model.token_frequencies['.json'][':'], 0)
+        self.assertGreater(
+            model.member_access['.py']['screen']['get_height'],
+            0,
+        )
 
 
 if __name__ == '__main__':

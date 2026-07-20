@@ -63,6 +63,7 @@
         "onCommand:codeSuggester.showDiagnostics",
         "onCommand:codeSuggester.clearProjectContext",
         "onCommand:codeSuggester.reloadProjectContext",
+        "onCommand:codeSuggester.clearCrossProjectLearning",
         "onCommand:codeSuggester.manageLanguagePacks",
         "onCommand:codeSuggester.checkLanguagePackUpdates"
     ],
@@ -117,6 +118,20 @@
                     "default": true,
                     "description": "Generate bounded multi-token inline completions"
                 },
+                "codeSuggester.maxInlineTokens": {
+                    "type": "number",
+                    "default": 5,
+                    "minimum": 1,
+                    "maximum": 12,
+                    "description": "Maximum tokens in one inline suggestion; lower values keep ghost text shorter"
+                },
+                "codeSuggester.suggestionFrequency": {
+                    "type": "number",
+                    "default": 50,
+                    "minimum": 0,
+                    "maximum": 100,
+                    "description": "How frequently automatic inline suggestions appear (0 = only manual requests, 100 = whenever qualified)"
+                },
                 "codeSuggester.suggestInComments": {
                     "type": "boolean",
                     "default": false,
@@ -162,6 +177,11 @@
                     "default": false,
                     "description": "Update project model when files are modified (may impact performance)"
                 },
+                "codeSuggester.crossProjectLearning": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Learn low-weight portable patterns from saved, error-free files; patterns are promoted only after support from multiple projects"
+                },
                 "codeSuggester.languagePacks.autoUpdate": {
                     "type": "boolean",
                     "default": false,
@@ -201,6 +221,11 @@
                 "category": "Local N-Gram"
             },
             {
+                "command": "codeSuggester.clearCrossProjectLearning",
+                "title": "Local N-Gram: Clear Cross-Project Learning",
+                "category": "Local N-Gram"
+            },
+            {
                 "command": "codeSuggester.manageLanguagePacks",
                 "title": "Local N-Gram: Manage Language Packs",
                 "category": "Local N-Gram"
@@ -231,6 +256,10 @@
                 },
                 {
                     "command": "codeSuggester.showDiagnostics",
+                    "when": "true"
+                },
+                {
+                    "command": "codeSuggester.clearCrossProjectLearning",
                     "when": "true"
                 },
                 {

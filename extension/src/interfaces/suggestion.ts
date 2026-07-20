@@ -1,7 +1,7 @@
 export interface Suggestion {
     token: string;
     confidence: number;
-    source?: 'global' | 'project'; // Suggest source
+    source?: 'global' | 'project' | 'learned';
     order?: number;
     prefix?: string;
 }

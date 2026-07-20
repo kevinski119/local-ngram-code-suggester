@@ -7,6 +7,10 @@ Before opening an issue:
 3. Include VS Code, extension, operating-system, and model-format versions.
 4. Include a minimal code example with private identifiers removed.
 
+If learned behavior appears incorrect, run **Local N-Gram: Clear Cross-Project
+Learning** and include whether the issue also occurs with cross-project learning
+disabled.
+
 Do not attach proprietary source code or private model files.
 
 Open support requests in the

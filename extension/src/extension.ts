@@ -60,6 +60,8 @@ export async function activate(
         output.appendLine(`Cache hit rate: ${(diagnostics.cacheHitRate * 100).toFixed(1)}%`);
         output.appendLine(`Cache entries: ${diagnostics.cacheEntries}`);
         output.appendLine(`Project files: ${diagnostics.projectFiles}`);
+        output.appendLine(`Cross-project learned contexts: ${diagnostics.learnedContexts}`);
+        output.appendLine(`Cross-project support projects: ${diagnostics.learnedProjects}`);
         output.appendLine(`Installed language packs: ${packs.length}`);
         for (const pack of packs) {
             output.appendLine(`  - ${pack.name} ${pack.version} (${pack.languages.join(', ')})`);
@@ -123,6 +125,15 @@ export async function activate(
             vscode.window.showInformationMessage('Local project context rebuilt from open files.');
             updateStatus();
         }),
+        vscode.commands.registerCommand(
+            'codeSuggester.clearCrossProjectLearning',
+            guarded(async () => {
+                await suggester.clearCrossProjectLearning();
+                vscode.window.showInformationMessage(
+                    'Cross-project learning history cleared.'
+                );
+            })
+        ),
         vscode.commands.registerCommand(
             'codeSuggester.manageLanguagePacks',
             guarded(() => packManager.manage())

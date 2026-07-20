@@ -11,6 +11,10 @@ DOMAINS = [
     'Event', 'Invoice', 'Message', 'Order', 'Payment', 'Product',
     'Profile', 'Project', 'Report', 'Session', 'Task', 'Team',
     'Token', 'User', 'Workflow', 'Workspace', 'Notification', 'Subscription',
+    'Address', 'Appointment', 'Asset', 'Comment', 'Config', 'Connection',
+    'Contact', 'Dashboard', 'Device', 'File', 'Group', 'Job', 'Log', 'Metric',
+    'Permission', 'Queue', 'Resource', 'Role', 'Rule', 'Schedule', 'Search',
+    'Setting', 'Status', 'Transaction',
 ]
 
 
@@ -262,6 +266,30 @@ public sealed class {name}Service
 """
 
 
+def _pygame_sample(index):
+    offset = index * 8
+    return f"""
+import pygame
+
+def layout_sprite(screen: pygame.Surface, sprite: pygame.Surface) -> tuple[int, int]:
+    screen_width = screen.get_width()
+    screen_height = screen.get_height()
+    sprite_width = sprite.get_width()
+    sprite_height = sprite.get_height()
+    center_x = screen.get_width() / 2
+    center_y = screen.get_height() / 2
+    left = center_x - sprite.get_width() / 2 + {offset}
+    top = center_y - sprite.get_height() / 2
+    return int(left), int(top)
+
+def current_surface_size() -> tuple[int, int]:
+    surface = pygame.display.get_surface()
+    if surface is None:
+        return 0, 0
+    return surface.get_width(), surface.get_height()
+"""
+
+
 def iter_starter_samples():
     """Yield (extension, generated source) pairs in a stable order."""
     for index, name in enumerate(DOMAINS):
@@ -272,3 +300,5 @@ def iter_starter_samples():
         if index % 2 == 0:
             yield '.js', _javascript_sample(name)
             yield '.cs', _csharp_sample(name)
+    for index in range(16):
+        yield '.py', _pygame_sample(index)
