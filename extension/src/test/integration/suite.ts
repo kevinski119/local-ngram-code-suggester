@@ -45,6 +45,19 @@ export async function run(): Promise<void> {
         )
     );
 
+    const completedPythonBoundary = await vscode.workspace.openTextDocument({
+        language: 'python',
+        content: 'if isinstance(value, float) and value.is_integer():'
+    });
+    assert.deepEqual(
+        api.getInlineSuggestions(
+            completedPythonBoundary,
+            completedPythonBoundary.positionAt(completedPythonBoundary.getText().length)
+        ),
+        [],
+        'an accepted block boundary should not trigger another completion on the same line'
+    );
+
     const untitledPython = await vscode.workspace.openTextDocument({
         language: 'plaintext',
         content: '#!/usr/bin/env python3\nreturn'

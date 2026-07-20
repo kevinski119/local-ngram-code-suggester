@@ -9,7 +9,11 @@ import { Suggestion } from './interfaces/suggestion';
 import { normalizeToken, scanText } from './lexicalScanner';
 import { getLanguageProfile } from './languageProfiles';
 import { verifyModelChecksum } from './modelIntegrity';
-import { formatTokenSequence, generateBackoffSuggestions } from './ngramEngine';
+import {
+    formatTokenSequence,
+    generateBackoffSuggestions,
+    shouldSuppressAfterLineBoundary
+} from './ngramEngine';
 import { InstalledPack, PACK_STATE_KEY } from './packTypes';
 import { ProjectContextModel } from './projectContextModel';
 import {
@@ -392,6 +396,17 @@ export class CodeSuggester implements vscode.Disposable {
         const raw = scan.tokens.map(token => token.value);
         const normalized = scan.tokens.map(token => token.normalized);
         const finalToken = scan.tokens.at(-1);
+        const currentLinePrefix = document.lineAt(position.line).text.slice(0, position.character);
+        const profile = getLanguageProfile(document.languageId, text);
+        if (
+            shouldSuppressAfterLineBoundary(
+                currentLinePrefix,
+                finalToken?.value,
+                profile.statementBoundaries
+            )
+        ) {
+            return [];
+        }
         const activePrefix = finalToken?.kind === 'identifier' && finalToken.end === text.length
             ? finalToken.value
             : undefined;

@@ -9,7 +9,11 @@ import {
 } from '../utils/utils';
 import { scanText } from '../lexicalScanner';
 import { CodeModel } from '../interfaces/codeModel';
-import { formatTokenSequence, generateBackoffSuggestions } from '../ngramEngine';
+import {
+    formatTokenSequence,
+    generateBackoffSuggestions,
+    shouldSuppressAfterLineBoundary
+} from '../ngramEngine';
 import { computeModelChecksum, verifyModelChecksum } from '../modelIntegrity';
 import tokenizerCases from './fixtures/tokenizer_cases.json';
 
@@ -183,6 +187,28 @@ const tests: TestCase[] = [
                 ['.py']
             );
             assert.equal(suggestions[0].token, '(');
+        }
+    },
+    {
+        name: 'pauses suggestions after a statement boundary on the current line',
+        run: () => {
+            const boundaries = [':', ';', '{', '}'];
+            assert.equal(
+                shouldSuppressAfterLineBoundary('    if value.is_integer():', ':', boundaries),
+                true
+            );
+            assert.equal(
+                shouldSuppressAfterLineBoundary('    if value.is_integer():   ', ':', boundaries),
+                true
+            );
+            assert.equal(
+                shouldSuppressAfterLineBoundary('', ':', boundaries),
+                false
+            );
+            assert.equal(
+                shouldSuppressAfterLineBoundary('    return value', ':', boundaries),
+                false
+            );
         }
     },
     {

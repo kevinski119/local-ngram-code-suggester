@@ -2,6 +2,23 @@ import { CodeModel } from './interfaces/codeModel';
 import { Suggestion } from './interfaces/suggestion';
 import { serializeContext } from './utils/utils';
 
+/**
+ * A boundary at the end of the current physical line is a signal for the user
+ * to move to the next line. Without this guard, a fresh provider request after
+ * accepting a completion such as `if ready:` can append the model's next
+ * statement directly after the colon.
+ */
+export function shouldSuppressAfterLineBoundary(
+    currentLinePrefix: string,
+    finalToken: string | undefined,
+    statementBoundaries: readonly string[]
+): boolean {
+    if (!finalToken || !statementBoundaries.includes(finalToken)) {
+        return false;
+    }
+    return currentLinePrefix.trimEnd().endsWith(finalToken);
+}
+
 export function generateBackoffSuggestions(
     model: CodeModel,
     rawContext: string[],
