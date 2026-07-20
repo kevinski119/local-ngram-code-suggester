@@ -1,10 +1,11 @@
 {
-  "observations": 93,
-  "coverage": 0.978494623655914,
-  "top1_accuracy": 0.34408602150537637,
-  "top3_accuracy": 0.5376344086021505,
-  "mrr": 0.4336917562724015,
-  "mean_latency_ms": 0.03301182881333134,
-  "p95_latency_ms": 0.0678000069456175,
-  "max_latency_ms": 0.10439999459777027
+  "observations": 272,
+  "coverage": 0.7463235294117647,
+  "top1_accuracy": 0.5514705882352942,
+  "top3_accuracy": 0.5735294117647058,
+  "mrr": 0.5625,
+  "mean_latency_ms": 0.0382981621335014,
+  "p95_latency_ms": 0.08709999383427203,
+  "max_latency_ms": 0.20429999858606607,
+  "min_confidence": 0.85
 }

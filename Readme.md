@@ -116,7 +116,7 @@ accuracy and latency regressions. Missing predictions count as zero.
 | Engine | Coverage | Top-1 | Top-3 | MRR | Lookup p95 |
 | --- | ---: | ---: | ---: | ---: | ---: |
 | v1.2 fixed-order baseline | 8.6% | 4.3% | 5.4% | 0.048 | 0.006 ms |
-| v2 variable-order backoff | 97.8% | 36.6% | 54.8% | 0.448 | 0.084 ms |
+| v2.1 Quality (`0.85` gate) | 74.6% | 55.1% | 57.4% | 0.563 | 0.087 ms |
 
 Results: [v1.2 baseline](benchmarks/v1.2-baseline.json) and
 [current v2](benchmarks/latest.json). Public quality claims must additionally
