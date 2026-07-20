@@ -108,6 +108,11 @@ export class CodeSuggester implements vscode.Disposable {
             const loadedModels: LoadedModel[] = [
                 { model, source: resolvedPath, custom: hasCustomModelPath }
             ];
+            const displaySources = [
+                hasCustomModelPath
+                    ? `Custom model: ${path.basename(resolvedPath)}`
+                    : 'Bundled starter model'
+            ];
             for (const pack of this.context.globalState.get<InstalledPack[]>(PACK_STATE_KEY, [])) {
                 if (!fs.existsSync(pack.path) || path.resolve(pack.path) === path.resolve(resolvedPath)) {
                     continue;
@@ -116,6 +121,7 @@ export class CodeSuggester implements vscode.Disposable {
                     const packModel = await this.readModelFile(pack.path);
                     this.validateModel(packModel);
                     loadedModels.push({ model: packModel, source: pack.path, custom: false });
+                    displaySources.push(`Language pack: ${pack.name} ${pack.version}`);
                 } catch (error) {
                     console.warn(`Skipping invalid language pack ${pack.id}:`, error);
                 }
@@ -127,7 +133,7 @@ export class CodeSuggester implements vscode.Disposable {
             this.model = model;
             this.loadedModels = loadedModels;
             this.rebuildPrefixIndex();
-            this.modelSource = loadedModels.map(item => item.source).join('; ');
+            this.modelSource = displaySources.join('; ');
             this.isModelLoaded = true;
             this.loadTimeMs = performance.now() - started;
             this.suggestionCache.clear();

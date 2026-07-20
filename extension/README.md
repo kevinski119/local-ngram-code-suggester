@@ -18,6 +18,18 @@ Supported profiles: C#, JavaScript, TypeScript, Python, JSX/TSX, Vue, and Razor.
 Source, releases, and issue tracking:
 [kevinski119/local-ngram-code-suggester](https://github.com/kevinski119/local-ngram-code-suggester).
 
+## Offline model demo
+
+The following animation is a deterministic Pillow-rendered editor simulation.
+Its completion is queried from the bundled n-gram model; it is not an API
+response or a recording containing personal desktop data.
+
+![Offline n-gram completion demo](https://raw.githubusercontent.com/kevinski119/local-ngram-code-suggester/main/extension/assets/marketplace/completion-demo.gif)
+
+![Local model diagnostics](https://raw.githubusercontent.com/kevinski119/local-ngram-code-suggester/main/extension/assets/marketplace/diagnostics.png)
+
+![Free language-pack manager](https://raw.githubusercontent.com/kevinski119/local-ngram-code-suggester/main/extension/assets/marketplace/pack-manager.png)
+
 Run **Local N-Gram: Show Model Diagnostics** to inspect the active model and
 latency. Run **Local N-Gram: Manage Language Packs** to import a local pack or
 use a configured trusted catalog. No pack is downloaded without user action.
