@@ -1,0 +1,77 @@
+{
+    "version": "1.0",
+    "profiles": [
+        {
+            "id": "csharp",
+            "languageIds": ["csharp", "razor", "aspnetcorerazor"],
+            "extensions": [".cs", ".cshtml"],
+            "lineComments": ["//"],
+            "blockComments": [
+                {"start": "/*", "end": "*/"},
+                {"start": "@*", "end": "*@"},
+                {"start": "<!--", "end": "-->"}
+            ],
+            "strings": [
+                {"start": "$@\"", "end": "\"", "escape": "\"\"", "multiline": true},
+                {"start": "@\"", "end": "\"", "escape": "\"\"", "multiline": true},
+                {"start": "$\"\"\"", "end": "\"\"\"", "multiline": true},
+                {"start": "\"\"\"", "end": "\"\"\"", "multiline": true},
+                {"start": "$\"", "end": "\"", "escape": "\\"},
+                {"start": "\"", "end": "\"", "escape": "\\"},
+                {"start": "'", "end": "'", "escape": "\\"}
+            ],
+            "statementBoundaries": [";", "{", "}"],
+            "keywords": ["abstract", "as", "async", "await", "base", "bool", "break", "case", "catch", "class", "const", "continue", "decimal", "default", "delegate", "do", "double", "else", "enum", "event", "explicit", "extern", "false", "finally", "fixed", "float", "for", "foreach", "from", "get", "if", "implicit", "in", "int", "interface", "internal", "is", "lock", "long", "namespace", "new", "null", "object", "operator", "out", "override", "params", "partial", "private", "protected", "public", "readonly", "record", "ref", "required", "return", "sbyte", "sealed", "set", "short", "sizeof", "stackalloc", "static", "string", "struct", "switch", "this", "throw", "true", "try", "typeof", "uint", "ulong", "unchecked", "unsafe", "ushort", "using", "var", "virtual", "void", "volatile", "while", "with", "yield"],
+            "embeddedRegions": [{"host": "razor", "start": "@{", "end": "}"}]
+        },
+        {
+            "id": "javascript",
+            "languageIds": ["javascript", "javascriptreact"],
+            "extensions": [".js", ".jsx"],
+            "lineComments": ["//"],
+            "blockComments": [{"start": "/*", "end": "*/"}],
+            "strings": [
+                {"start": "`", "end": "`", "escape": "\\", "multiline": true},
+                {"start": "\"", "end": "\"", "escape": "\\"},
+                {"start": "'", "end": "'", "escape": "\\"}
+            ],
+            "statementBoundaries": [";", "{", "}"],
+            "keywords": ["async", "await", "break", "case", "catch", "class", "const", "continue", "debugger", "default", "delete", "do", "else", "export", "extends", "false", "finally", "for", "from", "function", "get", "if", "import", "in", "instanceof", "let", "new", "null", "of", "return", "set", "static", "super", "switch", "this", "throw", "true", "try", "typeof", "undefined", "var", "void", "while", "with", "yield"]
+        },
+        {
+            "id": "typescript",
+            "languageIds": ["typescript", "typescriptreact", "vue"],
+            "extensions": [".ts", ".tsx", ".vue"],
+            "lineComments": ["//"],
+            "blockComments": [{"start": "/*", "end": "*/"}, {"start": "<!--", "end": "-->"}],
+            "strings": [
+                {"start": "`", "end": "`", "escape": "\\", "multiline": true},
+                {"start": "\"", "end": "\"", "escape": "\\"},
+                {"start": "'", "end": "'", "escape": "\\"}
+            ],
+            "statementBoundaries": [";", "{", "}"],
+            "keywords": ["abstract", "any", "as", "asserts", "async", "await", "boolean", "break", "case", "catch", "class", "const", "constructor", "continue", "declare", "default", "delete", "do", "else", "enum", "export", "extends", "false", "finally", "for", "from", "function", "get", "if", "implements", "import", "in", "infer", "instanceof", "interface", "is", "keyof", "let", "module", "namespace", "never", "new", "null", "number", "object", "of", "private", "protected", "public", "readonly", "return", "set", "static", "string", "super", "switch", "symbol", "this", "throw", "true", "try", "type", "typeof", "undefined", "unique", "unknown", "var", "void", "while", "with", "yield"],
+            "embeddedRegions": [{"host": "vue", "start": "<script", "startEnd": ">", "end": "</script>"}]
+        },
+        {
+            "id": "python",
+            "languageIds": ["python"],
+            "extensions": [".py"],
+            "lineComments": ["#"],
+            "blockComments": [],
+            "strings": [
+                {"start": "f\"\"\"", "end": "\"\"\"", "escape": "\\", "multiline": true, "caseInsensitive": true},
+                {"start": "f'''", "end": "'''", "escape": "\\", "multiline": true, "caseInsensitive": true},
+                {"start": "\"\"\"", "end": "\"\"\"", "escape": "\\", "multiline": true},
+                {"start": "'''", "end": "'''", "escape": "\\", "multiline": true},
+                {"start": "f\"", "end": "\"", "escape": "\\", "caseInsensitive": true},
+                {"start": "f'", "end": "'", "escape": "\\", "caseInsensitive": true},
+                {"start": "\"", "end": "\"", "escape": "\\"},
+                {"start": "'", "end": "'", "escape": "\\"}
+            ],
+            "statementBoundaries": [":", ";"],
+            "keywords": ["False", "None", "True", "and", "as", "assert", "async", "await", "break", "case", "class", "continue", "def", "del", "elif", "else", "except", "finally", "for", "from", "global", "if", "import", "in", "is", "lambda", "match", "nonlocal", "not", "or", "pass", "raise", "return", "try", "while", "with", "yield"],
+            "shebangs": ["python", "python3"]
+        }
+    ]
+}

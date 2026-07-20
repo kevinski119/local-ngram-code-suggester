@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  validate:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: extension
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: extension/package-lock.json
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: npm ci
+      - run: npm test
+      - name: Extension Host tests
+        if: runner.os != 'Linux'
+        run: npm run test:integration
+      - name: Extension Host tests (Linux)
+        if: runner.os == 'Linux'
+        run: xvfb-run -a npm run test:integration
+      - name: Python trainer tests
+        working-directory: .
+        run: python -m unittest discover -s tests -v
+      - name: Offline benchmark
+        working-directory: .
+        run: python benchmarks/run_benchmark.py --baseline benchmarks/v1.2-baseline.json
+      - run: npm run package
+      - name: Clean-profile VSIX installation
+        run: npm run test:vsix
+      - name: Validate VSIX payload
+        working-directory: .
+        shell: python
+        run: |
+          import gzip, io, json, pathlib, zipfile
+          vsix = next(pathlib.Path("extension").glob("local-ngram-code-suggester-*.vsix"))
+          with zipfile.ZipFile(vsix) as archive:
+              manifest = json.loads(archive.read("extension/package.json"))
+              model = json.load(gzip.open(io.BytesIO(
+                  archive.read("extension/models/model.json.gz")
+              ), "rt", encoding="utf-8"))
+              assert manifest["name"] == "local-ngram-code-suggester"
+              assert model["format_version"] == 3
+              assert model["total_patterns"] > 0
+      - uses: actions/upload-artifact@v4
+        if: runner.os == 'Linux'
+        with:
+          name: local-ngram-code-suggester-vsix
+          path: extension/*.vsix

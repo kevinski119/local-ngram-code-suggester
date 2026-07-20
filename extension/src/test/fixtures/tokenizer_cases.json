@@ -1,0 +1,37 @@
+[
+    {
+        "name": "typescript comments and URL string",
+        "language": "typescript",
+        "text": "const url = \"https://example.test/a//b\"; // ignored\nreturn url;",
+        "tokens": ["const", "url", "=", "<STR>", ";", "return", "url", ";"],
+        "normalized": ["const", "<ID>", "=", "<STR>", ";", "return", "<ID>", ";"]
+    },
+    {
+        "name": "javascript regex and block comment",
+        "language": "javascript",
+        "text": "const matcher = /https?:\\/\\/[^/]+/gi; /* ignored */ return matcher;",
+        "tokens": ["const", "matcher", "=", "<STR>", ";", "return", "matcher", ";"],
+        "normalized": ["const", "<ID>", "=", "<STR>", ";", "return", "<ID>", ";"]
+    },
+    {
+        "name": "python triple string and comment",
+        "language": "python",
+        "text": "value = \"\"\"not # a comment\"\"\" # ignored\nreturn value",
+        "tokens": ["value", "=", "<STR>", "return", "value"],
+        "normalized": ["<ID>", "=", "<STR>", "return", "<ID>"]
+    },
+    {
+        "name": "csharp raw string and Razor comment",
+        "language": "csharp",
+        "text": "var text = \"\"\"not // a comment\"\"\"; @* ignored *@ return text;",
+        "tokens": ["var", "text", "=", "<STR>", ";", "return", "text", ";"],
+        "normalized": ["var", "<ID>", "=", "<STR>", ";", "return", "<ID>", ";"]
+    },
+    {
+        "name": "vue script region",
+        "language": "vue",
+        "text": "<template><!-- ignored --><p>Hello</p></template><script lang=\"ts\">const value = \"//\"; // ignored\nreturn value;</script>",
+        "tokens": ["const", "value", "=", "<STR>", ";", "return", "value", ";"],
+        "normalized": ["const", "<ID>", "=", "<STR>", ";", "return", "<ID>", ";"]
+    }
+]

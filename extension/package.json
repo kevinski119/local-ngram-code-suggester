@@ -1,0 +1,276 @@
+{
+    "name": "local-ngram-code-suggester",
+    "displayName": "Local N-Gram Code Suggester",
+    "description": "Fast, private, comment-aware local code completion with adaptive n-gram models",
+    "version": "2.0.0",
+    "publisher": "pending-publisher-id",
+    "author": {
+        "name": "Local N-Gram contributors"
+    },
+    "contributors": [
+        {
+            "name": "Klabukov Erik",
+            "url": "https://github.com/amest/vscode-ngram-code-suggester"
+        }
+    ],
+    "icon": "assets/icon.png",
+    "engines": {
+        "vscode": "^1.85.0"
+    },
+    "categories": [
+        "Programming Languages",
+        "Machine Learning",
+        "Snippets"
+    ],
+    "keywords": [
+        "autocomplete",
+        "code completion",
+        "offline",
+        "local",
+        "private",
+        "free",
+        "suggestions",
+        "n-gram",
+        "C#",
+        "Python",
+        "JavaScript",
+        "TypeScript"
+    ],
+    "galleryBanner": {
+        "color": "#1e1e1e",
+        "theme": "dark"
+    },
+    "pricing": "Free",
+    "qna": "marketplace",
+    "activationEvents": [
+        "onLanguage:csharp",
+        "onLanguage:javascript",
+        "onLanguage:javascriptreact",
+        "onLanguage:typescript",
+        "onLanguage:typescriptreact",
+        "onLanguage:python",
+        "onLanguage:vue",
+        "onLanguage:razor",
+        "onLanguage:aspnetcorerazor",
+        "onLanguage:plaintext",
+        "onCommand:codeSuggester.reloadModel",
+        "onCommand:codeSuggester.showStatus",
+        "onCommand:codeSuggester.showDiagnostics",
+        "onCommand:codeSuggester.clearProjectContext",
+        "onCommand:codeSuggester.reloadProjectContext",
+        "onCommand:codeSuggester.manageLanguagePacks",
+        "onCommand:codeSuggester.checkLanguagePackUpdates"
+    ],
+    "main": "./out/extension.js",
+    "contributes": {
+        "configuration": {
+            "title": "Code Suggester",
+            "properties": {
+                "codeSuggester.modelPath": {
+                    "type": "string",
+                    "default": "./models/model.json.gz",
+                    "scope": "resource",
+                    "description": "Absolute path, or workspace/extension-relative path, to a .json or .json.gz model"
+                },
+                "codeSuggester.enableInlineSuggestions": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Show inline (ghost text) suggestions"
+                },
+                "codeSuggester.enableCompletionList": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Show suggestions in the IntelliSense completion list"
+                },
+                "codeSuggester.maxSuggestions": {
+                    "type": "number",
+                    "default": 5,
+                    "description": "Maximum number of suggestions to show",
+                    "minimum": 1,
+                    "maximum": 10
+                },
+                "codeSuggester.performancePreset": {
+                    "type": "string",
+                    "enum": ["fast", "balanced", "quality"],
+                    "enumDescriptions": [
+                        "Single-token suggestions with the smallest latency budget",
+                        "Short multi-token suggestions within the configured latency budget",
+                        "A wider beam and longer suggestions with a larger latency budget"
+                    ],
+                    "default": "balanced",
+                    "description": "Completion quality and latency preset"
+                },
+                "codeSuggester.maxLatencyMs": {
+                    "type": "number",
+                    "default": 35,
+                    "minimum": 5,
+                    "maximum": 250,
+                    "description": "Soft computation budget for an inline completion"
+                },
+                "codeSuggester.enableMultiToken": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Generate bounded multi-token inline completions"
+                },
+                "codeSuggester.suggestInComments": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Allow code suggestions while the cursor is inside a comment"
+                },
+                "codeSuggester.maxFuzzyChecks": {
+                    "type": "number",
+                    "description": "Maximum number of model contexts checked during fuzzy search",
+                    "default": 2000,
+                    "minimum": 1000
+                },
+                "codeSuggester.minConfidence": {
+                    "type": "number",
+                    "default": 0.2,
+                    "description": "Minimum confidence threshold for suggestions (0.0 - 1.0)",
+                    "minimum": 0.0,
+                    "maximum": 1.0
+                },
+                "codeSuggester.enableFuzzyMatching": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Legacy setting retained for compatibility",
+                    "deprecationMessage": "Model v3 uses exact variable-order backoff instead of full-model fuzzy scans."
+                },
+                "codeSuggester.useSmoothing": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Legacy setting retained for compatibility",
+                    "deprecationMessage": "Model v3 uses interpolated backoff automatically."
+                },
+                "codeSuggester.useTriggerCharacters": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Only compute inline suggestions after one of: . , space ( ) = { [ : ;"
+                },
+                "codeSuggester.useProjectContext": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Use project context from open files for suggestions"
+                },
+                "codeSuggester.updateOnFileChange": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Update project model when files are modified (may impact performance)"
+                },
+                "codeSuggester.languagePacks.autoUpdate": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Check for updates after a language pack has been explicitly installed"
+                },
+                "codeSuggester.languagePacks.catalogUrl": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Optional HTTPS URL of a trusted language-pack catalog"
+                }
+            }
+        },
+        "commands": [
+            {
+                "command": "codeSuggester.reloadModel",
+                "title": "Local N-Gram: Reload Model",
+                "category": "Local N-Gram"
+            },
+            {
+                "command": "codeSuggester.showStatus",
+                "title": "Local N-Gram: Show Status",
+                "category": "Local N-Gram"
+            },
+            {
+                "command": "codeSuggester.clearProjectContext",
+                "title": "Local N-Gram: Clear Project Context",
+                "category": "Local N-Gram"
+            },
+            {
+                "command": "codeSuggester.reloadProjectContext",
+                "title": "Local N-Gram: Reload Project Context",
+                "category": "Local N-Gram"
+            },
+            {
+                "command": "codeSuggester.showDiagnostics",
+                "title": "Local N-Gram: Show Model Diagnostics",
+                "category": "Local N-Gram"
+            },
+            {
+                "command": "codeSuggester.manageLanguagePacks",
+                "title": "Local N-Gram: Manage Language Packs",
+                "category": "Local N-Gram"
+            },
+            {
+                "command": "codeSuggester.checkLanguagePackUpdates",
+                "title": "Local N-Gram: Check for Language Pack Updates",
+                "category": "Local N-Gram"
+            }
+        ],
+        "menus": {
+            "command-palette": [
+                {
+                    "command": "codeSuggester.reloadModel",
+                    "when": "true"
+                },
+                {
+                    "command": "codeSuggester.showStatus",
+                    "when": "true"
+                },
+                {
+                    "command": "codeSuggester.clearProjectContext",
+                    "when": "true"
+                },
+                {
+                    "command": "codeSuggester.reloadProjectContext",
+                    "when": "true"
+                },
+                {
+                    "command": "codeSuggester.showDiagnostics",
+                    "when": "true"
+                },
+                {
+                    "command": "codeSuggester.manageLanguagePacks",
+                    "when": "true"
+                },
+                {
+                    "command": "codeSuggester.checkLanguagePackUpdates",
+                    "when": "true"
+                }
+            ]
+        }
+    },
+    "scripts": {
+        "vscode:prepublish": "node scripts/copy-release-files.js && npm run compile",
+        "compile": "tsc -p ./",
+        "watch": "tsc -watch -p ./",
+        "pretest": "npm run compile && npm run lint",
+        "lint": "eslint src",
+        "test": "node ./out/test/runTest.js",
+        "test:integration": "npm run compile && node ./out/test/integration/runTest.js",
+        "test:vsix": "npm run compile && node ./out/test/integration/vsixSmoke.js",
+        "test:all": "npm test && npm run test:integration && npm run test:vsix",
+        "package": "vsce package",
+        "release:check": "node scripts/verify-release-metadata.js && npm test && npm run package"
+    },
+    "devDependencies": {
+        "@eslint/js": "^9.39.5",
+        "@types/node": "^20.17.0",
+        "@types/vscode": "^1.85.0",
+        "@typescript-eslint/eslint-plugin": "^8.64.0",
+        "@typescript-eslint/parser": "^8.64.0",
+        "@vscode/vsce": "^3.9.2",
+        "@vscode/test-electron": "^3.0.0",
+        "eslint": "^9.39.1",
+        "typescript": "^5.9.3"
+    },
+    "dependencies": {},
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/kevinski119/local-ngram-code-suggester.git"
+    },
+    "bugs": {
+        "url": "https://github.com/kevinski119/local-ngram-code-suggester/issues"
+    },
+    "license": "MIT",
+    "homepage": "https://github.com/kevinski119/local-ngram-code-suggester#readme"
+}

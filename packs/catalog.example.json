@@ -1,0 +1,16 @@
+{
+    "schemaVersion": 1,
+    "packs": [
+        {
+            "id": "typescript-community",
+            "name": "JavaScript and TypeScript Community Pack",
+            "version": "1.0.0",
+            "languages": [".js", ".jsx", ".ts", ".tsx", ".vue"],
+            "url": "https://github.com/REPLACE_WITH_FORK_OWNER/local-ngram-code-suggester/releases/download/packs-v1/typescript-community.json.gz",
+            "sha256": "REPLACE_WITH_64_CHARACTER_SHA256",
+            "size": 0,
+            "license": "Document all corpus licenses in the release notes",
+            "sources": ["REPLACE_WITH_PERMISSIVELY_LICENSED_CORPUS_URLS"]
+        }
+    ]
+}
