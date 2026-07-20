@@ -81,8 +81,11 @@ The code and VSIX can be built locally. Public release is intentionally blocked
 by `npm run release:check` until the maintainer supplies:
 
 - Their actual Marketplace publisher ID.
-- Real screenshots and a feature animation captured from the extension.
-- Hosted language-pack catalog URLs and corpus/license records.
+
+The Marketplace preview images and feature animation are deterministic,
+privacy-safe Pillow renders driven by the bundled n-gram model. Optional
+language-pack catalog URLs and corpus/license records are required only when
+public packs are published; they do not block the bundled starter release.
 
 Development and issue tracking live at
 [kevinski119/local-ngram-code-suggester](https://github.com/kevinski119/local-ngram-code-suggester).
