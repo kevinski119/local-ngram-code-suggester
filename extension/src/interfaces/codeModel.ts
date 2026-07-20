@@ -22,6 +22,9 @@ export interface CodeModel {
         }
     };
     vocab?: { [extension: string]: string[] };
+    token_frequencies?: {
+        [extension: string]: { [token: string]: number }
+    };
     file_extensions: string[];
     total_patterns: number;
     smoothing?: string;

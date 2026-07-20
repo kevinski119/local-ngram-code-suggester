@@ -13,7 +13,8 @@ Fast, private, comment-aware code completion that runs locally.
 - Optional local project adaptation and free language-pack support.
 - Local diagnostics with no telemetry.
 
-Supported profiles: C#, JavaScript, TypeScript, Python, JSX/TSX, Vue, and Razor.
+Supported profiles: C#, Java, JavaScript, TypeScript, JSON/JSONC, Python,
+JSX/TSX, Vue, and Razor.
 
 Source, releases, and issue tracking:
 [kevinski119/local-ngram-code-suggester](https://github.com/kevinski119/local-ngram-code-suggester).

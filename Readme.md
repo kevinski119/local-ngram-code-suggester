@@ -12,8 +12,8 @@ subscription, telemetry, or mandatory network connection.
 
 ## What v2 adds
 
-- Stateful comment/string handling for C#, JavaScript/TypeScript, Python,
-  JSX/TSX, Vue, and Razor.
+- Stateful comment/string handling for C#, Java, JavaScript/TypeScript, JSON,
+  JSONC, Python, JSX/TSX, Vue, and Razor.
 - Comments excluded from training and project context; suggestions in comments
   disabled by default.
 - N-gram orders 2–6 with normalized contexts and exact interpolated backoff.
@@ -41,7 +41,7 @@ python benchmarks/run_benchmark.py
 Install the resulting VSIX:
 
 ```bash
-code --install-extension extension/local-ngram-code-suggester-2.0.0.vsix
+code --install-extension extension/local-ngram-code-suggester-2.1.0.vsix
 ```
 
 ## Train a model v3
@@ -54,19 +54,23 @@ python code_model_trainer.py \
   --model extension/models/model.json \
   --language all \
   --n-gram 6 \
+  --include-starter-corpus \
   --fresh
 ```
 
-Use `--language cs|js|ts|py|all`, or supply one or more source globs with
-`--pattern`. Without `--fresh`, training merges into a compatible existing
-model. Public packs must document corpus sources and redistribution licenses.
+Use `--language cs|java|js|json|ts|py|all`, or supply one or more source globs
+with `--pattern`. The optional starter corpus is original MIT-licensed,
+deterministically generated training data for stronger cold-start structure.
+Without `--fresh`, training merges into a compatible existing model. Public
+packs must document corpus sources and redistribution licenses.
 
 ## Settings
 
 | Setting | Default | Purpose |
 | --- | ---: | --- |
-| `codeSuggester.performancePreset` | `balanced` | Fast, Balanced, or Quality behavior |
+| `codeSuggester.performancePreset` | `quality` | Fast, Balanced, or Quality behavior |
 | `codeSuggester.maxLatencyMs` | `35` | Inline completion computation budget |
+| `codeSuggester.minConfidence` | `0.85` | Hide weak cold-start predictions |
 | `codeSuggester.enableMultiToken` | `true` | Bounded multi-token inline completion |
 | `codeSuggester.suggestInComments` | `false` | Permit code suggestions in comments |
 | `codeSuggester.modelPath` | bundled model | Custom model path |

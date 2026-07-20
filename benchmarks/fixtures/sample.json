@@ -1,0 +1,19 @@
+{
+  "name": "widget-service",
+  "version": "2.1.0",
+  "enabled": true,
+  "retry": {
+    "attempts": 3,
+    "delayMs": 500,
+    "backoff": true
+  },
+  "server": {
+    "host": "localhost",
+    "port": 9000,
+    "secure": false
+  },
+  "features": [
+    "search",
+    "offline"
+  ]
+}

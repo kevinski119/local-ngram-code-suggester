@@ -2,6 +2,18 @@
 
 All notable changes are documented here.
 
+## 2.1.0 - Unreleased
+
+- Added first-class Java and JSON/JSONC language profiles, activation, training,
+  project adaptation, and comment-safe tokenizer fixtures.
+- Added an original MIT-licensed curated starter corpus and token-frequency
+  metadata for stronger cold-start and prefix ranking.
+- Made Quality mode and a `0.85` confidence gate the defaults to favor fewer,
+  more trustworthy first-run completions.
+- Made multi-token stopping language-aware and raised continuation confidence
+  so accepted JSON values and code blocks do not drift into weak predictions.
+- Added held-out Java and JSON smoke benchmarks.
+
 ## 2.0.0 - Unreleased
 
 - Rebranded the attributed fork as Local N-Gram Code Suggester.

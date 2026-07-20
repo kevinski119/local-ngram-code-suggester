@@ -17,7 +17,10 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from ngram_tokenizer import scan_text
 
 
-SUPPORTED_EXTENSIONS = {'.cs', '.cshtml', '.js', '.jsx', '.ts', '.tsx', '.vue', '.py'}
+SUPPORTED_EXTENSIONS = {
+    '.cs', '.cshtml', '.java', '.js', '.json', '.jsonc', '.jsx',
+    '.py', '.ts', '.tsx', '.vue',
+}
 
 
 def load_model(filepath):
@@ -27,21 +30,30 @@ def load_model(filepath):
     return model
 
 
-def predict(model, extension, raw_context, normalized_context, limit=3):
+def predict(
+    model,
+    extension,
+    raw_context,
+    normalized_context,
+    limit=3,
+    min_confidence=0.0,
+):
     if model.get('format_version', 2) < 3:
         order = model['n']
         if len(raw_context) < order - 1:
             return []
         context_key = json.dumps(raw_context[-(order - 1):])
         counts = model.get('ngrams', {}).get(extension, {}).get(context_key, {})
+        total = sum(counts.values())
         return [
             token
-            for token, _ in sorted(
+            for token, count in sorted(
                 counts.items(),
                 key=lambda item: item[1],
                 reverse=True,
-            )[:limit]
-        ]
+            )
+            if total and count / total >= min_confidence
+        ][:limit]
 
     scores = {}
     max_order = model['max_order']
@@ -61,8 +73,13 @@ def predict(model, extension, raw_context, normalized_context, limit=3):
             scores[token] = scores.get(token, 0.0) + (count / total) * weight
     return [
         token
-        for token, _ in sorted(scores.items(), key=lambda item: item[1], reverse=True)[:limit]
-    ]
+        for token, score in sorted(
+            scores.items(),
+            key=lambda item: item[1],
+            reverse=True,
+        )
+        if score >= min_confidence
+    ][:limit]
 
 
 def iter_source_files(roots):
@@ -86,7 +103,7 @@ def percentile(values, percentile_value):
     return ordered[index]
 
 
-def run(model, roots):
+def run(model, roots, min_confidence=0.0):
     top1 = 0
     top3 = 0
     reciprocal_rank = 0.0
@@ -103,7 +120,13 @@ def run(model, roots):
         for index in range(1, len(raw)):
             observations += 1
             started = time.perf_counter()
-            predictions = predict(model, extension, raw[:index], normalized[:index])
+            predictions = predict(
+                model,
+                extension,
+                raw[:index],
+                normalized[:index],
+                min_confidence=min_confidence,
+            )
             latencies.append((time.perf_counter() - started) * 1000)
             if not predictions:
                 continue
@@ -143,10 +166,17 @@ def main():
     parser.add_argument('--baseline', help='Optional prior benchmark JSON')
     parser.add_argument('--json-out')
     parser.add_argument('--max-p95-ms', type=float, default=35.0)
+    parser.add_argument(
+        '--min-confidence',
+        type=float,
+        default=0.0,
+        help='Apply the runtime confidence gate during evaluation',
+    )
     args = parser.parse_args()
     roots = args.test_root or [os.path.join('benchmarks', 'fixtures')]
 
-    result = run(load_model(args.model), roots)
+    result = run(load_model(args.model), roots, args.min_confidence)
+    result['min_confidence'] = args.min_confidence
     print(json.dumps(result, indent=2))
     if args.json_out:
         with open(args.json_out, 'w', encoding='utf-8') as output:

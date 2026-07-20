@@ -10,6 +10,7 @@ from code_model_trainer import (
     is_ignored_path,
 )
 from ngram_tokenizer import scan_text
+from starter_corpus import iter_starter_samples
 
 
 class CodeModelTrainerTests(unittest.TestCase):
@@ -60,6 +61,8 @@ class CodeModelTrainerTests(unittest.TestCase):
         self.assertTrue(is_ignored_path(os.path.join('project', 'src', 'test', 'file.ts')))
         self.assertTrue(is_ignored_path(os.path.join('project', 'tests', 'file.py')))
         self.assertTrue(is_ignored_path(os.path.join('project', 'fixtures', 'sample.js')))
+        self.assertTrue(is_ignored_path('starter_corpus.py'))
+        self.assertTrue(is_ignored_path(os.path.join('project', 'package-lock.json')))
         self.assertFalse(is_ignored_path(os.path.join('project', 'src', 'file.js')))
 
     def test_train_and_save_compressed_model(self):
@@ -85,7 +88,24 @@ class CodeModelTrainerTests(unittest.TestCase):
             self.assertIn('.py', data['orders'])
             self.assertIn('python', data['language_ids']['.py'])
             self.assertIn('<ID>', data['string_table'])
+            self.assertGreater(data['token_frequencies']['.py']['def'], 0)
             self.assertRegex(data['checksum_sha256'], r'^[a-f0-9]{64}$')
+
+    def test_starter_corpus_contains_java_json_and_all_core_languages(self):
+        samples = list(iter_starter_samples())
+        extensions = {extension for extension, _ in samples}
+        self.assertEqual(
+            extensions,
+            {'.cs', '.java', '.js', '.json', '.py', '.ts'},
+        )
+        self.assertGreaterEqual(len(samples), 100)
+
+        model = CodeNGramModel(n=3)
+        for extension, content in samples:
+            model.train_on_text(content, extension)
+        self.assertGreater(model.total_patterns, 40000)
+        self.assertGreater(model.token_frequencies['.java']['return'], 0)
+        self.assertGreater(model.token_frequencies['.json'][':'], 0)
 
 
 if __name__ == '__main__':

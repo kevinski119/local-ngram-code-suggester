@@ -1,5 +1,5 @@
 {
-    "version": "1.0",
+    "version": "1.1",
     "profiles": [
         {
             "id": "csharp",
@@ -72,6 +72,32 @@
             "statementBoundaries": [":", ";"],
             "keywords": ["False", "None", "True", "and", "as", "assert", "async", "await", "break", "case", "class", "continue", "def", "del", "elif", "else", "except", "finally", "for", "from", "global", "if", "import", "in", "is", "lambda", "match", "nonlocal", "not", "or", "pass", "raise", "return", "try", "while", "with", "yield"],
             "shebangs": ["python", "python3"]
+        },
+        {
+            "id": "java",
+            "languageIds": ["java"],
+            "extensions": [".java"],
+            "lineComments": ["//"],
+            "blockComments": [{"start": "/*", "end": "*/"}],
+            "strings": [
+                {"start": "\"\"\"", "end": "\"\"\"", "multiline": true},
+                {"start": "\"", "end": "\"", "escape": "\\"},
+                {"start": "'", "end": "'", "escape": "\\"}
+            ],
+            "statementBoundaries": [";", "{", "}"],
+            "keywords": ["abstract", "assert", "boolean", "break", "byte", "case", "catch", "char", "class", "const", "continue", "default", "do", "double", "else", "enum", "exports", "extends", "false", "final", "finally", "float", "for", "if", "implements", "import", "instanceof", "int", "interface", "long", "module", "native", "new", "non-sealed", "null", "open", "opens", "package", "permits", "private", "protected", "provides", "public", "record", "requires", "return", "sealed", "short", "static", "strictfp", "super", "switch", "synchronized", "this", "throw", "throws", "to", "transient", "transitive", "true", "try", "uses", "var", "void", "volatile", "when", "while", "with", "yield"]
+        },
+        {
+            "id": "json",
+            "languageIds": ["json", "jsonc"],
+            "extensions": [".json", ".jsonc"],
+            "lineComments": ["//"],
+            "blockComments": [{"start": "/*", "end": "*/"}],
+            "strings": [
+                {"start": "\"", "end": "\"", "escape": "\\"}
+            ],
+            "statementBoundaries": ["}", "]"],
+            "keywords": ["false", "null", "true"]
         }
     ]
 }

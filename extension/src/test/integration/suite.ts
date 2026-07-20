@@ -45,6 +45,22 @@ export async function run(): Promise<void> {
         )
     );
 
+    for (const language of ['java', 'json', 'jsonc']) {
+        const supportedDocument = await vscode.workspace.openTextDocument({
+            language,
+            content: language === 'java'
+                ? 'public final class Example {'
+                : '{"enabled": true,'
+        });
+        assert.doesNotThrow(() =>
+            api.getInlineSuggestions(
+                supportedDocument,
+                supportedDocument.positionAt(supportedDocument.getText().length)
+            ),
+            `${language} should be supported by the inline provider`
+        );
+    }
+
     const completedPythonBoundary = await vscode.workspace.openTextDocument({
         language: 'python',
         content: 'if isinstance(value, float) and value.is_integer():'

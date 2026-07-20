@@ -18,11 +18,16 @@ LANGUAGE_EXTENSIONS = {
     'js': ('.js', '.jsx', '.vue'),
     'ts': ('.ts', '.tsx'),
     'py': ('.py',),
+    'java': ('.java',),
+    'json': ('.json', '.jsonc'),
 }
 IGNORED_DIRECTORIES = {
     '.git', '.hg', '.svn', '.venv', 'venv', 'node_modules',
     'dist', 'build', 'out', '__pycache__', 'benchmarks',
     'test', 'tests', 'fixtures',
+}
+IGNORED_FILENAMES = {
+    'package-lock.json', 'starter_corpus.py',
 }
 
 
@@ -55,7 +60,11 @@ def positive_float(value):
 
 
 def is_ignored_path(filepath):
-    return any(part in IGNORED_DIRECTORIES for part in os.path.normpath(filepath).split(os.sep))
+    normalized = os.path.normpath(filepath)
+    return (
+        os.path.basename(normalized) in IGNORED_FILENAMES
+        or any(part in IGNORED_DIRECTORIES for part in normalized.split(os.sep))
+    )
 
 
 def compressed_model_path(filepath):
@@ -78,6 +87,7 @@ class CodeNGramModel:
         self.smoothing = smoothing
         self.alpha = alpha
         self.vocab = defaultdict(set)
+        self.token_frequencies = defaultdict(Counter)
         self.normalized_contexts = True
         self.corpus = {
             'sources': ['user-provided'],
@@ -89,31 +99,31 @@ class CodeNGramModel:
         try:
             with open(filepath, 'r', encoding='utf-8', errors='ignore') as f:
                 content = f.read()
-            
             ext = os.path.splitext(filepath)[1].lower()
-            self.file_extensions.add(ext)
-            
-            scan = scan_text(content, ext)
-            tokens = scan['tokens']
-            self.vocab[ext].update(token.value for token in tokens)
-            sequences = [tokens] if tokens else []
-            
-            for seq in sequences:
-                for order in range(self.min_order, self.max_order + 1):
-                    if len(seq) < order:
-                        continue
-                    for i in range(len(seq) - order + 1):
-                        context = tuple(
-                            token.normalized for token in seq[i:i + order - 1]
-                        )
-                        next_token = seq[i + order - 1].value
-                        self.orders[ext][order][context][next_token] += 1
-                        self.total_patterns += 1
-            
-            print(f"Processed {filepath}: {len(tokens)} tokens, {len(sequences)} sequences")
-            
+            token_count = self.train_on_text(content, ext)
+            print(f"Processed {filepath}: {token_count} tokens, 1 sequences")
         except Exception as e:
             print(f"Error processing {filepath}: {e}")
+
+    def train_on_text(self, content, extension):
+        """Train on an in-memory source sample and return its token count."""
+        ext = extension.lower()
+        self.file_extensions.add(ext)
+        tokens = scan_text(content, ext)['tokens']
+        self.vocab[ext].update(token.value for token in tokens)
+        self.token_frequencies[ext].update(token.value for token in tokens)
+        for order in range(self.min_order, self.max_order + 1):
+            if len(tokens) < order:
+                continue
+            for index in range(len(tokens) - order + 1):
+                context = tuple(
+                    token.normalized
+                    for token in tokens[index:index + order - 1]
+                )
+                next_token = tokens[index + order - 1].value
+                self.orders[ext][order][context][next_token] += 1
+                self.total_patterns += 1
+        return len(tokens)
 
     def to_serializable(self):
         """Converts the model to a serializable format"""
@@ -132,8 +142,12 @@ class CodeNGramModel:
                     )
         
         serializable_vocab = {}
+        serializable_token_frequencies = {}
         for ext, tokens in sorted(self.vocab.items()):
             serializable_vocab[ext] = sorted(tokens)
+            serializable_token_frequencies[ext] = dict(
+                sorted(self.token_frequencies[ext].items())
+            )
         
         return {
             'format_version': self.format_version,
@@ -150,6 +164,7 @@ class CodeNGramModel:
             'normalized_contexts': self.normalized_contexts,
             'tokenizer_profile_version': self.tokenizer_profile_version,
             'vocab': serializable_vocab,
+            'token_frequencies': serializable_token_frequencies,
             'file_extensions': sorted(self.file_extensions),
             'total_patterns': self.total_patterns,
             'smoothing': self.smoothing,
@@ -224,6 +239,9 @@ class CodeNGramModel:
         self.vocab = defaultdict(set)
         for ext, tokens in data.get('vocab', {}).items():
             self.vocab[ext] = set(tokens)
+        self.token_frequencies = defaultdict(Counter)
+        for ext, counts in data.get('token_frequencies', {}).items():
+            self.token_frequencies[ext] = Counter(counts)
 
         self.corpus = data.get('corpus', self.corpus)
         
@@ -234,13 +252,23 @@ def main():
     parser = argparse.ArgumentParser(description='Train code suggestion model with language support and smoothing')
     parser.add_argument('--model', '-m', required=True, help='Model file path')
     parser.add_argument('--pattern', '-p', help='Glob pattern for code files')
-    parser.add_argument('--language', '-l', choices=['cs', 'js', 'ts', 'py', 'all'], help='Language to train on')
+    parser.add_argument(
+        '--language',
+        '-l',
+        choices=['cs', 'js', 'ts', 'py', 'java', 'json', 'all'],
+        help='Language to train on',
+    )
     parser.add_argument('--n-gram', '-n', type=ngram_size, default=6, help='Maximum n-gram order, 2-6 (default: 6)')
     parser.add_argument('--smoothing', '-s', choices=['none', 'laplace'],
                        default='laplace', help='Smoothing method (default: laplace)')
     parser.add_argument('--alpha', '-a', type=positive_float, default=1.0, help='Alpha parameter for Laplace smoothing (default: 1.0)')
     parser.add_argument('--no-compress', action='store_true', help='Save without compression')
     parser.add_argument('--fresh', action='store_true', help='Do not merge with an existing model')
+    parser.add_argument(
+        '--include-starter-corpus',
+        action='store_true',
+        help='Add the original MIT-licensed curated cold-start corpus',
+    )
     parser.add_argument(
         '--corpus-source',
         action='append',
@@ -311,6 +339,19 @@ def main():
     for i, filepath in enumerate(all_files):
         print(f"Processing {i+1}/{len(all_files)}: {filepath}")
         model.train_on_file(filepath)
+
+    if args.include_starter_corpus:
+        from starter_corpus import iter_starter_samples
+
+        sample_count = 0
+        token_count = 0
+        for extension, content in iter_starter_samples():
+            token_count += model.train_on_text(content, extension)
+            sample_count += 1
+        print(
+            f"Processed curated starter corpus: "
+            f"{sample_count} samples, {token_count} tokens"
+        )
     
     model.save(args.model, compress=not args.no_compress)
     

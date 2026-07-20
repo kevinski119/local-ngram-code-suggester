@@ -26,6 +26,7 @@ interface PerformanceOptions {
     latencyMs: number;
     beamWidth: number;
     maxTokens: number;
+    continuationMinConfidence: number;
 }
 
 export interface SuggesterDiagnostics {
@@ -55,7 +56,6 @@ interface LoadedModel {
     custom: boolean;
 }
 
-const STOP_TOKENS = new Set([';', '{', '}', ':']);
 const MAX_MODEL_BYTES = 512 * 1024 * 1024;
 
 export class CodeSuggester implements vscode.Disposable {
@@ -455,6 +455,7 @@ export class CodeSuggester implements vscode.Disposable {
                 contextNormalized,
                 languageExtensions,
                 options,
+                new Set(profile.statementBoundaries),
                 deadline,
                 () => cancellationToken?.isCancellationRequested ?? false
             );
@@ -476,7 +477,7 @@ export class CodeSuggester implements vscode.Disposable {
         maxSuggestions: number
     ): Suggestion[] {
         const config = vscode.workspace.getConfiguration('codeSuggester');
-        const minConfidence = config.get<number>('minConfidence', 0.08);
+        const minConfidence = config.get<number>('minConfidence', 0.85);
         const global = this.generateGlobalSuggestions(
             raw,
             normalized,
@@ -537,6 +538,24 @@ export class CodeSuggester implements vscode.Disposable {
                 }
             }
         }
+        for (const [extension, extensionIndex] of this.prefixIndex) {
+            for (const candidates of extensionIndex.values()) {
+                candidates.sort((left, right) =>
+                    this.getBundledTokenFrequency(extension, right) -
+                        this.getBundledTokenFrequency(extension, left) ||
+                    left.length - right.length ||
+                    left.localeCompare(right)
+                );
+            }
+        }
+    }
+
+    private getBundledTokenFrequency(extension: string, token: string): number {
+        return this.loadedModels.reduce(
+            (total, loaded) =>
+                total + (loaded.model.token_frequencies?.[extension]?.[token] ?? 0),
+            0
+        );
     }
 
     private generatePrefixFallback(
@@ -544,21 +563,32 @@ export class CodeSuggester implements vscode.Disposable {
         languageExtensions: string[],
         maxSuggestions: number
     ): Suggestion[] {
-        const candidates = new Set<string>();
+        const candidates = new Map<string, number>();
         const key = prefix.slice(0, 4);
         for (const extension of languageExtensions) {
             for (const token of this.prefixIndex.get(extension)?.get(key) ?? []) {
                 if (token.startsWith(prefix) && token.length > prefix.length) {
-                    candidates.add(token);
+                    candidates.set(
+                        token,
+                        Math.max(
+                            candidates.get(token) ?? 0,
+                            this.getBundledTokenFrequency(extension, token)
+                        )
+                    );
                 }
             }
         }
         return Array.from(candidates)
-            .sort((left, right) => left.length - right.length || left.localeCompare(right))
+            .sort(([left, leftFrequency], [right, rightFrequency]) =>
+                rightFrequency - leftFrequency ||
+                left.length - right.length ||
+                left.localeCompare(right)
+            )
             .slice(0, maxSuggestions)
-            .map((token, index) => ({
+            .map(([token, frequency], index) => ({
                 token,
-                confidence: 0.05 - index * 0.001,
+                confidence: 0.05 + Math.min(Math.log10(frequency + 1) / 100, 0.03) -
+                    index * 0.001,
                 source: 'global' as const,
                 order: 1
             }));
@@ -577,7 +607,8 @@ export class CodeSuggester implements vscode.Disposable {
         const model = this.model;
         const formatVersion = model.format_version ?? 2;
         const contextTokens = formatVersion >= 3 && model.normalized_contexts ? normalized : raw;
-        const cacheKey = `${this.loadedModels.length}|${formatVersion}|${languageExtensions.join(',')}|` +
+        const cacheKey = `${this.loadedModels.length}|${formatVersion}|${minConfidence.toFixed(4)}|` +
+            `${languageExtensions.join(',')}|` +
             contextTokens.slice(-Math.max(...this.loadedModels.map(
                 item => item.model.max_order ?? item.model.n
             ), 6)).join('\u0001');
@@ -627,6 +658,7 @@ export class CodeSuggester implements vscode.Disposable {
         normalized: string[],
         languageExtensions: string[],
         options: PerformanceOptions,
+        stopTokens: ReadonlySet<string>,
         deadline: number,
         isCancelled: () => boolean
     ): Suggestion[] {
@@ -645,7 +677,7 @@ export class CodeSuggester implements vscode.Disposable {
             const nextBeams: Beam[] = [];
             for (const beam of beams) {
                 const last = beam.tokens.at(-1);
-                if (!last || STOP_TOKENS.has(last)) {
+                if (!last || stopTokens.has(last)) {
                     completed.push(beam);
                     continue;
                 }
@@ -654,7 +686,7 @@ export class CodeSuggester implements vscode.Disposable {
                     beam.normalized,
                     languageExtensions,
                     options.beamWidth,
-                    0.01
+                    options.continuationMinConfidence
                 );
                 if (next.length === 0) {
                     completed.push(beam);
@@ -714,15 +746,31 @@ export class CodeSuggester implements vscode.Disposable {
 
     private getPerformanceOptions(): PerformanceOptions {
         const config = vscode.workspace.getConfiguration('codeSuggester');
-        const preset = config.get<string>('performancePreset', 'balanced');
+        const preset = config.get<string>('performancePreset', 'quality');
         const configuredLatency = config.get<number>('maxLatencyMs', 35);
+        const minConfidence = config.get<number>('minConfidence', 0.85);
         if (preset === 'fast') {
-            return { latencyMs: Math.min(configuredLatency, 15), beamWidth: 1, maxTokens: 1 };
+            return {
+                latencyMs: Math.min(configuredLatency, 15),
+                beamWidth: 1,
+                maxTokens: 1,
+                continuationMinConfidence: minConfidence
+            };
         }
         if (preset === 'quality') {
-            return { latencyMs: Math.max(configuredLatency, 60), beamWidth: 5, maxTokens: 8 };
+            return {
+                latencyMs: Math.max(configuredLatency, 60),
+                beamWidth: 5,
+                maxTokens: 8,
+                continuationMinConfidence: Math.max(minConfidence * 0.8, 0.2)
+            };
         }
-        return { latencyMs: configuredLatency, beamWidth: 3, maxTokens: 4 };
+        return {
+            latencyMs: configuredLatency,
+            beamWidth: 3,
+            maxTokens: 4,
+            continuationMinConfidence: Math.max(minConfidence * 0.5, 0.08)
+        };
     }
 
     private cacheSet(key: string, value: Suggestion[]) {

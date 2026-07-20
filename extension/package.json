@@ -2,7 +2,7 @@
     "name": "local-ngram-code-suggester",
     "displayName": "Local N-Gram Code Suggester",
     "description": "Fast, private, comment-aware local code completion with adaptive n-gram models",
-    "version": "2.0.0",
+    "version": "2.1.0",
     "publisher": "KevinJarz",
     "author": {
         "name": "Local N-Gram contributors"
@@ -34,7 +34,9 @@
         "C#",
         "Python",
         "JavaScript",
-        "TypeScript"
+        "TypeScript",
+        "Java",
+        "JSON"
     ],
     "galleryBanner": {
         "color": "#1e1e1e",
@@ -49,6 +51,9 @@
         "onLanguage:typescript",
         "onLanguage:typescriptreact",
         "onLanguage:python",
+        "onLanguage:java",
+        "onLanguage:json",
+        "onLanguage:jsonc",
         "onLanguage:vue",
         "onLanguage:razor",
         "onLanguage:aspnetcorerazor",
@@ -97,7 +102,7 @@
                         "Short multi-token suggestions within the configured latency budget",
                         "A wider beam and longer suggestions with a larger latency budget"
                     ],
-                    "default": "balanced",
+                    "default": "quality",
                     "description": "Completion quality and latency preset"
                 },
                 "codeSuggester.maxLatencyMs": {
@@ -125,7 +130,7 @@
                 },
                 "codeSuggester.minConfidence": {
                     "type": "number",
-                    "default": 0.2,
+                    "default": 0.85,
                     "description": "Minimum confidence threshold for suggestions (0.0 - 1.0)",
                     "minimum": 0.0,
                     "maximum": 1.0
