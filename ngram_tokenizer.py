@@ -83,6 +83,15 @@ def is_plausible_token_transition(previous_token, next_token, profile_id):
     return profile_id == 'java' and next_token == 'permits'
 
 
+def should_prefer_python_block_boundary(line_tokens, previous_token):
+    if previous_token != ')':
+        return False
+    return any(
+        token in {'class', 'def', 'elif', 'for', 'if', 'while'}
+        for token in line_tokens
+    )
+
+
 def _starts_with(text, needle, offset, case_insensitive=False):
     candidate = text[offset:offset + len(needle)]
     return (

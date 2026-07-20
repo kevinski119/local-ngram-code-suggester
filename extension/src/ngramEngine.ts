@@ -45,6 +45,15 @@ export function isPlausibleTokenTransition(
     return profileId === 'java' && nextToken === 'permits';
 }
 
+export function shouldPreferPythonBlockBoundary(
+    lineTokens: string[],
+    previousToken: string | undefined
+): boolean {
+    if (previousToken !== ')') return false;
+    const controlKeywords = new Set(['class', 'def', 'elif', 'for', 'if', 'while']);
+    return lineTokens.some(token => controlKeywords.has(token));
+}
+
 export function generateBackoffSuggestions(
     model: CodeModel,
     rawContext: string[],

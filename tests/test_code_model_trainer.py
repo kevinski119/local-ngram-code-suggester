@@ -6,6 +6,7 @@ import unittest
 
 from code_model_trainer import (
     CodeNGramModel,
+    checksum_canonical_value,
     compressed_model_path,
     is_ignored_path,
 )
@@ -55,6 +56,13 @@ class CodeModelTrainerTests(unittest.TestCase):
     def test_compressed_path_is_not_duplicated(self):
         self.assertEqual(compressed_model_path('model.json'), 'model.json.gz')
         self.assertEqual(compressed_model_path('model.json.gz'), 'model.json.gz')
+
+    def test_checksum_orders_javascript_numeric_properties(self):
+        value = {'10': 'ten', '2': 'two', 'name': 'value', '01': 'kept'}
+        self.assertEqual(
+            list(checksum_canonical_value(value)),
+            ['2', '10', '01', 'name'],
+        )
 
     def test_ignored_dependency_directories(self):
         self.assertTrue(is_ignored_path(os.path.join('project', 'node_modules', 'file.js')))

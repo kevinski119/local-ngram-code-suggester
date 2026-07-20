@@ -18,6 +18,7 @@ import {
     formatTokenSequence,
     generateBackoffSuggestions,
     isPlausibleTokenTransition,
+    shouldPreferPythonBlockBoundary,
     shouldSuppressAfterLineBoundary
 } from './ngramEngine';
 import { InstalledPack, PACK_STATE_KEY } from './packTypes';
@@ -435,6 +436,8 @@ export class CodeSuggester implements vscode.Disposable {
         const finalToken = scan.tokens.at(-1);
         const currentLinePrefix = document.lineAt(position.line).text.slice(0, position.character);
         const profile = getLanguageProfile(document.languageId, text);
+        const currentLineTokens = scanText(currentLinePrefix, profile.id).tokens
+            .map(token => token.value);
         if (
             shouldSuppressAfterLineBoundary(
                 currentLinePrefix,
@@ -496,6 +499,7 @@ export class CodeSuggester implements vscode.Disposable {
                 options,
                 new Set(profile.statementBoundaries),
                 profile.id,
+                currentLineTokens,
                 deadline,
                 () => cancellationToken?.isCancellationRequested ?? false
             );
@@ -751,6 +755,7 @@ export class CodeSuggester implements vscode.Disposable {
         options: PerformanceOptions,
         stopTokens: ReadonlySet<string>,
         profileId: string,
+        currentLineTokens: string[],
         deadline: number,
         isCancelled: () => boolean
     ): Suggestion[] {
@@ -773,7 +778,7 @@ export class CodeSuggester implements vscode.Disposable {
                     completed.push(beam);
                     continue;
                 }
-                const next = this.generateGlobalSuggestions(
+                let next = this.generateGlobalSuggestions(
                     [...raw, ...beam.tokens],
                     beam.normalized,
                     languageExtensions,
@@ -782,6 +787,24 @@ export class CodeSuggester implements vscode.Disposable {
                 ).filter(suggestion =>
                     isPlausibleTokenTransition(last, suggestion.token, profileId)
                 );
+                if (
+                    profileId === 'python' &&
+                    shouldPreferPythonBlockBoundary(
+                        [...currentLineTokens, ...beam.tokens],
+                        last
+                    )
+                ) {
+                    const colon = this.generateGlobalSuggestions(
+                        [...raw, ...beam.tokens],
+                        beam.normalized,
+                        languageExtensions,
+                        Math.max(options.beamWidth * 3, 12),
+                        0.01
+                    ).find(suggestion => suggestion.token === ':');
+                    if (colon) {
+                        next = [{ ...colon, confidence: Math.max(colon.confidence, 1) }];
+                    }
+                }
                 if (next.length === 0) {
                     completed.push(beam);
                 }
@@ -857,7 +880,7 @@ export class CodeSuggester implements vscode.Disposable {
                 latencyMs: Math.max(configuredLatency, 60),
                 beamWidth: 5,
                 maxTokens: Math.max(1, Math.min(configuredMaxTokens, 5)),
-                continuationMinConfidence: Math.max(minConfidence * 0.8, 0.2)
+                continuationMinConfidence: Math.max(minConfidence * 0.5, 0.15)
             };
         }
         return {

@@ -32,7 +32,7 @@ IGNORED_FILENAMES = {
 
 
 def checksum_canonical_value(value):
-    """Normalize JSON numbers to the representation used by JSON.stringify."""
+    """Normalize values and object-key order to match JSON.stringify."""
     if isinstance(value, float) and value.is_integer():
         return int(value)
     if isinstance(value, list):
@@ -40,9 +40,21 @@ def checksum_canonical_value(value):
     if isinstance(value, dict):
         return {
             key: checksum_canonical_value(child)
-            for key, child in value.items()
+            for key, child in sorted(
+                value.items(),
+                key=lambda item: javascript_property_sort_key(item[0]),
+            )
         }
     return value
+
+
+def javascript_property_sort_key(key):
+    """JSON.stringify emits canonical uint32 property names numerically first."""
+    if key.isdigit() and str(int(key)) == key:
+        numeric = int(key)
+        if 0 <= numeric < 2**32 - 1:
+            return 0, numeric
+    return 1, key
 
 
 def ngram_size(value):
@@ -193,7 +205,6 @@ class CodeNGramModel:
         checksum_payload = json.dumps(
             checksum_canonical_value(data),
             ensure_ascii=False,
-            sort_keys=True,
             separators=(',', ':'),
         ).encode('utf-8')
         data['checksum_sha256'] = hashlib.sha256(checksum_payload).hexdigest()

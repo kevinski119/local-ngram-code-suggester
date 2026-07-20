@@ -13,6 +13,7 @@ import {
     formatTokenSequence,
     generateBackoffSuggestions,
     isPlausibleTokenTransition,
+    shouldPreferPythonBlockBoundary,
     shouldSuppressAfterLineBoundary
 } from '../ngramEngine';
 import { computeModelChecksum, verifyModelChecksum } from '../modelIntegrity';
@@ -276,6 +277,25 @@ const tests: TestCase[] = [
             assert.equal(shouldOfferAutomaticSuggestion('va', 50), false);
             assert.equal(shouldOfferAutomaticSuggestion('anything', 0), false);
             assert.equal(shouldOfferAutomaticSuggestion('x', 100), true);
+        }
+    },
+    {
+        name: 'prefers a Python block boundary after a completed condition',
+        run: () => {
+            assert.equal(
+                shouldPreferPythonBlockBoundary(
+                    ['if', 'ready', '(', ')'],
+                    ')'
+                ),
+                true
+            );
+            assert.equal(
+                shouldPreferPythonBlockBoundary(
+                    ['center', '=', 'screen', '.', 'get_height', '(', ')'],
+                    ')'
+                ),
+                false
+            );
         }
     },
     {

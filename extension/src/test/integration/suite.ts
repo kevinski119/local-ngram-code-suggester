@@ -75,6 +75,60 @@ export async function run(): Promise<void> {
         'an accepted block boundary should not trigger another completion on the same line'
     );
 
+    const expressionDocument = await vscode.workspace.openTextDocument({
+        language: 'python',
+        content: 'import pygame\ncenter_y = screen.'
+    });
+    const expressionConfiguration = vscode.workspace.getConfiguration('codeSuggester');
+    const originalExpressionSettings = {
+        preset: expressionConfiguration.get<string>('performancePreset'),
+        multiToken: expressionConfiguration.get<boolean>('enableMultiToken'),
+        maxTokens: expressionConfiguration.get<number>('maxInlineTokens'),
+        confidence: expressionConfiguration.get<number>('minConfidence')
+    };
+    await expressionConfiguration.update(
+        'performancePreset', 'quality', vscode.ConfigurationTarget.Global
+    );
+    await expressionConfiguration.update(
+        'enableMultiToken', true, vscode.ConfigurationTarget.Global
+    );
+    await expressionConfiguration.update(
+        'maxInlineTokens', 5, vscode.ConfigurationTarget.Global
+    );
+    await expressionConfiguration.update(
+        'minConfidence', 0.85, vscode.ConfigurationTarget.Global
+    );
+    const expressionItems = api.getInlineSuggestions(
+        expressionDocument,
+        expressionDocument.positionAt(expressionDocument.getText().length)
+    );
+    assert.ok(expressionItems.length > 0, 'receiver-aware expression should be suggested');
+    assert.equal(
+        expressionItems[0].insertText,
+        'get_height() / 2',
+        'Quality mode should produce a useful bounded numeric expression'
+    );
+    await expressionConfiguration.update(
+        'performancePreset',
+        originalExpressionSettings.preset,
+        vscode.ConfigurationTarget.Global
+    );
+    await expressionConfiguration.update(
+        'enableMultiToken',
+        originalExpressionSettings.multiToken,
+        vscode.ConfigurationTarget.Global
+    );
+    await expressionConfiguration.update(
+        'maxInlineTokens',
+        originalExpressionSettings.maxTokens,
+        vscode.ConfigurationTarget.Global
+    );
+    await expressionConfiguration.update(
+        'minConfidence',
+        originalExpressionSettings.confidence,
+        vscode.ConfigurationTarget.Global
+    );
+
     const untitledPython = await vscode.workspace.openTextDocument({
         language: 'plaintext',
         content: '#!/usr/bin/env python3\nreturn'

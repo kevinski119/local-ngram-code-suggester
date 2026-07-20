@@ -23,6 +23,7 @@ from benchmarks.run_benchmark import predict  # noqa: E402
 from ngram_tokenizer import (  # noqa: E402
     is_plausible_token_transition,
     scan_text,
+    should_prefer_python_block_boundary,
 )
 
 
@@ -146,13 +147,20 @@ def actual_completion(model: dict) -> str:
     raw = [token.value for token in scan["tokens"]]
     normalized = [token.normalized for token in scan["tokens"]]
     generated: list[str] = []
+    line_scan = scan_text(prefix.splitlines()[-1], ".py")
+    line_tokens = [token.value for token in line_scan["tokens"]]
     for _ in range(4):
-        choices = predict(model, ".py", raw, normalized, 5)
+        choices = predict(model, ".py", raw, normalized, 12)
         previous = generated[-1] if generated else raw[-1]
         choices = [
             token for token in choices
             if is_plausible_token_transition(previous, token, 'python')
         ]
+        if should_prefer_python_block_boundary(
+            line_tokens + generated,
+            previous,
+        ):
+            choices = [token for token in choices if token == ':']
         if not choices:
             break
         token = choices[0]
