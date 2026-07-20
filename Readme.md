@@ -77,10 +77,9 @@ model. Public packs must document corpus sources and redistribution licenses.
 
 ## Marketplace release status
 
-The code and VSIX can be built locally. Public release is intentionally blocked
-by `npm run release:check` until the maintainer supplies:
-
-- Their actual Marketplace publisher ID.
+The code and VSIX are ready for manual upload under the `KevinJarz`
+Marketplace publisher. Run `npm run release:check` from `extension/` to rebuild
+and validate the upload artifact.
 
 The Marketplace preview images and feature animation are deterministic,
 privacy-safe Pillow renders driven by the bundled n-gram model. Optional

@@ -3,7 +3,7 @@
     "displayName": "Local N-Gram Code Suggester",
     "description": "Fast, private, comment-aware local code completion with adaptive n-gram models",
     "version": "2.0.0",
-    "publisher": "pending-publisher-id",
+    "publisher": "KevinJarz",
     "author": {
         "name": "Local N-Gram contributors"
     },
