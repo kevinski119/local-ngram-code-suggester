@@ -25,6 +25,20 @@ IGNORED_DIRECTORIES = {
 }
 
 
+def checksum_canonical_value(value):
+    """Normalize JSON numbers to the representation used by JSON.stringify."""
+    if isinstance(value, float) and value.is_integer():
+        return int(value)
+    if isinstance(value, list):
+        return [checksum_canonical_value(item) for item in value]
+    if isinstance(value, dict):
+        return {
+            key: checksum_canonical_value(child)
+            for key, child in value.items()
+        }
+    return value
+
+
 def ngram_size(value):
     parsed = int(value)
     if parsed < 2 or parsed > 6:
@@ -146,7 +160,7 @@ class CodeNGramModel:
         """Saves the model to a JSON file"""
         data = self.to_serializable()
         checksum_payload = json.dumps(
-            data,
+            checksum_canonical_value(data),
             ensure_ascii=False,
             sort_keys=True,
             separators=(',', ':'),
