@@ -266,4 +266,6 @@ extension/SUPPORT.md
 extension/SECURITY.md
 *.vsix
 benchmarks/project-latest.json
+benchmarks/project-500-latest.json
+benchmarks/project-500-cases.csv
 pre_trained_models/

@@ -7,6 +7,7 @@ import { performance } from 'perf_hooks';
 import * as vscode from 'vscode';
 import type { LocalNGramExtensionApi } from '../../extension';
 import { scanText } from '../../lexicalScanner';
+import { LANGUAGE_ID_TO_EXTENSION } from '../../utils/constants';
 
 interface Case {
     id: string;
@@ -118,6 +119,10 @@ export async function run(): Promise<void> {
     assert.ok(fixturePath && root && output, 'run through npm run benchmark:project');
     const fixtureBytes = fs.readFileSync(fixturePath);
     const fixture: BenchmarkFixture = JSON.parse(fixtureBytes.toString());
+    const warmupRequests = Number(process.env.NGRAM_BENCH_WARMUP ?? 3);
+    const measuredWarmRequests = Number(process.env.NGRAM_BENCH_REPEATS ?? 20);
+    assert.ok(Number.isInteger(warmupRequests) && warmupRequests >= 0 && warmupRequests <= 100);
+    assert.ok(Number.isInteger(measuredWarmRequests) && measuredWarmRequests >= 1 && measuredWarmRequests <= 100);
     assert.equal(new Set(fixture.cases.map(entry => entry.id)).size, fixture.cases.length);
     const extension = vscode.extensions.all.find(candidate => candidate.packageJSON.name === 'local-ngram-code-suggester')!;
     assert.ok(extension);
@@ -134,7 +139,7 @@ export async function run(): Promise<void> {
 
     const documents = new Map<string, vscode.TextDocument>();
     for (const entry of fixture.cases) {
-        const suffix = entry.language === 'rust' ? 'rs' : 'ts';
+        const suffix = LANGUAGE_ID_TO_EXTENSION[entry.language].slice(1);
         const folder = path.join(root, entry.id);
         const support = await vscode.workspace.openTextDocument(path.join(folder, `support.${suffix}`));
         const target = await vscode.workspace.openTextDocument(path.join(folder, `target.${suffix}`));
@@ -186,9 +191,9 @@ export async function run(): Promise<void> {
                 const started = performance.now();
                 const candidates = request();
                 const firstRequestMs = performance.now() - started;
-                for (let warmup = 0; warmup < 3; warmup++) request();
+                for (let warmup = 0; warmup < warmupRequests; warmup++) request();
                 const timings = [];
-                for (let repeat = 0; repeat < 20; repeat++) {
+                for (let repeat = 0; repeat < measuredWarmRequests; repeat++) {
                     const tick = performance.now();
                     const repeated = request();
                     timings.push(performance.now() - tick);
@@ -196,7 +201,9 @@ export async function run(): Promise<void> {
                 }
                 const row = { ...score(entry, candidates), firstRequestMs: round(firstRequestMs),
                     warmMedianMs: round(percentile(timings, 0.5)), warmP95Ms: round(percentile(timings, 0.95)) };
-                assert.notEqual(row.controlPassed, false, `Safety control failed: ${mode.name}/${entry.id}`);
+                if (!process.env.NGRAM_BENCH_COLLECT_FAILURES) {
+                    assert.notEqual(row.controlPassed, false, `Safety control failed: ${mode.name}/${entry.id}`);
+                }
                 if (entry.group === 'repeated') assert.equal(row.targetSeenInSupport, true);
                 if (['new_arguments', 'unseen'].includes(entry.group)) assert.equal(row.targetSeenInSupport, false);
                 rows.push(row);
@@ -227,11 +234,11 @@ export async function run(): Promise<void> {
             'lexicalScanner.ts', 'languageProfiles.json', 'completionEdit.ts', 'prefixScanCache.ts', 'acceptanceMemory.ts']
             .map(name => name + '\n' + fs.readFileSync(path.join(extension.extensionPath, 'src', name), 'utf8').replace(/\r\n/g, '\n')).join('\n')),
         methodology: { kind: 'Synthetic paired feature ablation in the actual VS Code Extension Host; not a historical v3.0 executable comparison.',
-            settings, tokenLimits: [5, 12], warmupRequests: 3, measuredWarmRequests: 20,
+            settings, tokenLimits: [5, 12], warmupRequests, measuredWarmRequests,
             timing: 'Synchronous getInlineSuggestions including edits; excludes UI rendering, automatic trigger scheduling and model loading. First request is per case/mode, not a cold process. Index timing includes command dispatch.',
             split: 'Only support files and target prefixes are indexed. Targets are in separate files. Each case has its own workspace folder. Deliberate support repetitions are reported separately. No accepted suggestions or cross-project memory.',
-            scoring: '20 quality cases, 4 separate safety controls. Missing suggestions are misses. Token matches ignore spacing; exact text preserves it. Prefix fraction counts only contiguous correct leading tokens; it is not measured user keystroke savings.',
-            limitation: '24 authored Rust/TypeScript scenarios, not random held-out repositories or a population estimate. 250ms budget reduces deadline noise; it is not the 35ms default.' },
+            scoring: `${fixture.cases.filter(entry => !entry.expectEmpty && !entry.forbiddenToken).length} quality cases, ${fixture.cases.filter(entry => entry.expectEmpty || entry.forbiddenToken).length} separate safety controls. Missing suggestions are misses. Token matches ignore spacing; exact text preserves it. Prefix fraction counts only contiguous correct leading tokens; it is not measured user keystroke savings.`,
+            limitation: `${fixture.cases.length} synthetic scenarios, not random held-out repositories or a population estimate. 250ms budget reduces deadline noise; it is not the 35ms default.` },
         variants, paired
     };
     fs.mkdirSync(path.dirname(output), { recursive: true });

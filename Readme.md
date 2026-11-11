@@ -269,6 +269,11 @@ Windows, Ubuntu, and macOS, checks every case against the reviewed baseline,
 and uploads `project-benchmark-*` JSON artifacts. Timings are reported separately
 and are not used as cross-machine regression gates.
 
+For a larger synthetic run, [the 500-case suite](benchmarks/PROJECT_500.md) covers
+100 cases each for Rust, TypeScript, Python, Java, and C#. Run
+`npm run benchmark:500` from `extension/`. Its recorded Windows results and
+limitations are separate from the smaller CI regression fixture above.
+
 ## License and attribution
 
 MIT. The original copyright notice remains unchanged in [LICENSE](LICENSE).

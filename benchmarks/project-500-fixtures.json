@@ -1,0 +1,4656 @@
+{
+  "schemaVersion": 1,
+  "description": "500 deterministic synthetic cases: 100 per language. Ten scenario families with ten domain variations each; 80 quality cases and 20 safety controls per language. Related template variants are not independent repository samples.",
+  "cases": [
+    {
+      "id": "rust-repeat-inventory",
+      "language": "rust",
+      "scenario": "repeat",
+      "group": "repeated",
+      "support": "inventory.reserve_stock_batch(stock);\n",
+      "prefix": "inventory.",
+      "expected": "reserve_stock_batch(stock);"
+    },
+    {
+      "id": "rust-spacing-inventory",
+      "language": "rust",
+      "scenario": "spacing",
+      "group": "repeated",
+      "support": "inventory.reserve_stock_batch( stock, warehouse );\n",
+      "prefix": "inventory.",
+      "expected": "reserve_stock_batch( stock, warehouse );"
+    },
+    {
+      "id": "rust-chain-inventory",
+      "language": "rust",
+      "scenario": "chain",
+      "group": "repeated",
+      "support": "inventory.reserve_stock_batch(stock).with_audit_context(warehouse);\n",
+      "prefix": "inventory.",
+      "expected": "reserve_stock_batch(stock).with_audit_context(warehouse);"
+    },
+    {
+      "id": "rust-prefix-inventory",
+      "language": "rust",
+      "scenario": "prefix",
+      "group": "identifier_prefix",
+      "support": "inventory.reserve_stock_batch(stock);\n",
+      "prefix": "inventory.reserve_s",
+      "expected": "tock_batch(stock);"
+    },
+    {
+      "id": "rust-new-argument-inventory",
+      "language": "rust",
+      "scenario": "new-argument",
+      "group": "new_arguments",
+      "support": "inventory.reserve_stock_batch(old_stock);\n",
+      "prefix": "inventory.",
+      "expected": "reserve_stock_batch(new_stock);"
+    },
+    {
+      "id": "rust-ambiguous-inventory",
+      "language": "rust",
+      "scenario": "ambiguous",
+      "group": "ambiguous",
+      "support": "inventory.reserve_stock_batch(stock);\ninventory.clear_pending_batch();\n",
+      "prefix": "inventory.",
+      "expected": "reserve_stock_batch(stock);"
+    },
+    {
+      "id": "rust-unseen-inventory",
+      "language": "rust",
+      "scenario": "unseen",
+      "group": "unseen",
+      "support": "inventory.reserve_stock_batch(stock);\n",
+      "prefix": "inventory.",
+      "expected": "validate_pending_state(warehouse);"
+    },
+    {
+      "id": "rust-receiver-inventory",
+      "language": "rust",
+      "scenario": "receiver",
+      "group": "receiver_disambiguation",
+      "support": "inventory.reserve_stock_batch(stock);\nother.clear_pending_batch(warehouse);\ninventory.reserve_stock_batch(stock);\nother.clear_pending_batch(warehouse);\n",
+      "prefix": "inventory.",
+      "expected": "reserve_stock_batch(stock);"
+    },
+    {
+      "id": "rust-isolation-inventory",
+      "language": "rust",
+      "scenario": "isolation",
+      "group": "isolation",
+      "support": "unrelated.clear_pending_batch();\n",
+      "foreignSupport": "inventory.reserve_stock_batch(stock);\n",
+      "prefix": "inventory.",
+      "expected": "reserve_stock_batch(stock);",
+      "forbiddenToken": "reserve_stock_batch"
+    },
+    {
+      "id": "rust-suppression-inventory",
+      "language": "rust",
+      "scenario": "suppression",
+      "group": "suppression",
+      "support": "inventory.reserve_stock_batch(stock);\n",
+      "prefix": "// inventory.",
+      "expected": "",
+      "expectEmpty": true
+    },
+    {
+      "id": "rust-repeat-mailer",
+      "language": "rust",
+      "scenario": "repeat",
+      "group": "repeated",
+      "support": "mailer.dispatch_envelope_batch(envelope);\n",
+      "prefix": "mailer.",
+      "expected": "dispatch_envelope_batch(envelope);"
+    },
+    {
+      "id": "rust-spacing-mailer",
+      "language": "rust",
+      "scenario": "spacing",
+      "group": "repeated",
+      "support": "mailer.dispatch_envelope_batch( envelope, recipient );\n",
+      "prefix": "mailer.",
+      "expected": "dispatch_envelope_batch( envelope, recipient );"
+    },
+    {
+      "id": "rust-chain-mailer",
+      "language": "rust",
+      "scenario": "chain",
+      "group": "repeated",
+      "support": "mailer.dispatch_envelope_batch(envelope).with_audit_context(recipient);\n",
+      "prefix": "mailer.",
+      "expected": "dispatch_envelope_batch(envelope).with_audit_context(recipient);"
+    },
+    {
+      "id": "rust-prefix-mailer",
+      "language": "rust",
+      "scenario": "prefix",
+      "group": "identifier_prefix",
+      "support": "mailer.dispatch_envelope_batch(envelope);\n",
+      "prefix": "mailer.dispatch_en",
+      "expected": "velope_batch(envelope);"
+    },
+    {
+      "id": "rust-new-argument-mailer",
+      "language": "rust",
+      "scenario": "new-argument",
+      "group": "new_arguments",
+      "support": "mailer.dispatch_envelope_batch(old_envelope);\n",
+      "prefix": "mailer.",
+      "expected": "dispatch_envelope_batch(new_envelope);"
+    },
+    {
+      "id": "rust-ambiguous-mailer",
+      "language": "rust",
+      "scenario": "ambiguous",
+      "group": "ambiguous",
+      "support": "mailer.dispatch_envelope_batch(envelope);\nmailer.clear_pending_batch();\n",
+      "prefix": "mailer.",
+      "expected": "clear_pending_batch();"
+    },
+    {
+      "id": "rust-unseen-mailer",
+      "language": "rust",
+      "scenario": "unseen",
+      "group": "unseen",
+      "support": "mailer.dispatch_envelope_batch(envelope);\n",
+      "prefix": "mailer.",
+      "expected": "validate_pending_state(recipient);"
+    },
+    {
+      "id": "rust-receiver-mailer",
+      "language": "rust",
+      "scenario": "receiver",
+      "group": "receiver_disambiguation",
+      "support": "mailer.dispatch_envelope_batch(envelope);\nother.clear_pending_batch(recipient);\nmailer.dispatch_envelope_batch(envelope);\nother.clear_pending_batch(recipient);\n",
+      "prefix": "mailer.",
+      "expected": "dispatch_envelope_batch(envelope);"
+    },
+    {
+      "id": "rust-isolation-mailer",
+      "language": "rust",
+      "scenario": "isolation",
+      "group": "isolation",
+      "support": "unrelated.clear_pending_batch();\n",
+      "foreignSupport": "mailer.dispatch_envelope_batch(envelope);\n",
+      "prefix": "mailer.",
+      "expected": "dispatch_envelope_batch(envelope);",
+      "forbiddenToken": "dispatch_envelope_batch"
+    },
+    {
+      "id": "rust-suppression-mailer",
+      "language": "rust",
+      "scenario": "suppression",
+      "group": "suppression",
+      "support": "mailer.dispatch_envelope_batch(envelope);\n",
+      "prefix": "let note = r#\"mailer.",
+      "expected": "",
+      "expectEmpty": true
+    },
+    {
+      "id": "rust-repeat-renderer",
+      "language": "rust",
+      "scenario": "repeat",
+      "group": "repeated",
+      "support": "renderer.render_scene_frame(scene);\n",
+      "prefix": "renderer.",
+      "expected": "render_scene_frame(scene);"
+    },
+    {
+      "id": "rust-spacing-renderer",
+      "language": "rust",
+      "scenario": "spacing",
+      "group": "repeated",
+      "support": "renderer.render_scene_frame( scene, viewport );\n",
+      "prefix": "renderer.",
+      "expected": "render_scene_frame( scene, viewport );"
+    },
+    {
+      "id": "rust-chain-renderer",
+      "language": "rust",
+      "scenario": "chain",
+      "group": "repeated",
+      "support": "renderer.render_scene_frame(scene).with_audit_context(viewport);\n",
+      "prefix": "renderer.",
+      "expected": "render_scene_frame(scene).with_audit_context(viewport);"
+    },
+    {
+      "id": "rust-prefix-renderer",
+      "language": "rust",
+      "scenario": "prefix",
+      "group": "identifier_prefix",
+      "support": "renderer.render_scene_frame(scene);\n",
+      "prefix": "renderer.render_sc",
+      "expected": "ene_frame(scene);"
+    },
+    {
+      "id": "rust-new-argument-renderer",
+      "language": "rust",
+      "scenario": "new-argument",
+      "group": "new_arguments",
+      "support": "renderer.render_scene_frame(old_scene);\n",
+      "prefix": "renderer.",
+      "expected": "render_scene_frame(new_scene);"
+    },
+    {
+      "id": "rust-ambiguous-renderer",
+      "language": "rust",
+      "scenario": "ambiguous",
+      "group": "ambiguous",
+      "support": "renderer.render_scene_frame(scene);\nrenderer.clear_pending_batch();\n",
+      "prefix": "renderer.",
+      "expected": "render_scene_frame(scene);"
+    },
+    {
+      "id": "rust-unseen-renderer",
+      "language": "rust",
+      "scenario": "unseen",
+      "group": "unseen",
+      "support": "renderer.render_scene_frame(scene);\n",
+      "prefix": "renderer.",
+      "expected": "validate_pending_state(viewport);"
+    },
+    {
+      "id": "rust-receiver-renderer",
+      "language": "rust",
+      "scenario": "receiver",
+      "group": "receiver_disambiguation",
+      "support": "renderer.render_scene_frame(scene);\nother.clear_pending_batch(viewport);\nrenderer.render_scene_frame(scene);\nother.clear_pending_batch(viewport);\n",
+      "prefix": "renderer.",
+      "expected": "render_scene_frame(scene);"
+    },
+    {
+      "id": "rust-isolation-renderer",
+      "language": "rust",
+      "scenario": "isolation",
+      "group": "isolation",
+      "support": "unrelated.clear_pending_batch();\n",
+      "foreignSupport": "renderer.render_scene_frame(scene);\n",
+      "prefix": "renderer.",
+      "expected": "render_scene_frame(scene);",
+      "forbiddenToken": "render_scene_frame"
+    },
+    {
+      "id": "rust-suppression-renderer",
+      "language": "rust",
+      "scenario": "suppression",
+      "group": "suppression",
+      "support": "renderer.render_scene_frame(scene);\n",
+      "prefix": "// renderer.",
+      "expected": "",
+      "expectEmpty": true
+    },
+    {
+      "id": "rust-repeat-ledger",
+      "language": "rust",
+      "scenario": "repeat",
+      "group": "repeated",
+      "support": "ledger.append_ledger_entry(entry);\n",
+      "prefix": "ledger.",
+      "expected": "append_ledger_entry(entry);"
+    },
+    {
+      "id": "rust-spacing-ledger",
+      "language": "rust",
+      "scenario": "spacing",
+      "group": "repeated",
+      "support": "ledger.append_ledger_entry( entry, account );\n",
+      "prefix": "ledger.",
+      "expected": "append_ledger_entry( entry, account );"
+    },
+    {
+      "id": "rust-chain-ledger",
+      "language": "rust",
+      "scenario": "chain",
+      "group": "repeated",
+      "support": "ledger.append_ledger_entry(entry).with_audit_context(account);\n",
+      "prefix": "ledger.",
+      "expected": "append_ledger_entry(entry).with_audit_context(account);"
+    },
+    {
+      "id": "rust-prefix-ledger",
+      "language": "rust",
+      "scenario": "prefix",
+      "group": "identifier_prefix",
+      "support": "ledger.append_ledger_entry(entry);\n",
+      "prefix": "ledger.append_le",
+      "expected": "dger_entry(entry);"
+    },
+    {
+      "id": "rust-new-argument-ledger",
+      "language": "rust",
+      "scenario": "new-argument",
+      "group": "new_arguments",
+      "support": "ledger.append_ledger_entry(old_entry);\n",
+      "prefix": "ledger.",
+      "expected": "append_ledger_entry(new_entry);"
+    },
+    {
+      "id": "rust-ambiguous-ledger",
+      "language": "rust",
+      "scenario": "ambiguous",
+      "group": "ambiguous",
+      "support": "ledger.append_ledger_entry(entry);\nledger.clear_pending_batch();\n",
+      "prefix": "ledger.",
+      "expected": "clear_pending_batch();"
+    },
+    {
+      "id": "rust-unseen-ledger",
+      "language": "rust",
+      "scenario": "unseen",
+      "group": "unseen",
+      "support": "ledger.append_ledger_entry(entry);\n",
+      "prefix": "ledger.",
+      "expected": "validate_pending_state(account);"
+    },
+    {
+      "id": "rust-receiver-ledger",
+      "language": "rust",
+      "scenario": "receiver",
+      "group": "receiver_disambiguation",
+      "support": "ledger.append_ledger_entry(entry);\nother.clear_pending_batch(account);\nledger.append_ledger_entry(entry);\nother.clear_pending_batch(account);\n",
+      "prefix": "ledger.",
+      "expected": "append_ledger_entry(entry);"
+    },
+    {
+      "id": "rust-isolation-ledger",
+      "language": "rust",
+      "scenario": "isolation",
+      "group": "isolation",
+      "support": "unrelated.clear_pending_batch();\n",
+      "foreignSupport": "ledger.append_ledger_entry(entry);\n",
+      "prefix": "ledger.",
+      "expected": "append_ledger_entry(entry);",
+      "forbiddenToken": "append_ledger_entry"
+    },
+    {
+      "id": "rust-suppression-ledger",
+      "language": "rust",
+      "scenario": "suppression",
+      "group": "suppression",
+      "support": "ledger.append_ledger_entry(entry);\n",
+      "prefix": "let note = r#\"ledger.",
+      "expected": "",
+      "expectEmpty": true
+    },
+    {
+      "id": "rust-repeat-scheduler",
+      "language": "rust",
+      "scenario": "repeat",
+      "group": "repeated",
+      "support": "scheduler.enqueue_scheduled_job(job);\n",
+      "prefix": "scheduler.",
+      "expected": "enqueue_scheduled_job(job);"
+    },
+    {
+      "id": "rust-spacing-scheduler",
+      "language": "rust",
+      "scenario": "spacing",
+      "group": "repeated",
+      "support": "scheduler.enqueue_scheduled_job( job, priority );\n",
+      "prefix": "scheduler.",
+      "expected": "enqueue_scheduled_job( job, priority );"
+    },
+    {
+      "id": "rust-chain-scheduler",
+      "language": "rust",
+      "scenario": "chain",
+      "group": "repeated",
+      "support": "scheduler.enqueue_scheduled_job(job).with_audit_context(priority);\n",
+      "prefix": "scheduler.",
+      "expected": "enqueue_scheduled_job(job).with_audit_context(priority);"
+    },
+    {
+      "id": "rust-prefix-scheduler",
+      "language": "rust",
+      "scenario": "prefix",
+      "group": "identifier_prefix",
+      "support": "scheduler.enqueue_scheduled_job(job);\n",
+      "prefix": "scheduler.enqueue_sc",
+      "expected": "heduled_job(job);"
+    },
+    {
+      "id": "rust-new-argument-scheduler",
+      "language": "rust",
+      "scenario": "new-argument",
+      "group": "new_arguments",
+      "support": "scheduler.enqueue_scheduled_job(old_job);\n",
+      "prefix": "scheduler.",
+      "expected": "enqueue_scheduled_job(new_job);"
+    },
+    {
+      "id": "rust-ambiguous-scheduler",
+      "language": "rust",
+      "scenario": "ambiguous",
+      "group": "ambiguous",
+      "support": "scheduler.enqueue_scheduled_job(job);\nscheduler.clear_pending_batch();\n",
+      "prefix": "scheduler.",
+      "expected": "enqueue_scheduled_job(job);"
+    },
+    {
+      "id": "rust-unseen-scheduler",
+      "language": "rust",
+      "scenario": "unseen",
+      "group": "unseen",
+      "support": "scheduler.enqueue_scheduled_job(job);\n",
+      "prefix": "scheduler.",
+      "expected": "validate_pending_state(priority);"
+    },
+    {
+      "id": "rust-receiver-scheduler",
+      "language": "rust",
+      "scenario": "receiver",
+      "group": "receiver_disambiguation",
+      "support": "scheduler.enqueue_scheduled_job(job);\nother.clear_pending_batch(priority);\nscheduler.enqueue_scheduled_job(job);\nother.clear_pending_batch(priority);\n",
+      "prefix": "scheduler.",
+      "expected": "enqueue_scheduled_job(job);"
+    },
+    {
+      "id": "rust-isolation-scheduler",
+      "language": "rust",
+      "scenario": "isolation",
+      "group": "isolation",
+      "support": "unrelated.clear_pending_batch();\n",
+      "foreignSupport": "scheduler.enqueue_scheduled_job(job);\n",
+      "prefix": "scheduler.",
+      "expected": "enqueue_scheduled_job(job);",
+      "forbiddenToken": "enqueue_scheduled_job"
+    },
+    {
+      "id": "rust-suppression-scheduler",
+      "language": "rust",
+      "scenario": "suppression",
+      "group": "suppression",
+      "support": "scheduler.enqueue_scheduled_job(job);\n",
+      "prefix": "// scheduler.",
+      "expected": "",
+      "expectEmpty": true
+    },
+    {
+      "id": "rust-repeat-catalog",
+      "language": "rust",
+      "scenario": "repeat",
+      "group": "repeated",
+      "support": "catalog.index_catalog_record(record);\n",
+      "prefix": "catalog.",
+      "expected": "index_catalog_record(record);"
+    },
+    {
+      "id": "rust-spacing-catalog",
+      "language": "rust",
+      "scenario": "spacing",
+      "group": "repeated",
+      "support": "catalog.index_catalog_record( record, category );\n",
+      "prefix": "catalog.",
+      "expected": "index_catalog_record( record, category );"
+    },
+    {
+      "id": "rust-chain-catalog",
+      "language": "rust",
+      "scenario": "chain",
+      "group": "repeated",
+      "support": "catalog.index_catalog_record(record).with_audit_context(category);\n",
+      "prefix": "catalog.",
+      "expected": "index_catalog_record(record).with_audit_context(category);"
+    },
+    {
+      "id": "rust-prefix-catalog",
+      "language": "rust",
+      "scenario": "prefix",
+      "group": "identifier_prefix",
+      "support": "catalog.index_catalog_record(record);\n",
+      "prefix": "catalog.index_cata",
+      "expected": "log_record(record);"
+    },
+    {
+      "id": "rust-new-argument-catalog",
+      "language": "rust",
+      "scenario": "new-argument",
+      "group": "new_arguments",
+      "support": "catalog.index_catalog_record(old_record);\n",
+      "prefix": "catalog.",
+      "expected": "index_catalog_record(new_record);"
+    },
+    {
+      "id": "rust-ambiguous-catalog",
+      "language": "rust",
+      "scenario": "ambiguous",
+      "group": "ambiguous",
+      "support": "catalog.index_catalog_record(record);\ncatalog.clear_pending_batch();\n",
+      "prefix": "catalog.",
+      "expected": "clear_pending_batch();"
+    },
+    {
+      "id": "rust-unseen-catalog",
+      "language": "rust",
+      "scenario": "unseen",
+      "group": "unseen",
+      "support": "catalog.index_catalog_record(record);\n",
+      "prefix": "catalog.",
+      "expected": "validate_pending_state(category);"
+    },
+    {
+      "id": "rust-receiver-catalog",
+      "language": "rust",
+      "scenario": "receiver",
+      "group": "receiver_disambiguation",
+      "support": "catalog.index_catalog_record(record);\nother.clear_pending_batch(category);\ncatalog.index_catalog_record(record);\nother.clear_pending_batch(category);\n",
+      "prefix": "catalog.",
+      "expected": "index_catalog_record(record);"
+    },
+    {
+      "id": "rust-isolation-catalog",
+      "language": "rust",
+      "scenario": "isolation",
+      "group": "isolation",
+      "support": "unrelated.clear_pending_batch();\n",
+      "foreignSupport": "catalog.index_catalog_record(record);\n",
+      "prefix": "catalog.",
+      "expected": "index_catalog_record(record);",
+      "forbiddenToken": "index_catalog_record"
+    },
+    {
+      "id": "rust-suppression-catalog",
+      "language": "rust",
+      "scenario": "suppression",
+      "group": "suppression",
+      "support": "catalog.index_catalog_record(record);\n",
+      "prefix": "let note = r#\"catalog.",
+      "expected": "",
+      "expectEmpty": true
+    },
+    {
+      "id": "rust-repeat-storage",
+      "language": "rust",
+      "scenario": "repeat",
+      "group": "repeated",
+      "support": "storage.persist_snapshot_block(block);\n",
+      "prefix": "storage.",
+      "expected": "persist_snapshot_block(block);"
+    },
+    {
+      "id": "rust-spacing-storage",
+      "language": "rust",
+      "scenario": "spacing",
+      "group": "repeated",
+      "support": "storage.persist_snapshot_block( block, checkpoint );\n",
+      "prefix": "storage.",
+      "expected": "persist_snapshot_block( block, checkpoint );"
+    },
+    {
+      "id": "rust-chain-storage",
+      "language": "rust",
+      "scenario": "chain",
+      "group": "repeated",
+      "support": "storage.persist_snapshot_block(block).with_audit_context(checkpoint);\n",
+      "prefix": "storage.",
+      "expected": "persist_snapshot_block(block).with_audit_context(checkpoint);"
+    },
+    {
+      "id": "rust-prefix-storage",
+      "language": "rust",
+      "scenario": "prefix",
+      "group": "identifier_prefix",
+      "support": "storage.persist_snapshot_block(block);\n",
+      "prefix": "storage.persist_sna",
+      "expected": "pshot_block(block);"
+    },
+    {
+      "id": "rust-new-argument-storage",
+      "language": "rust",
+      "scenario": "new-argument",
+      "group": "new_arguments",
+      "support": "storage.persist_snapshot_block(old_block);\n",
+      "prefix": "storage.",
+      "expected": "persist_snapshot_block(new_block);"
+    },
+    {
+      "id": "rust-ambiguous-storage",
+      "language": "rust",
+      "scenario": "ambiguous",
+      "group": "ambiguous",
+      "support": "storage.persist_snapshot_block(block);\nstorage.clear_pending_batch();\n",
+      "prefix": "storage.",
+      "expected": "persist_snapshot_block(block);"
+    },
+    {
+      "id": "rust-unseen-storage",
+      "language": "rust",
+      "scenario": "unseen",
+      "group": "unseen",
+      "support": "storage.persist_snapshot_block(block);\n",
+      "prefix": "storage.",
+      "expected": "validate_pending_state(checkpoint);"
+    },
+    {
+      "id": "rust-receiver-storage",
+      "language": "rust",
+      "scenario": "receiver",
+      "group": "receiver_disambiguation",
+      "support": "storage.persist_snapshot_block(block);\nother.clear_pending_batch(checkpoint);\nstorage.persist_snapshot_block(block);\nother.clear_pending_batch(checkpoint);\n",
+      "prefix": "storage.",
+      "expected": "persist_snapshot_block(block);"
+    },
+    {
+      "id": "rust-isolation-storage",
+      "language": "rust",
+      "scenario": "isolation",
+      "group": "isolation",
+      "support": "unrelated.clear_pending_batch();\n",
+      "foreignSupport": "storage.persist_snapshot_block(block);\n",
+      "prefix": "storage.",
+      "expected": "persist_snapshot_block(block);",
+      "forbiddenToken": "persist_snapshot_block"
+    },
+    {
+      "id": "rust-suppression-storage",
+      "language": "rust",
+      "scenario": "suppression",
+      "group": "suppression",
+      "support": "storage.persist_snapshot_block(block);\n",
+      "prefix": "// storage.",
+      "expected": "",
+      "expectEmpty": true
+    },
+    {
+      "id": "rust-repeat-telemetry",
+      "language": "rust",
+      "scenario": "repeat",
+      "group": "repeated",
+      "support": "telemetry.collect_telemetry_sample(sample);\n",
+      "prefix": "telemetry.",
+      "expected": "collect_telemetry_sample(sample);"
+    },
+    {
+      "id": "rust-spacing-telemetry",
+      "language": "rust",
+      "scenario": "spacing",
+      "group": "repeated",
+      "support": "telemetry.collect_telemetry_sample( sample, timestamp );\n",
+      "prefix": "telemetry.",
+      "expected": "collect_telemetry_sample( sample, timestamp );"
+    },
+    {
+      "id": "rust-chain-telemetry",
+      "language": "rust",
+      "scenario": "chain",
+      "group": "repeated",
+      "support": "telemetry.collect_telemetry_sample(sample).with_audit_context(timestamp);\n",
+      "prefix": "telemetry.",
+      "expected": "collect_telemetry_sample(sample).with_audit_context(timestamp);"
+    },
+    {
+      "id": "rust-prefix-telemetry",
+      "language": "rust",
+      "scenario": "prefix",
+      "group": "identifier_prefix",
+      "support": "telemetry.collect_telemetry_sample(sample);\n",
+      "prefix": "telemetry.collect_tele",
+      "expected": "metry_sample(sample);"
+    },
+    {
+      "id": "rust-new-argument-telemetry",
+      "language": "rust",
+      "scenario": "new-argument",
+      "group": "new_arguments",
+      "support": "telemetry.collect_telemetry_sample(old_sample);\n",
+      "prefix": "telemetry.",
+      "expected": "collect_telemetry_sample(new_sample);"
+    },
+    {
+      "id": "rust-ambiguous-telemetry",
+      "language": "rust",
+      "scenario": "ambiguous",
+      "group": "ambiguous",
+      "support": "telemetry.collect_telemetry_sample(sample);\ntelemetry.clear_pending_batch();\n",
+      "prefix": "telemetry.",
+      "expected": "clear_pending_batch();"
+    },
+    {
+      "id": "rust-unseen-telemetry",
+      "language": "rust",
+      "scenario": "unseen",
+      "group": "unseen",
+      "support": "telemetry.collect_telemetry_sample(sample);\n",
+      "prefix": "telemetry.",
+      "expected": "validate_pending_state(timestamp);"
+    },
+    {
+      "id": "rust-receiver-telemetry",
+      "language": "rust",
+      "scenario": "receiver",
+      "group": "receiver_disambiguation",
+      "support": "telemetry.collect_telemetry_sample(sample);\nother.clear_pending_batch(timestamp);\ntelemetry.collect_telemetry_sample(sample);\nother.clear_pending_batch(timestamp);\n",
+      "prefix": "telemetry.",
+      "expected": "collect_telemetry_sample(sample);"
+    },
+    {
+      "id": "rust-isolation-telemetry",
+      "language": "rust",
+      "scenario": "isolation",
+      "group": "isolation",
+      "support": "unrelated.clear_pending_batch();\n",
+      "foreignSupport": "telemetry.collect_telemetry_sample(sample);\n",
+      "prefix": "telemetry.",
+      "expected": "collect_telemetry_sample(sample);",
+      "forbiddenToken": "collect_telemetry_sample"
+    },
+    {
+      "id": "rust-suppression-telemetry",
+      "language": "rust",
+      "scenario": "suppression",
+      "group": "suppression",
+      "support": "telemetry.collect_telemetry_sample(sample);\n",
+      "prefix": "let note = r#\"telemetry.",
+      "expected": "",
+      "expectEmpty": true
+    },
+    {
+      "id": "rust-repeat-router",
+      "language": "rust",
+      "scenario": "repeat",
+      "group": "repeated",
+      "support": "router.resolve_route_binding(binding);\n",
+      "prefix": "router.",
+      "expected": "resolve_route_binding(binding);"
+    },
+    {
+      "id": "rust-spacing-router",
+      "language": "rust",
+      "scenario": "spacing",
+      "group": "repeated",
+      "support": "router.resolve_route_binding( binding, endpoint );\n",
+      "prefix": "router.",
+      "expected": "resolve_route_binding( binding, endpoint );"
+    },
+    {
+      "id": "rust-chain-router",
+      "language": "rust",
+      "scenario": "chain",
+      "group": "repeated",
+      "support": "router.resolve_route_binding(binding).with_audit_context(endpoint);\n",
+      "prefix": "router.",
+      "expected": "resolve_route_binding(binding).with_audit_context(endpoint);"
+    },
+    {
+      "id": "rust-prefix-router",
+      "language": "rust",
+      "scenario": "prefix",
+      "group": "identifier_prefix",
+      "support": "router.resolve_route_binding(binding);\n",
+      "prefix": "router.resolve_ro",
+      "expected": "ute_binding(binding);"
+    },
+    {
+      "id": "rust-new-argument-router",
+      "language": "rust",
+      "scenario": "new-argument",
+      "group": "new_arguments",
+      "support": "router.resolve_route_binding(old_binding);\n",
+      "prefix": "router.",
+      "expected": "resolve_route_binding(new_binding);"
+    },
+    {
+      "id": "rust-ambiguous-router",
+      "language": "rust",
+      "scenario": "ambiguous",
+      "group": "ambiguous",
+      "support": "router.resolve_route_binding(binding);\nrouter.clear_pending_batch();\n",
+      "prefix": "router.",
+      "expected": "resolve_route_binding(binding);"
+    },
+    {
+      "id": "rust-unseen-router",
+      "language": "rust",
+      "scenario": "unseen",
+      "group": "unseen",
+      "support": "router.resolve_route_binding(binding);\n",
+      "prefix": "router.",
+      "expected": "validate_pending_state(endpoint);"
+    },
+    {
+      "id": "rust-receiver-router",
+      "language": "rust",
+      "scenario": "receiver",
+      "group": "receiver_disambiguation",
+      "support": "router.resolve_route_binding(binding);\nother.clear_pending_batch(endpoint);\nrouter.resolve_route_binding(binding);\nother.clear_pending_batch(endpoint);\n",
+      "prefix": "router.",
+      "expected": "resolve_route_binding(binding);"
+    },
+    {
+      "id": "rust-isolation-router",
+      "language": "rust",
+      "scenario": "isolation",
+      "group": "isolation",
+      "support": "unrelated.clear_pending_batch();\n",
+      "foreignSupport": "router.resolve_route_binding(binding);\n",
+      "prefix": "router.",
+      "expected": "resolve_route_binding(binding);",
+      "forbiddenToken": "resolve_route_binding"
+    },
+    {
+      "id": "rust-suppression-router",
+      "language": "rust",
+      "scenario": "suppression",
+      "group": "suppression",
+      "support": "router.resolve_route_binding(binding);\n",
+      "prefix": "// router.",
+      "expected": "",
+      "expectEmpty": true
+    },
+    {
+      "id": "rust-repeat-pipeline",
+      "language": "rust",
+      "scenario": "repeat",
+      "group": "repeated",
+      "support": "pipeline.transform_input_batch(input);\n",
+      "prefix": "pipeline.",
+      "expected": "transform_input_batch(input);"
+    },
+    {
+      "id": "rust-spacing-pipeline",
+      "language": "rust",
+      "scenario": "spacing",
+      "group": "repeated",
+      "support": "pipeline.transform_input_batch( input, options );\n",
+      "prefix": "pipeline.",
+      "expected": "transform_input_batch( input, options );"
+    },
+    {
+      "id": "rust-chain-pipeline",
+      "language": "rust",
+      "scenario": "chain",
+      "group": "repeated",
+      "support": "pipeline.transform_input_batch(input).with_audit_context(options);\n",
+      "prefix": "pipeline.",
+      "expected": "transform_input_batch(input).with_audit_context(options);"
+    },
+    {
+      "id": "rust-prefix-pipeline",
+      "language": "rust",
+      "scenario": "prefix",
+      "group": "identifier_prefix",
+      "support": "pipeline.transform_input_batch(input);\n",
+      "prefix": "pipeline.transform_",
+      "expected": "input_batch(input);"
+    },
+    {
+      "id": "rust-new-argument-pipeline",
+      "language": "rust",
+      "scenario": "new-argument",
+      "group": "new_arguments",
+      "support": "pipeline.transform_input_batch(old_input);\n",
+      "prefix": "pipeline.",
+      "expected": "transform_input_batch(new_input);"
+    },
+    {
+      "id": "rust-ambiguous-pipeline",
+      "language": "rust",
+      "scenario": "ambiguous",
+      "group": "ambiguous",
+      "support": "pipeline.transform_input_batch(input);\npipeline.clear_pending_batch();\n",
+      "prefix": "pipeline.",
+      "expected": "clear_pending_batch();"
+    },
+    {
+      "id": "rust-unseen-pipeline",
+      "language": "rust",
+      "scenario": "unseen",
+      "group": "unseen",
+      "support": "pipeline.transform_input_batch(input);\n",
+      "prefix": "pipeline.",
+      "expected": "validate_pending_state(options);"
+    },
+    {
+      "id": "rust-receiver-pipeline",
+      "language": "rust",
+      "scenario": "receiver",
+      "group": "receiver_disambiguation",
+      "support": "pipeline.transform_input_batch(input);\nother.clear_pending_batch(options);\npipeline.transform_input_batch(input);\nother.clear_pending_batch(options);\n",
+      "prefix": "pipeline.",
+      "expected": "transform_input_batch(input);"
+    },
+    {
+      "id": "rust-isolation-pipeline",
+      "language": "rust",
+      "scenario": "isolation",
+      "group": "isolation",
+      "support": "unrelated.clear_pending_batch();\n",
+      "foreignSupport": "pipeline.transform_input_batch(input);\n",
+      "prefix": "pipeline.",
+      "expected": "transform_input_batch(input);",
+      "forbiddenToken": "transform_input_batch"
+    },
+    {
+      "id": "rust-suppression-pipeline",
+      "language": "rust",
+      "scenario": "suppression",
+      "group": "suppression",
+      "support": "pipeline.transform_input_batch(input);\n",
+      "prefix": "let note = r#\"pipeline.",
+      "expected": "",
+      "expectEmpty": true
+    },
+    {
+      "id": "typescript-repeat-inventory",
+      "language": "typescript",
+      "scenario": "repeat",
+      "group": "repeated",
+      "support": "inventory.reserveStockBatch(stock);\n",
+      "prefix": "inventory.",
+      "expected": "reserveStockBatch(stock);"
+    },
+    {
+      "id": "typescript-spacing-inventory",
+      "language": "typescript",
+      "scenario": "spacing",
+      "group": "repeated",
+      "support": "inventory.reserveStockBatch( stock, warehouse );\n",
+      "prefix": "inventory.",
+      "expected": "reserveStockBatch( stock, warehouse );"
+    },
+    {
+      "id": "typescript-chain-inventory",
+      "language": "typescript",
+      "scenario": "chain",
+      "group": "repeated",
+      "support": "inventory.reserveStockBatch(stock).withAuditContext(warehouse);\n",
+      "prefix": "inventory.",
+      "expected": "reserveStockBatch(stock).withAuditContext(warehouse);"
+    },
+    {
+      "id": "typescript-prefix-inventory",
+      "language": "typescript",
+      "scenario": "prefix",
+      "group": "identifier_prefix",
+      "support": "inventory.reserveStockBatch(stock);\n",
+      "prefix": "inventory.reserveS",
+      "expected": "tockBatch(stock);"
+    },
+    {
+      "id": "typescript-new-argument-inventory",
+      "language": "typescript",
+      "scenario": "new-argument",
+      "group": "new_arguments",
+      "support": "inventory.reserveStockBatch(old_stock);\n",
+      "prefix": "inventory.",
+      "expected": "reserveStockBatch(new_stock);"
+    },
+    {
+      "id": "typescript-ambiguous-inventory",
+      "language": "typescript",
+      "scenario": "ambiguous",
+      "group": "ambiguous",
+      "support": "inventory.reserveStockBatch(stock);\ninventory.clearPendingBatch();\n",
+      "prefix": "inventory.",
+      "expected": "reserveStockBatch(stock);"
+    },
+    {
+      "id": "typescript-unseen-inventory",
+      "language": "typescript",
+      "scenario": "unseen",
+      "group": "unseen",
+      "support": "inventory.reserveStockBatch(stock);\n",
+      "prefix": "inventory.",
+      "expected": "validatePendingState(warehouse);"
+    },
+    {
+      "id": "typescript-receiver-inventory",
+      "language": "typescript",
+      "scenario": "receiver",
+      "group": "receiver_disambiguation",
+      "support": "inventory.reserveStockBatch(stock);\nother.clearPendingBatch(warehouse);\ninventory.reserveStockBatch(stock);\nother.clearPendingBatch(warehouse);\n",
+      "prefix": "inventory.",
+      "expected": "reserveStockBatch(stock);"
+    },
+    {
+      "id": "typescript-isolation-inventory",
+      "language": "typescript",
+      "scenario": "isolation",
+      "group": "isolation",
+      "support": "unrelated.clearPendingBatch();\n",
+      "foreignSupport": "inventory.reserveStockBatch(stock);\n",
+      "prefix": "inventory.",
+      "expected": "reserveStockBatch(stock);",
+      "forbiddenToken": "reserveStockBatch"
+    },
+    {
+      "id": "typescript-suppression-inventory",
+      "language": "typescript",
+      "scenario": "suppression",
+      "group": "suppression",
+      "support": "inventory.reserveStockBatch(stock);\n",
+      "prefix": "// inventory.",
+      "expected": "",
+      "expectEmpty": true
+    },
+    {
+      "id": "typescript-repeat-mailer",
+      "language": "typescript",
+      "scenario": "repeat",
+      "group": "repeated",
+      "support": "mailer.dispatchEnvelopeBatch(envelope);\n",
+      "prefix": "mailer.",
+      "expected": "dispatchEnvelopeBatch(envelope);"
+    },
+    {
+      "id": "typescript-spacing-mailer",
+      "language": "typescript",
+      "scenario": "spacing",
+      "group": "repeated",
+      "support": "mailer.dispatchEnvelopeBatch( envelope, recipient );\n",
+      "prefix": "mailer.",
+      "expected": "dispatchEnvelopeBatch( envelope, recipient );"
+    },
+    {
+      "id": "typescript-chain-mailer",
+      "language": "typescript",
+      "scenario": "chain",
+      "group": "repeated",
+      "support": "mailer.dispatchEnvelopeBatch(envelope).withAuditContext(recipient);\n",
+      "prefix": "mailer.",
+      "expected": "dispatchEnvelopeBatch(envelope).withAuditContext(recipient);"
+    },
+    {
+      "id": "typescript-prefix-mailer",
+      "language": "typescript",
+      "scenario": "prefix",
+      "group": "identifier_prefix",
+      "support": "mailer.dispatchEnvelopeBatch(envelope);\n",
+      "prefix": "mailer.dispatchEn",
+      "expected": "velopeBatch(envelope);"
+    },
+    {
+      "id": "typescript-new-argument-mailer",
+      "language": "typescript",
+      "scenario": "new-argument",
+      "group": "new_arguments",
+      "support": "mailer.dispatchEnvelopeBatch(old_envelope);\n",
+      "prefix": "mailer.",
+      "expected": "dispatchEnvelopeBatch(new_envelope);"
+    },
+    {
+      "id": "typescript-ambiguous-mailer",
+      "language": "typescript",
+      "scenario": "ambiguous",
+      "group": "ambiguous",
+      "support": "mailer.dispatchEnvelopeBatch(envelope);\nmailer.clearPendingBatch();\n",
+      "prefix": "mailer.",
+      "expected": "clearPendingBatch();"
+    },
+    {
+      "id": "typescript-unseen-mailer",
+      "language": "typescript",
+      "scenario": "unseen",
+      "group": "unseen",
+      "support": "mailer.dispatchEnvelopeBatch(envelope);\n",
+      "prefix": "mailer.",
+      "expected": "validatePendingState(recipient);"
+    },
+    {
+      "id": "typescript-receiver-mailer",
+      "language": "typescript",
+      "scenario": "receiver",
+      "group": "receiver_disambiguation",
+      "support": "mailer.dispatchEnvelopeBatch(envelope);\nother.clearPendingBatch(recipient);\nmailer.dispatchEnvelopeBatch(envelope);\nother.clearPendingBatch(recipient);\n",
+      "prefix": "mailer.",
+      "expected": "dispatchEnvelopeBatch(envelope);"
+    },
+    {
+      "id": "typescript-isolation-mailer",
+      "language": "typescript",
+      "scenario": "isolation",
+      "group": "isolation",
+      "support": "unrelated.clearPendingBatch();\n",
+      "foreignSupport": "mailer.dispatchEnvelopeBatch(envelope);\n",
+      "prefix": "mailer.",
+      "expected": "dispatchEnvelopeBatch(envelope);",
+      "forbiddenToken": "dispatchEnvelopeBatch"
+    },
+    {
+      "id": "typescript-suppression-mailer",
+      "language": "typescript",
+      "scenario": "suppression",
+      "group": "suppression",
+      "support": "mailer.dispatchEnvelopeBatch(envelope);\n",
+      "prefix": "const note = `mailer.",
+      "expected": "",
+      "expectEmpty": true
+    },
+    {
+      "id": "typescript-repeat-renderer",
+      "language": "typescript",
+      "scenario": "repeat",
+      "group": "repeated",
+      "support": "renderer.renderSceneFrame(scene);\n",
+      "prefix": "renderer.",
+      "expected": "renderSceneFrame(scene);"
+    },
+    {
+      "id": "typescript-spacing-renderer",
+      "language": "typescript",
+      "scenario": "spacing",
+      "group": "repeated",
+      "support": "renderer.renderSceneFrame( scene, viewport );\n",
+      "prefix": "renderer.",
+      "expected": "renderSceneFrame( scene, viewport );"
+    },
+    {
+      "id": "typescript-chain-renderer",
+      "language": "typescript",
+      "scenario": "chain",
+      "group": "repeated",
+      "support": "renderer.renderSceneFrame(scene).withAuditContext(viewport);\n",
+      "prefix": "renderer.",
+      "expected": "renderSceneFrame(scene).withAuditContext(viewport);"
+    },
+    {
+      "id": "typescript-prefix-renderer",
+      "language": "typescript",
+      "scenario": "prefix",
+      "group": "identifier_prefix",
+      "support": "renderer.renderSceneFrame(scene);\n",
+      "prefix": "renderer.renderSc",
+      "expected": "eneFrame(scene);"
+    },
+    {
+      "id": "typescript-new-argument-renderer",
+      "language": "typescript",
+      "scenario": "new-argument",
+      "group": "new_arguments",
+      "support": "renderer.renderSceneFrame(old_scene);\n",
+      "prefix": "renderer.",
+      "expected": "renderSceneFrame(new_scene);"
+    },
+    {
+      "id": "typescript-ambiguous-renderer",
+      "language": "typescript",
+      "scenario": "ambiguous",
+      "group": "ambiguous",
+      "support": "renderer.renderSceneFrame(scene);\nrenderer.clearPendingBatch();\n",
+      "prefix": "renderer.",
+      "expected": "renderSceneFrame(scene);"
+    },
+    {
+      "id": "typescript-unseen-renderer",
+      "language": "typescript",
+      "scenario": "unseen",
+      "group": "unseen",
+      "support": "renderer.renderSceneFrame(scene);\n",
+      "prefix": "renderer.",
+      "expected": "validatePendingState(viewport);"
+    },
+    {
+      "id": "typescript-receiver-renderer",
+      "language": "typescript",
+      "scenario": "receiver",
+      "group": "receiver_disambiguation",
+      "support": "renderer.renderSceneFrame(scene);\nother.clearPendingBatch(viewport);\nrenderer.renderSceneFrame(scene);\nother.clearPendingBatch(viewport);\n",
+      "prefix": "renderer.",
+      "expected": "renderSceneFrame(scene);"
+    },
+    {
+      "id": "typescript-isolation-renderer",
+      "language": "typescript",
+      "scenario": "isolation",
+      "group": "isolation",
+      "support": "unrelated.clearPendingBatch();\n",
+      "foreignSupport": "renderer.renderSceneFrame(scene);\n",
+      "prefix": "renderer.",
+      "expected": "renderSceneFrame(scene);",
+      "forbiddenToken": "renderSceneFrame"
+    },
+    {
+      "id": "typescript-suppression-renderer",
+      "language": "typescript",
+      "scenario": "suppression",
+      "group": "suppression",
+      "support": "renderer.renderSceneFrame(scene);\n",
+      "prefix": "// renderer.",
+      "expected": "",
+      "expectEmpty": true
+    },
+    {
+      "id": "typescript-repeat-ledger",
+      "language": "typescript",
+      "scenario": "repeat",
+      "group": "repeated",
+      "support": "ledger.appendLedgerEntry(entry);\n",
+      "prefix": "ledger.",
+      "expected": "appendLedgerEntry(entry);"
+    },
+    {
+      "id": "typescript-spacing-ledger",
+      "language": "typescript",
+      "scenario": "spacing",
+      "group": "repeated",
+      "support": "ledger.appendLedgerEntry( entry, account );\n",
+      "prefix": "ledger.",
+      "expected": "appendLedgerEntry( entry, account );"
+    },
+    {
+      "id": "typescript-chain-ledger",
+      "language": "typescript",
+      "scenario": "chain",
+      "group": "repeated",
+      "support": "ledger.appendLedgerEntry(entry).withAuditContext(account);\n",
+      "prefix": "ledger.",
+      "expected": "appendLedgerEntry(entry).withAuditContext(account);"
+    },
+    {
+      "id": "typescript-prefix-ledger",
+      "language": "typescript",
+      "scenario": "prefix",
+      "group": "identifier_prefix",
+      "support": "ledger.appendLedgerEntry(entry);\n",
+      "prefix": "ledger.appendLe",
+      "expected": "dgerEntry(entry);"
+    },
+    {
+      "id": "typescript-new-argument-ledger",
+      "language": "typescript",
+      "scenario": "new-argument",
+      "group": "new_arguments",
+      "support": "ledger.appendLedgerEntry(old_entry);\n",
+      "prefix": "ledger.",
+      "expected": "appendLedgerEntry(new_entry);"
+    },
+    {
+      "id": "typescript-ambiguous-ledger",
+      "language": "typescript",
+      "scenario": "ambiguous",
+      "group": "ambiguous",
+      "support": "ledger.appendLedgerEntry(entry);\nledger.clearPendingBatch();\n",
+      "prefix": "ledger.",
+      "expected": "clearPendingBatch();"
+    },
+    {
+      "id": "typescript-unseen-ledger",
+      "language": "typescript",
+      "scenario": "unseen",
+      "group": "unseen",
+      "support": "ledger.appendLedgerEntry(entry);\n",
+      "prefix": "ledger.",
+      "expected": "validatePendingState(account);"
+    },
+    {
+      "id": "typescript-receiver-ledger",
+      "language": "typescript",
+      "scenario": "receiver",
+      "group": "receiver_disambiguation",
+      "support": "ledger.appendLedgerEntry(entry);\nother.clearPendingBatch(account);\nledger.appendLedgerEntry(entry);\nother.clearPendingBatch(account);\n",
+      "prefix": "ledger.",
+      "expected": "appendLedgerEntry(entry);"
+    },
+    {
+      "id": "typescript-isolation-ledger",
+      "language": "typescript",
+      "scenario": "isolation",
+      "group": "isolation",
+      "support": "unrelated.clearPendingBatch();\n",
+      "foreignSupport": "ledger.appendLedgerEntry(entry);\n",
+      "prefix": "ledger.",
+      "expected": "appendLedgerEntry(entry);",
+      "forbiddenToken": "appendLedgerEntry"
+    },
+    {
+      "id": "typescript-suppression-ledger",
+      "language": "typescript",
+      "scenario": "suppression",
+      "group": "suppression",
+      "support": "ledger.appendLedgerEntry(entry);\n",
+      "prefix": "const note = `ledger.",
+      "expected": "",
+      "expectEmpty": true
+    },
+    {
+      "id": "typescript-repeat-scheduler",
+      "language": "typescript",
+      "scenario": "repeat",
+      "group": "repeated",
+      "support": "scheduler.enqueueScheduledJob(job);\n",
+      "prefix": "scheduler.",
+      "expected": "enqueueScheduledJob(job);"
+    },
+    {
+      "id": "typescript-spacing-scheduler",
+      "language": "typescript",
+      "scenario": "spacing",
+      "group": "repeated",
+      "support": "scheduler.enqueueScheduledJob( job, priority );\n",
+      "prefix": "scheduler.",
+      "expected": "enqueueScheduledJob( job, priority );"
+    },
+    {
+      "id": "typescript-chain-scheduler",
+      "language": "typescript",
+      "scenario": "chain",
+      "group": "repeated",
+      "support": "scheduler.enqueueScheduledJob(job).withAuditContext(priority);\n",
+      "prefix": "scheduler.",
+      "expected": "enqueueScheduledJob(job).withAuditContext(priority);"
+    },
+    {
+      "id": "typescript-prefix-scheduler",
+      "language": "typescript",
+      "scenario": "prefix",
+      "group": "identifier_prefix",
+      "support": "scheduler.enqueueScheduledJob(job);\n",
+      "prefix": "scheduler.enqueueSc",
+      "expected": "heduledJob(job);"
+    },
+    {
+      "id": "typescript-new-argument-scheduler",
+      "language": "typescript",
+      "scenario": "new-argument",
+      "group": "new_arguments",
+      "support": "scheduler.enqueueScheduledJob(old_job);\n",
+      "prefix": "scheduler.",
+      "expected": "enqueueScheduledJob(new_job);"
+    },
+    {
+      "id": "typescript-ambiguous-scheduler",
+      "language": "typescript",
+      "scenario": "ambiguous",
+      "group": "ambiguous",
+      "support": "scheduler.enqueueScheduledJob(job);\nscheduler.clearPendingBatch();\n",
+      "prefix": "scheduler.",
+      "expected": "enqueueScheduledJob(job);"
+    },
+    {
+      "id": "typescript-unseen-scheduler",
+      "language": "typescript",
+      "scenario": "unseen",
+      "group": "unseen",
+      "support": "scheduler.enqueueScheduledJob(job);\n",
+      "prefix": "scheduler.",
+      "expected": "validatePendingState(priority);"
+    },
+    {
+      "id": "typescript-receiver-scheduler",
+      "language": "typescript",
+      "scenario": "receiver",
+      "group": "receiver_disambiguation",
+      "support": "scheduler.enqueueScheduledJob(job);\nother.clearPendingBatch(priority);\nscheduler.enqueueScheduledJob(job);\nother.clearPendingBatch(priority);\n",
+      "prefix": "scheduler.",
+      "expected": "enqueueScheduledJob(job);"
+    },
+    {
+      "id": "typescript-isolation-scheduler",
+      "language": "typescript",
+      "scenario": "isolation",
+      "group": "isolation",
+      "support": "unrelated.clearPendingBatch();\n",
+      "foreignSupport": "scheduler.enqueueScheduledJob(job);\n",
+      "prefix": "scheduler.",
+      "expected": "enqueueScheduledJob(job);",
+      "forbiddenToken": "enqueueScheduledJob"
+    },
+    {
+      "id": "typescript-suppression-scheduler",
+      "language": "typescript",
+      "scenario": "suppression",
+      "group": "suppression",
+      "support": "scheduler.enqueueScheduledJob(job);\n",
+      "prefix": "// scheduler.",
+      "expected": "",
+      "expectEmpty": true
+    },
+    {
+      "id": "typescript-repeat-catalog",
+      "language": "typescript",
+      "scenario": "repeat",
+      "group": "repeated",
+      "support": "catalog.indexCatalogRecord(record);\n",
+      "prefix": "catalog.",
+      "expected": "indexCatalogRecord(record);"
+    },
+    {
+      "id": "typescript-spacing-catalog",
+      "language": "typescript",
+      "scenario": "spacing",
+      "group": "repeated",
+      "support": "catalog.indexCatalogRecord( record, category );\n",
+      "prefix": "catalog.",
+      "expected": "indexCatalogRecord( record, category );"
+    },
+    {
+      "id": "typescript-chain-catalog",
+      "language": "typescript",
+      "scenario": "chain",
+      "group": "repeated",
+      "support": "catalog.indexCatalogRecord(record).withAuditContext(category);\n",
+      "prefix": "catalog.",
+      "expected": "indexCatalogRecord(record).withAuditContext(category);"
+    },
+    {
+      "id": "typescript-prefix-catalog",
+      "language": "typescript",
+      "scenario": "prefix",
+      "group": "identifier_prefix",
+      "support": "catalog.indexCatalogRecord(record);\n",
+      "prefix": "catalog.indexCata",
+      "expected": "logRecord(record);"
+    },
+    {
+      "id": "typescript-new-argument-catalog",
+      "language": "typescript",
+      "scenario": "new-argument",
+      "group": "new_arguments",
+      "support": "catalog.indexCatalogRecord(old_record);\n",
+      "prefix": "catalog.",
+      "expected": "indexCatalogRecord(new_record);"
+    },
+    {
+      "id": "typescript-ambiguous-catalog",
+      "language": "typescript",
+      "scenario": "ambiguous",
+      "group": "ambiguous",
+      "support": "catalog.indexCatalogRecord(record);\ncatalog.clearPendingBatch();\n",
+      "prefix": "catalog.",
+      "expected": "clearPendingBatch();"
+    },
+    {
+      "id": "typescript-unseen-catalog",
+      "language": "typescript",
+      "scenario": "unseen",
+      "group": "unseen",
+      "support": "catalog.indexCatalogRecord(record);\n",
+      "prefix": "catalog.",
+      "expected": "validatePendingState(category);"
+    },
+    {
+      "id": "typescript-receiver-catalog",
+      "language": "typescript",
+      "scenario": "receiver",
+      "group": "receiver_disambiguation",
+      "support": "catalog.indexCatalogRecord(record);\nother.clearPendingBatch(category);\ncatalog.indexCatalogRecord(record);\nother.clearPendingBatch(category);\n",
+      "prefix": "catalog.",
+      "expected": "indexCatalogRecord(record);"
+    },
+    {
+      "id": "typescript-isolation-catalog",
+      "language": "typescript",
+      "scenario": "isolation",
+      "group": "isolation",
+      "support": "unrelated.clearPendingBatch();\n",
+      "foreignSupport": "catalog.indexCatalogRecord(record);\n",
+      "prefix": "catalog.",
+      "expected": "indexCatalogRecord(record);",
+      "forbiddenToken": "indexCatalogRecord"
+    },
+    {
+      "id": "typescript-suppression-catalog",
+      "language": "typescript",
+      "scenario": "suppression",
+      "group": "suppression",
+      "support": "catalog.indexCatalogRecord(record);\n",
+      "prefix": "const note = `catalog.",
+      "expected": "",
+      "expectEmpty": true
+    },
+    {
+      "id": "typescript-repeat-storage",
+      "language": "typescript",
+      "scenario": "repeat",
+      "group": "repeated",
+      "support": "storage.persistSnapshotBlock(block);\n",
+      "prefix": "storage.",
+      "expected": "persistSnapshotBlock(block);"
+    },
+    {
+      "id": "typescript-spacing-storage",
+      "language": "typescript",
+      "scenario": "spacing",
+      "group": "repeated",
+      "support": "storage.persistSnapshotBlock( block, checkpoint );\n",
+      "prefix": "storage.",
+      "expected": "persistSnapshotBlock( block, checkpoint );"
+    },
+    {
+      "id": "typescript-chain-storage",
+      "language": "typescript",
+      "scenario": "chain",
+      "group": "repeated",
+      "support": "storage.persistSnapshotBlock(block).withAuditContext(checkpoint);\n",
+      "prefix": "storage.",
+      "expected": "persistSnapshotBlock(block).withAuditContext(checkpoint);"
+    },
+    {
+      "id": "typescript-prefix-storage",
+      "language": "typescript",
+      "scenario": "prefix",
+      "group": "identifier_prefix",
+      "support": "storage.persistSnapshotBlock(block);\n",
+      "prefix": "storage.persistSna",
+      "expected": "pshotBlock(block);"
+    },
+    {
+      "id": "typescript-new-argument-storage",
+      "language": "typescript",
+      "scenario": "new-argument",
+      "group": "new_arguments",
+      "support": "storage.persistSnapshotBlock(old_block);\n",
+      "prefix": "storage.",
+      "expected": "persistSnapshotBlock(new_block);"
+    },
+    {
+      "id": "typescript-ambiguous-storage",
+      "language": "typescript",
+      "scenario": "ambiguous",
+      "group": "ambiguous",
+      "support": "storage.persistSnapshotBlock(block);\nstorage.clearPendingBatch();\n",
+      "prefix": "storage.",
+      "expected": "persistSnapshotBlock(block);"
+    },
+    {
+      "id": "typescript-unseen-storage",
+      "language": "typescript",
+      "scenario": "unseen",
+      "group": "unseen",
+      "support": "storage.persistSnapshotBlock(block);\n",
+      "prefix": "storage.",
+      "expected": "validatePendingState(checkpoint);"
+    },
+    {
+      "id": "typescript-receiver-storage",
+      "language": "typescript",
+      "scenario": "receiver",
+      "group": "receiver_disambiguation",
+      "support": "storage.persistSnapshotBlock(block);\nother.clearPendingBatch(checkpoint);\nstorage.persistSnapshotBlock(block);\nother.clearPendingBatch(checkpoint);\n",
+      "prefix": "storage.",
+      "expected": "persistSnapshotBlock(block);"
+    },
+    {
+      "id": "typescript-isolation-storage",
+      "language": "typescript",
+      "scenario": "isolation",
+      "group": "isolation",
+      "support": "unrelated.clearPendingBatch();\n",
+      "foreignSupport": "storage.persistSnapshotBlock(block);\n",
+      "prefix": "storage.",
+      "expected": "persistSnapshotBlock(block);",
+      "forbiddenToken": "persistSnapshotBlock"
+    },
+    {
+      "id": "typescript-suppression-storage",
+      "language": "typescript",
+      "scenario": "suppression",
+      "group": "suppression",
+      "support": "storage.persistSnapshotBlock(block);\n",
+      "prefix": "// storage.",
+      "expected": "",
+      "expectEmpty": true
+    },
+    {
+      "id": "typescript-repeat-telemetry",
+      "language": "typescript",
+      "scenario": "repeat",
+      "group": "repeated",
+      "support": "telemetry.collectTelemetrySample(sample);\n",
+      "prefix": "telemetry.",
+      "expected": "collectTelemetrySample(sample);"
+    },
+    {
+      "id": "typescript-spacing-telemetry",
+      "language": "typescript",
+      "scenario": "spacing",
+      "group": "repeated",
+      "support": "telemetry.collectTelemetrySample( sample, timestamp );\n",
+      "prefix": "telemetry.",
+      "expected": "collectTelemetrySample( sample, timestamp );"
+    },
+    {
+      "id": "typescript-chain-telemetry",
+      "language": "typescript",
+      "scenario": "chain",
+      "group": "repeated",
+      "support": "telemetry.collectTelemetrySample(sample).withAuditContext(timestamp);\n",
+      "prefix": "telemetry.",
+      "expected": "collectTelemetrySample(sample).withAuditContext(timestamp);"
+    },
+    {
+      "id": "typescript-prefix-telemetry",
+      "language": "typescript",
+      "scenario": "prefix",
+      "group": "identifier_prefix",
+      "support": "telemetry.collectTelemetrySample(sample);\n",
+      "prefix": "telemetry.collectTele",
+      "expected": "metrySample(sample);"
+    },
+    {
+      "id": "typescript-new-argument-telemetry",
+      "language": "typescript",
+      "scenario": "new-argument",
+      "group": "new_arguments",
+      "support": "telemetry.collectTelemetrySample(old_sample);\n",
+      "prefix": "telemetry.",
+      "expected": "collectTelemetrySample(new_sample);"
+    },
+    {
+      "id": "typescript-ambiguous-telemetry",
+      "language": "typescript",
+      "scenario": "ambiguous",
+      "group": "ambiguous",
+      "support": "telemetry.collectTelemetrySample(sample);\ntelemetry.clearPendingBatch();\n",
+      "prefix": "telemetry.",
+      "expected": "clearPendingBatch();"
+    },
+    {
+      "id": "typescript-unseen-telemetry",
+      "language": "typescript",
+      "scenario": "unseen",
+      "group": "unseen",
+      "support": "telemetry.collectTelemetrySample(sample);\n",
+      "prefix": "telemetry.",
+      "expected": "validatePendingState(timestamp);"
+    },
+    {
+      "id": "typescript-receiver-telemetry",
+      "language": "typescript",
+      "scenario": "receiver",
+      "group": "receiver_disambiguation",
+      "support": "telemetry.collectTelemetrySample(sample);\nother.clearPendingBatch(timestamp);\ntelemetry.collectTelemetrySample(sample);\nother.clearPendingBatch(timestamp);\n",
+      "prefix": "telemetry.",
+      "expected": "collectTelemetrySample(sample);"
+    },
+    {
+      "id": "typescript-isolation-telemetry",
+      "language": "typescript",
+      "scenario": "isolation",
+      "group": "isolation",
+      "support": "unrelated.clearPendingBatch();\n",
+      "foreignSupport": "telemetry.collectTelemetrySample(sample);\n",
+      "prefix": "telemetry.",
+      "expected": "collectTelemetrySample(sample);",
+      "forbiddenToken": "collectTelemetrySample"
+    },
+    {
+      "id": "typescript-suppression-telemetry",
+      "language": "typescript",
+      "scenario": "suppression",
+      "group": "suppression",
+      "support": "telemetry.collectTelemetrySample(sample);\n",
+      "prefix": "const note = `telemetry.",
+      "expected": "",
+      "expectEmpty": true
+    },
+    {
+      "id": "typescript-repeat-router",
+      "language": "typescript",
+      "scenario": "repeat",
+      "group": "repeated",
+      "support": "router.resolveRouteBinding(binding);\n",
+      "prefix": "router.",
+      "expected": "resolveRouteBinding(binding);"
+    },
+    {
+      "id": "typescript-spacing-router",
+      "language": "typescript",
+      "scenario": "spacing",
+      "group": "repeated",
+      "support": "router.resolveRouteBinding( binding, endpoint );\n",
+      "prefix": "router.",
+      "expected": "resolveRouteBinding( binding, endpoint );"
+    },
+    {
+      "id": "typescript-chain-router",
+      "language": "typescript",
+      "scenario": "chain",
+      "group": "repeated",
+      "support": "router.resolveRouteBinding(binding).withAuditContext(endpoint);\n",
+      "prefix": "router.",
+      "expected": "resolveRouteBinding(binding).withAuditContext(endpoint);"
+    },
+    {
+      "id": "typescript-prefix-router",
+      "language": "typescript",
+      "scenario": "prefix",
+      "group": "identifier_prefix",
+      "support": "router.resolveRouteBinding(binding);\n",
+      "prefix": "router.resolveRo",
+      "expected": "uteBinding(binding);"
+    },
+    {
+      "id": "typescript-new-argument-router",
+      "language": "typescript",
+      "scenario": "new-argument",
+      "group": "new_arguments",
+      "support": "router.resolveRouteBinding(old_binding);\n",
+      "prefix": "router.",
+      "expected": "resolveRouteBinding(new_binding);"
+    },
+    {
+      "id": "typescript-ambiguous-router",
+      "language": "typescript",
+      "scenario": "ambiguous",
+      "group": "ambiguous",
+      "support": "router.resolveRouteBinding(binding);\nrouter.clearPendingBatch();\n",
+      "prefix": "router.",
+      "expected": "resolveRouteBinding(binding);"
+    },
+    {
+      "id": "typescript-unseen-router",
+      "language": "typescript",
+      "scenario": "unseen",
+      "group": "unseen",
+      "support": "router.resolveRouteBinding(binding);\n",
+      "prefix": "router.",
+      "expected": "validatePendingState(endpoint);"
+    },
+    {
+      "id": "typescript-receiver-router",
+      "language": "typescript",
+      "scenario": "receiver",
+      "group": "receiver_disambiguation",
+      "support": "router.resolveRouteBinding(binding);\nother.clearPendingBatch(endpoint);\nrouter.resolveRouteBinding(binding);\nother.clearPendingBatch(endpoint);\n",
+      "prefix": "router.",
+      "expected": "resolveRouteBinding(binding);"
+    },
+    {
+      "id": "typescript-isolation-router",
+      "language": "typescript",
+      "scenario": "isolation",
+      "group": "isolation",
+      "support": "unrelated.clearPendingBatch();\n",
+      "foreignSupport": "router.resolveRouteBinding(binding);\n",
+      "prefix": "router.",
+      "expected": "resolveRouteBinding(binding);",
+      "forbiddenToken": "resolveRouteBinding"
+    },
+    {
+      "id": "typescript-suppression-router",
+      "language": "typescript",
+      "scenario": "suppression",
+      "group": "suppression",
+      "support": "router.resolveRouteBinding(binding);\n",
+      "prefix": "// router.",
+      "expected": "",
+      "expectEmpty": true
+    },
+    {
+      "id": "typescript-repeat-pipeline",
+      "language": "typescript",
+      "scenario": "repeat",
+      "group": "repeated",
+      "support": "pipeline.transformInputBatch(input);\n",
+      "prefix": "pipeline.",
+      "expected": "transformInputBatch(input);"
+    },
+    {
+      "id": "typescript-spacing-pipeline",
+      "language": "typescript",
+      "scenario": "spacing",
+      "group": "repeated",
+      "support": "pipeline.transformInputBatch( input, options );\n",
+      "prefix": "pipeline.",
+      "expected": "transformInputBatch( input, options );"
+    },
+    {
+      "id": "typescript-chain-pipeline",
+      "language": "typescript",
+      "scenario": "chain",
+      "group": "repeated",
+      "support": "pipeline.transformInputBatch(input).withAuditContext(options);\n",
+      "prefix": "pipeline.",
+      "expected": "transformInputBatch(input).withAuditContext(options);"
+    },
+    {
+      "id": "typescript-prefix-pipeline",
+      "language": "typescript",
+      "scenario": "prefix",
+      "group": "identifier_prefix",
+      "support": "pipeline.transformInputBatch(input);\n",
+      "prefix": "pipeline.transform",
+      "expected": "InputBatch(input);"
+    },
+    {
+      "id": "typescript-new-argument-pipeline",
+      "language": "typescript",
+      "scenario": "new-argument",
+      "group": "new_arguments",
+      "support": "pipeline.transformInputBatch(old_input);\n",
+      "prefix": "pipeline.",
+      "expected": "transformInputBatch(new_input);"
+    },
+    {
+      "id": "typescript-ambiguous-pipeline",
+      "language": "typescript",
+      "scenario": "ambiguous",
+      "group": "ambiguous",
+      "support": "pipeline.transformInputBatch(input);\npipeline.clearPendingBatch();\n",
+      "prefix": "pipeline.",
+      "expected": "clearPendingBatch();"
+    },
+    {
+      "id": "typescript-unseen-pipeline",
+      "language": "typescript",
+      "scenario": "unseen",
+      "group": "unseen",
+      "support": "pipeline.transformInputBatch(input);\n",
+      "prefix": "pipeline.",
+      "expected": "validatePendingState(options);"
+    },
+    {
+      "id": "typescript-receiver-pipeline",
+      "language": "typescript",
+      "scenario": "receiver",
+      "group": "receiver_disambiguation",
+      "support": "pipeline.transformInputBatch(input);\nother.clearPendingBatch(options);\npipeline.transformInputBatch(input);\nother.clearPendingBatch(options);\n",
+      "prefix": "pipeline.",
+      "expected": "transformInputBatch(input);"
+    },
+    {
+      "id": "typescript-isolation-pipeline",
+      "language": "typescript",
+      "scenario": "isolation",
+      "group": "isolation",
+      "support": "unrelated.clearPendingBatch();\n",
+      "foreignSupport": "pipeline.transformInputBatch(input);\n",
+      "prefix": "pipeline.",
+      "expected": "transformInputBatch(input);",
+      "forbiddenToken": "transformInputBatch"
+    },
+    {
+      "id": "typescript-suppression-pipeline",
+      "language": "typescript",
+      "scenario": "suppression",
+      "group": "suppression",
+      "support": "pipeline.transformInputBatch(input);\n",
+      "prefix": "const note = `pipeline.",
+      "expected": "",
+      "expectEmpty": true
+    },
+    {
+      "id": "python-repeat-inventory",
+      "language": "python",
+      "scenario": "repeat",
+      "group": "repeated",
+      "support": "inventory.reserve_stock_batch(stock)\n",
+      "prefix": "inventory.",
+      "expected": "reserve_stock_batch(stock)"
+    },
+    {
+      "id": "python-spacing-inventory",
+      "language": "python",
+      "scenario": "spacing",
+      "group": "repeated",
+      "support": "inventory.reserve_stock_batch( stock, warehouse )\n",
+      "prefix": "inventory.",
+      "expected": "reserve_stock_batch( stock, warehouse )"
+    },
+    {
+      "id": "python-chain-inventory",
+      "language": "python",
+      "scenario": "chain",
+      "group": "repeated",
+      "support": "inventory.reserve_stock_batch(stock).with_audit_context(warehouse)\n",
+      "prefix": "inventory.",
+      "expected": "reserve_stock_batch(stock).with_audit_context(warehouse)"
+    },
+    {
+      "id": "python-prefix-inventory",
+      "language": "python",
+      "scenario": "prefix",
+      "group": "identifier_prefix",
+      "support": "inventory.reserve_stock_batch(stock)\n",
+      "prefix": "inventory.reserve_s",
+      "expected": "tock_batch(stock)"
+    },
+    {
+      "id": "python-new-argument-inventory",
+      "language": "python",
+      "scenario": "new-argument",
+      "group": "new_arguments",
+      "support": "inventory.reserve_stock_batch(old_stock)\n",
+      "prefix": "inventory.",
+      "expected": "reserve_stock_batch(new_stock)"
+    },
+    {
+      "id": "python-ambiguous-inventory",
+      "language": "python",
+      "scenario": "ambiguous",
+      "group": "ambiguous",
+      "support": "inventory.reserve_stock_batch(stock)\ninventory.clear_pending_batch()\n",
+      "prefix": "inventory.",
+      "expected": "reserve_stock_batch(stock)"
+    },
+    {
+      "id": "python-unseen-inventory",
+      "language": "python",
+      "scenario": "unseen",
+      "group": "unseen",
+      "support": "inventory.reserve_stock_batch(stock)\n",
+      "prefix": "inventory.",
+      "expected": "validate_pending_state(warehouse)"
+    },
+    {
+      "id": "python-receiver-inventory",
+      "language": "python",
+      "scenario": "receiver",
+      "group": "receiver_disambiguation",
+      "support": "inventory.reserve_stock_batch(stock)\nother.clear_pending_batch(warehouse)\ninventory.reserve_stock_batch(stock)\nother.clear_pending_batch(warehouse)\n",
+      "prefix": "inventory.",
+      "expected": "reserve_stock_batch(stock)"
+    },
+    {
+      "id": "python-isolation-inventory",
+      "language": "python",
+      "scenario": "isolation",
+      "group": "isolation",
+      "support": "unrelated.clear_pending_batch()\n",
+      "foreignSupport": "inventory.reserve_stock_batch(stock)\n",
+      "prefix": "inventory.",
+      "expected": "reserve_stock_batch(stock)",
+      "forbiddenToken": "reserve_stock_batch"
+    },
+    {
+      "id": "python-suppression-inventory",
+      "language": "python",
+      "scenario": "suppression",
+      "group": "suppression",
+      "support": "inventory.reserve_stock_batch(stock)\n",
+      "prefix": "# inventory.",
+      "expected": "",
+      "expectEmpty": true
+    },
+    {
+      "id": "python-repeat-mailer",
+      "language": "python",
+      "scenario": "repeat",
+      "group": "repeated",
+      "support": "mailer.dispatch_envelope_batch(envelope)\n",
+      "prefix": "mailer.",
+      "expected": "dispatch_envelope_batch(envelope)"
+    },
+    {
+      "id": "python-spacing-mailer",
+      "language": "python",
+      "scenario": "spacing",
+      "group": "repeated",
+      "support": "mailer.dispatch_envelope_batch( envelope, recipient )\n",
+      "prefix": "mailer.",
+      "expected": "dispatch_envelope_batch( envelope, recipient )"
+    },
+    {
+      "id": "python-chain-mailer",
+      "language": "python",
+      "scenario": "chain",
+      "group": "repeated",
+      "support": "mailer.dispatch_envelope_batch(envelope).with_audit_context(recipient)\n",
+      "prefix": "mailer.",
+      "expected": "dispatch_envelope_batch(envelope).with_audit_context(recipient)"
+    },
+    {
+      "id": "python-prefix-mailer",
+      "language": "python",
+      "scenario": "prefix",
+      "group": "identifier_prefix",
+      "support": "mailer.dispatch_envelope_batch(envelope)\n",
+      "prefix": "mailer.dispatch_en",
+      "expected": "velope_batch(envelope)"
+    },
+    {
+      "id": "python-new-argument-mailer",
+      "language": "python",
+      "scenario": "new-argument",
+      "group": "new_arguments",
+      "support": "mailer.dispatch_envelope_batch(old_envelope)\n",
+      "prefix": "mailer.",
+      "expected": "dispatch_envelope_batch(new_envelope)"
+    },
+    {
+      "id": "python-ambiguous-mailer",
+      "language": "python",
+      "scenario": "ambiguous",
+      "group": "ambiguous",
+      "support": "mailer.dispatch_envelope_batch(envelope)\nmailer.clear_pending_batch()\n",
+      "prefix": "mailer.",
+      "expected": "clear_pending_batch()"
+    },
+    {
+      "id": "python-unseen-mailer",
+      "language": "python",
+      "scenario": "unseen",
+      "group": "unseen",
+      "support": "mailer.dispatch_envelope_batch(envelope)\n",
+      "prefix": "mailer.",
+      "expected": "validate_pending_state(recipient)"
+    },
+    {
+      "id": "python-receiver-mailer",
+      "language": "python",
+      "scenario": "receiver",
+      "group": "receiver_disambiguation",
+      "support": "mailer.dispatch_envelope_batch(envelope)\nother.clear_pending_batch(recipient)\nmailer.dispatch_envelope_batch(envelope)\nother.clear_pending_batch(recipient)\n",
+      "prefix": "mailer.",
+      "expected": "dispatch_envelope_batch(envelope)"
+    },
+    {
+      "id": "python-isolation-mailer",
+      "language": "python",
+      "scenario": "isolation",
+      "group": "isolation",
+      "support": "unrelated.clear_pending_batch()\n",
+      "foreignSupport": "mailer.dispatch_envelope_batch(envelope)\n",
+      "prefix": "mailer.",
+      "expected": "dispatch_envelope_batch(envelope)",
+      "forbiddenToken": "dispatch_envelope_batch"
+    },
+    {
+      "id": "python-suppression-mailer",
+      "language": "python",
+      "scenario": "suppression",
+      "group": "suppression",
+      "support": "mailer.dispatch_envelope_batch(envelope)\n",
+      "prefix": "note = \"mailer.",
+      "expected": "",
+      "expectEmpty": true
+    },
+    {
+      "id": "python-repeat-renderer",
+      "language": "python",
+      "scenario": "repeat",
+      "group": "repeated",
+      "support": "renderer.render_scene_frame(scene)\n",
+      "prefix": "renderer.",
+      "expected": "render_scene_frame(scene)"
+    },
+    {
+      "id": "python-spacing-renderer",
+      "language": "python",
+      "scenario": "spacing",
+      "group": "repeated",
+      "support": "renderer.render_scene_frame( scene, viewport )\n",
+      "prefix": "renderer.",
+      "expected": "render_scene_frame( scene, viewport )"
+    },
+    {
+      "id": "python-chain-renderer",
+      "language": "python",
+      "scenario": "chain",
+      "group": "repeated",
+      "support": "renderer.render_scene_frame(scene).with_audit_context(viewport)\n",
+      "prefix": "renderer.",
+      "expected": "render_scene_frame(scene).with_audit_context(viewport)"
+    },
+    {
+      "id": "python-prefix-renderer",
+      "language": "python",
+      "scenario": "prefix",
+      "group": "identifier_prefix",
+      "support": "renderer.render_scene_frame(scene)\n",
+      "prefix": "renderer.render_sc",
+      "expected": "ene_frame(scene)"
+    },
+    {
+      "id": "python-new-argument-renderer",
+      "language": "python",
+      "scenario": "new-argument",
+      "group": "new_arguments",
+      "support": "renderer.render_scene_frame(old_scene)\n",
+      "prefix": "renderer.",
+      "expected": "render_scene_frame(new_scene)"
+    },
+    {
+      "id": "python-ambiguous-renderer",
+      "language": "python",
+      "scenario": "ambiguous",
+      "group": "ambiguous",
+      "support": "renderer.render_scene_frame(scene)\nrenderer.clear_pending_batch()\n",
+      "prefix": "renderer.",
+      "expected": "render_scene_frame(scene)"
+    },
+    {
+      "id": "python-unseen-renderer",
+      "language": "python",
+      "scenario": "unseen",
+      "group": "unseen",
+      "support": "renderer.render_scene_frame(scene)\n",
+      "prefix": "renderer.",
+      "expected": "validate_pending_state(viewport)"
+    },
+    {
+      "id": "python-receiver-renderer",
+      "language": "python",
+      "scenario": "receiver",
+      "group": "receiver_disambiguation",
+      "support": "renderer.render_scene_frame(scene)\nother.clear_pending_batch(viewport)\nrenderer.render_scene_frame(scene)\nother.clear_pending_batch(viewport)\n",
+      "prefix": "renderer.",
+      "expected": "render_scene_frame(scene)"
+    },
+    {
+      "id": "python-isolation-renderer",
+      "language": "python",
+      "scenario": "isolation",
+      "group": "isolation",
+      "support": "unrelated.clear_pending_batch()\n",
+      "foreignSupport": "renderer.render_scene_frame(scene)\n",
+      "prefix": "renderer.",
+      "expected": "render_scene_frame(scene)",
+      "forbiddenToken": "render_scene_frame"
+    },
+    {
+      "id": "python-suppression-renderer",
+      "language": "python",
+      "scenario": "suppression",
+      "group": "suppression",
+      "support": "renderer.render_scene_frame(scene)\n",
+      "prefix": "# renderer.",
+      "expected": "",
+      "expectEmpty": true
+    },
+    {
+      "id": "python-repeat-ledger",
+      "language": "python",
+      "scenario": "repeat",
+      "group": "repeated",
+      "support": "ledger.append_ledger_entry(entry)\n",
+      "prefix": "ledger.",
+      "expected": "append_ledger_entry(entry)"
+    },
+    {
+      "id": "python-spacing-ledger",
+      "language": "python",
+      "scenario": "spacing",
+      "group": "repeated",
+      "support": "ledger.append_ledger_entry( entry, account )\n",
+      "prefix": "ledger.",
+      "expected": "append_ledger_entry( entry, account )"
+    },
+    {
+      "id": "python-chain-ledger",
+      "language": "python",
+      "scenario": "chain",
+      "group": "repeated",
+      "support": "ledger.append_ledger_entry(entry).with_audit_context(account)\n",
+      "prefix": "ledger.",
+      "expected": "append_ledger_entry(entry).with_audit_context(account)"
+    },
+    {
+      "id": "python-prefix-ledger",
+      "language": "python",
+      "scenario": "prefix",
+      "group": "identifier_prefix",
+      "support": "ledger.append_ledger_entry(entry)\n",
+      "prefix": "ledger.append_le",
+      "expected": "dger_entry(entry)"
+    },
+    {
+      "id": "python-new-argument-ledger",
+      "language": "python",
+      "scenario": "new-argument",
+      "group": "new_arguments",
+      "support": "ledger.append_ledger_entry(old_entry)\n",
+      "prefix": "ledger.",
+      "expected": "append_ledger_entry(new_entry)"
+    },
+    {
+      "id": "python-ambiguous-ledger",
+      "language": "python",
+      "scenario": "ambiguous",
+      "group": "ambiguous",
+      "support": "ledger.append_ledger_entry(entry)\nledger.clear_pending_batch()\n",
+      "prefix": "ledger.",
+      "expected": "clear_pending_batch()"
+    },
+    {
+      "id": "python-unseen-ledger",
+      "language": "python",
+      "scenario": "unseen",
+      "group": "unseen",
+      "support": "ledger.append_ledger_entry(entry)\n",
+      "prefix": "ledger.",
+      "expected": "validate_pending_state(account)"
+    },
+    {
+      "id": "python-receiver-ledger",
+      "language": "python",
+      "scenario": "receiver",
+      "group": "receiver_disambiguation",
+      "support": "ledger.append_ledger_entry(entry)\nother.clear_pending_batch(account)\nledger.append_ledger_entry(entry)\nother.clear_pending_batch(account)\n",
+      "prefix": "ledger.",
+      "expected": "append_ledger_entry(entry)"
+    },
+    {
+      "id": "python-isolation-ledger",
+      "language": "python",
+      "scenario": "isolation",
+      "group": "isolation",
+      "support": "unrelated.clear_pending_batch()\n",
+      "foreignSupport": "ledger.append_ledger_entry(entry)\n",
+      "prefix": "ledger.",
+      "expected": "append_ledger_entry(entry)",
+      "forbiddenToken": "append_ledger_entry"
+    },
+    {
+      "id": "python-suppression-ledger",
+      "language": "python",
+      "scenario": "suppression",
+      "group": "suppression",
+      "support": "ledger.append_ledger_entry(entry)\n",
+      "prefix": "note = \"ledger.",
+      "expected": "",
+      "expectEmpty": true
+    },
+    {
+      "id": "python-repeat-scheduler",
+      "language": "python",
+      "scenario": "repeat",
+      "group": "repeated",
+      "support": "scheduler.enqueue_scheduled_job(job)\n",
+      "prefix": "scheduler.",
+      "expected": "enqueue_scheduled_job(job)"
+    },
+    {
+      "id": "python-spacing-scheduler",
+      "language": "python",
+      "scenario": "spacing",
+      "group": "repeated",
+      "support": "scheduler.enqueue_scheduled_job( job, priority )\n",
+      "prefix": "scheduler.",
+      "expected": "enqueue_scheduled_job( job, priority )"
+    },
+    {
+      "id": "python-chain-scheduler",
+      "language": "python",
+      "scenario": "chain",
+      "group": "repeated",
+      "support": "scheduler.enqueue_scheduled_job(job).with_audit_context(priority)\n",
+      "prefix": "scheduler.",
+      "expected": "enqueue_scheduled_job(job).with_audit_context(priority)"
+    },
+    {
+      "id": "python-prefix-scheduler",
+      "language": "python",
+      "scenario": "prefix",
+      "group": "identifier_prefix",
+      "support": "scheduler.enqueue_scheduled_job(job)\n",
+      "prefix": "scheduler.enqueue_sc",
+      "expected": "heduled_job(job)"
+    },
+    {
+      "id": "python-new-argument-scheduler",
+      "language": "python",
+      "scenario": "new-argument",
+      "group": "new_arguments",
+      "support": "scheduler.enqueue_scheduled_job(old_job)\n",
+      "prefix": "scheduler.",
+      "expected": "enqueue_scheduled_job(new_job)"
+    },
+    {
+      "id": "python-ambiguous-scheduler",
+      "language": "python",
+      "scenario": "ambiguous",
+      "group": "ambiguous",
+      "support": "scheduler.enqueue_scheduled_job(job)\nscheduler.clear_pending_batch()\n",
+      "prefix": "scheduler.",
+      "expected": "enqueue_scheduled_job(job)"
+    },
+    {
+      "id": "python-unseen-scheduler",
+      "language": "python",
+      "scenario": "unseen",
+      "group": "unseen",
+      "support": "scheduler.enqueue_scheduled_job(job)\n",
+      "prefix": "scheduler.",
+      "expected": "validate_pending_state(priority)"
+    },
+    {
+      "id": "python-receiver-scheduler",
+      "language": "python",
+      "scenario": "receiver",
+      "group": "receiver_disambiguation",
+      "support": "scheduler.enqueue_scheduled_job(job)\nother.clear_pending_batch(priority)\nscheduler.enqueue_scheduled_job(job)\nother.clear_pending_batch(priority)\n",
+      "prefix": "scheduler.",
+      "expected": "enqueue_scheduled_job(job)"
+    },
+    {
+      "id": "python-isolation-scheduler",
+      "language": "python",
+      "scenario": "isolation",
+      "group": "isolation",
+      "support": "unrelated.clear_pending_batch()\n",
+      "foreignSupport": "scheduler.enqueue_scheduled_job(job)\n",
+      "prefix": "scheduler.",
+      "expected": "enqueue_scheduled_job(job)",
+      "forbiddenToken": "enqueue_scheduled_job"
+    },
+    {
+      "id": "python-suppression-scheduler",
+      "language": "python",
+      "scenario": "suppression",
+      "group": "suppression",
+      "support": "scheduler.enqueue_scheduled_job(job)\n",
+      "prefix": "# scheduler.",
+      "expected": "",
+      "expectEmpty": true
+    },
+    {
+      "id": "python-repeat-catalog",
+      "language": "python",
+      "scenario": "repeat",
+      "group": "repeated",
+      "support": "catalog.index_catalog_record(record)\n",
+      "prefix": "catalog.",
+      "expected": "index_catalog_record(record)"
+    },
+    {
+      "id": "python-spacing-catalog",
+      "language": "python",
+      "scenario": "spacing",
+      "group": "repeated",
+      "support": "catalog.index_catalog_record( record, category )\n",
+      "prefix": "catalog.",
+      "expected": "index_catalog_record( record, category )"
+    },
+    {
+      "id": "python-chain-catalog",
+      "language": "python",
+      "scenario": "chain",
+      "group": "repeated",
+      "support": "catalog.index_catalog_record(record).with_audit_context(category)\n",
+      "prefix": "catalog.",
+      "expected": "index_catalog_record(record).with_audit_context(category)"
+    },
+    {
+      "id": "python-prefix-catalog",
+      "language": "python",
+      "scenario": "prefix",
+      "group": "identifier_prefix",
+      "support": "catalog.index_catalog_record(record)\n",
+      "prefix": "catalog.index_cata",
+      "expected": "log_record(record)"
+    },
+    {
+      "id": "python-new-argument-catalog",
+      "language": "python",
+      "scenario": "new-argument",
+      "group": "new_arguments",
+      "support": "catalog.index_catalog_record(old_record)\n",
+      "prefix": "catalog.",
+      "expected": "index_catalog_record(new_record)"
+    },
+    {
+      "id": "python-ambiguous-catalog",
+      "language": "python",
+      "scenario": "ambiguous",
+      "group": "ambiguous",
+      "support": "catalog.index_catalog_record(record)\ncatalog.clear_pending_batch()\n",
+      "prefix": "catalog.",
+      "expected": "clear_pending_batch()"
+    },
+    {
+      "id": "python-unseen-catalog",
+      "language": "python",
+      "scenario": "unseen",
+      "group": "unseen",
+      "support": "catalog.index_catalog_record(record)\n",
+      "prefix": "catalog.",
+      "expected": "validate_pending_state(category)"
+    },
+    {
+      "id": "python-receiver-catalog",
+      "language": "python",
+      "scenario": "receiver",
+      "group": "receiver_disambiguation",
+      "support": "catalog.index_catalog_record(record)\nother.clear_pending_batch(category)\ncatalog.index_catalog_record(record)\nother.clear_pending_batch(category)\n",
+      "prefix": "catalog.",
+      "expected": "index_catalog_record(record)"
+    },
+    {
+      "id": "python-isolation-catalog",
+      "language": "python",
+      "scenario": "isolation",
+      "group": "isolation",
+      "support": "unrelated.clear_pending_batch()\n",
+      "foreignSupport": "catalog.index_catalog_record(record)\n",
+      "prefix": "catalog.",
+      "expected": "index_catalog_record(record)",
+      "forbiddenToken": "index_catalog_record"
+    },
+    {
+      "id": "python-suppression-catalog",
+      "language": "python",
+      "scenario": "suppression",
+      "group": "suppression",
+      "support": "catalog.index_catalog_record(record)\n",
+      "prefix": "note = \"catalog.",
+      "expected": "",
+      "expectEmpty": true
+    },
+    {
+      "id": "python-repeat-storage",
+      "language": "python",
+      "scenario": "repeat",
+      "group": "repeated",
+      "support": "storage.persist_snapshot_block(block)\n",
+      "prefix": "storage.",
+      "expected": "persist_snapshot_block(block)"
+    },
+    {
+      "id": "python-spacing-storage",
+      "language": "python",
+      "scenario": "spacing",
+      "group": "repeated",
+      "support": "storage.persist_snapshot_block( block, checkpoint )\n",
+      "prefix": "storage.",
+      "expected": "persist_snapshot_block( block, checkpoint )"
+    },
+    {
+      "id": "python-chain-storage",
+      "language": "python",
+      "scenario": "chain",
+      "group": "repeated",
+      "support": "storage.persist_snapshot_block(block).with_audit_context(checkpoint)\n",
+      "prefix": "storage.",
+      "expected": "persist_snapshot_block(block).with_audit_context(checkpoint)"
+    },
+    {
+      "id": "python-prefix-storage",
+      "language": "python",
+      "scenario": "prefix",
+      "group": "identifier_prefix",
+      "support": "storage.persist_snapshot_block(block)\n",
+      "prefix": "storage.persist_sna",
+      "expected": "pshot_block(block)"
+    },
+    {
+      "id": "python-new-argument-storage",
+      "language": "python",
+      "scenario": "new-argument",
+      "group": "new_arguments",
+      "support": "storage.persist_snapshot_block(old_block)\n",
+      "prefix": "storage.",
+      "expected": "persist_snapshot_block(new_block)"
+    },
+    {
+      "id": "python-ambiguous-storage",
+      "language": "python",
+      "scenario": "ambiguous",
+      "group": "ambiguous",
+      "support": "storage.persist_snapshot_block(block)\nstorage.clear_pending_batch()\n",
+      "prefix": "storage.",
+      "expected": "persist_snapshot_block(block)"
+    },
+    {
+      "id": "python-unseen-storage",
+      "language": "python",
+      "scenario": "unseen",
+      "group": "unseen",
+      "support": "storage.persist_snapshot_block(block)\n",
+      "prefix": "storage.",
+      "expected": "validate_pending_state(checkpoint)"
+    },
+    {
+      "id": "python-receiver-storage",
+      "language": "python",
+      "scenario": "receiver",
+      "group": "receiver_disambiguation",
+      "support": "storage.persist_snapshot_block(block)\nother.clear_pending_batch(checkpoint)\nstorage.persist_snapshot_block(block)\nother.clear_pending_batch(checkpoint)\n",
+      "prefix": "storage.",
+      "expected": "persist_snapshot_block(block)"
+    },
+    {
+      "id": "python-isolation-storage",
+      "language": "python",
+      "scenario": "isolation",
+      "group": "isolation",
+      "support": "unrelated.clear_pending_batch()\n",
+      "foreignSupport": "storage.persist_snapshot_block(block)\n",
+      "prefix": "storage.",
+      "expected": "persist_snapshot_block(block)",
+      "forbiddenToken": "persist_snapshot_block"
+    },
+    {
+      "id": "python-suppression-storage",
+      "language": "python",
+      "scenario": "suppression",
+      "group": "suppression",
+      "support": "storage.persist_snapshot_block(block)\n",
+      "prefix": "# storage.",
+      "expected": "",
+      "expectEmpty": true
+    },
+    {
+      "id": "python-repeat-telemetry",
+      "language": "python",
+      "scenario": "repeat",
+      "group": "repeated",
+      "support": "telemetry.collect_telemetry_sample(sample)\n",
+      "prefix": "telemetry.",
+      "expected": "collect_telemetry_sample(sample)"
+    },
+    {
+      "id": "python-spacing-telemetry",
+      "language": "python",
+      "scenario": "spacing",
+      "group": "repeated",
+      "support": "telemetry.collect_telemetry_sample( sample, timestamp )\n",
+      "prefix": "telemetry.",
+      "expected": "collect_telemetry_sample( sample, timestamp )"
+    },
+    {
+      "id": "python-chain-telemetry",
+      "language": "python",
+      "scenario": "chain",
+      "group": "repeated",
+      "support": "telemetry.collect_telemetry_sample(sample).with_audit_context(timestamp)\n",
+      "prefix": "telemetry.",
+      "expected": "collect_telemetry_sample(sample).with_audit_context(timestamp)"
+    },
+    {
+      "id": "python-prefix-telemetry",
+      "language": "python",
+      "scenario": "prefix",
+      "group": "identifier_prefix",
+      "support": "telemetry.collect_telemetry_sample(sample)\n",
+      "prefix": "telemetry.collect_tele",
+      "expected": "metry_sample(sample)"
+    },
+    {
+      "id": "python-new-argument-telemetry",
+      "language": "python",
+      "scenario": "new-argument",
+      "group": "new_arguments",
+      "support": "telemetry.collect_telemetry_sample(old_sample)\n",
+      "prefix": "telemetry.",
+      "expected": "collect_telemetry_sample(new_sample)"
+    },
+    {
+      "id": "python-ambiguous-telemetry",
+      "language": "python",
+      "scenario": "ambiguous",
+      "group": "ambiguous",
+      "support": "telemetry.collect_telemetry_sample(sample)\ntelemetry.clear_pending_batch()\n",
+      "prefix": "telemetry.",
+      "expected": "clear_pending_batch()"
+    },
+    {
+      "id": "python-unseen-telemetry",
+      "language": "python",
+      "scenario": "unseen",
+      "group": "unseen",
+      "support": "telemetry.collect_telemetry_sample(sample)\n",
+      "prefix": "telemetry.",
+      "expected": "validate_pending_state(timestamp)"
+    },
+    {
+      "id": "python-receiver-telemetry",
+      "language": "python",
+      "scenario": "receiver",
+      "group": "receiver_disambiguation",
+      "support": "telemetry.collect_telemetry_sample(sample)\nother.clear_pending_batch(timestamp)\ntelemetry.collect_telemetry_sample(sample)\nother.clear_pending_batch(timestamp)\n",
+      "prefix": "telemetry.",
+      "expected": "collect_telemetry_sample(sample)"
+    },
+    {
+      "id": "python-isolation-telemetry",
+      "language": "python",
+      "scenario": "isolation",
+      "group": "isolation",
+      "support": "unrelated.clear_pending_batch()\n",
+      "foreignSupport": "telemetry.collect_telemetry_sample(sample)\n",
+      "prefix": "telemetry.",
+      "expected": "collect_telemetry_sample(sample)",
+      "forbiddenToken": "collect_telemetry_sample"
+    },
+    {
+      "id": "python-suppression-telemetry",
+      "language": "python",
+      "scenario": "suppression",
+      "group": "suppression",
+      "support": "telemetry.collect_telemetry_sample(sample)\n",
+      "prefix": "note = \"telemetry.",
+      "expected": "",
+      "expectEmpty": true
+    },
+    {
+      "id": "python-repeat-router",
+      "language": "python",
+      "scenario": "repeat",
+      "group": "repeated",
+      "support": "router.resolve_route_binding(binding)\n",
+      "prefix": "router.",
+      "expected": "resolve_route_binding(binding)"
+    },
+    {
+      "id": "python-spacing-router",
+      "language": "python",
+      "scenario": "spacing",
+      "group": "repeated",
+      "support": "router.resolve_route_binding( binding, endpoint )\n",
+      "prefix": "router.",
+      "expected": "resolve_route_binding( binding, endpoint )"
+    },
+    {
+      "id": "python-chain-router",
+      "language": "python",
+      "scenario": "chain",
+      "group": "repeated",
+      "support": "router.resolve_route_binding(binding).with_audit_context(endpoint)\n",
+      "prefix": "router.",
+      "expected": "resolve_route_binding(binding).with_audit_context(endpoint)"
+    },
+    {
+      "id": "python-prefix-router",
+      "language": "python",
+      "scenario": "prefix",
+      "group": "identifier_prefix",
+      "support": "router.resolve_route_binding(binding)\n",
+      "prefix": "router.resolve_ro",
+      "expected": "ute_binding(binding)"
+    },
+    {
+      "id": "python-new-argument-router",
+      "language": "python",
+      "scenario": "new-argument",
+      "group": "new_arguments",
+      "support": "router.resolve_route_binding(old_binding)\n",
+      "prefix": "router.",
+      "expected": "resolve_route_binding(new_binding)"
+    },
+    {
+      "id": "python-ambiguous-router",
+      "language": "python",
+      "scenario": "ambiguous",
+      "group": "ambiguous",
+      "support": "router.resolve_route_binding(binding)\nrouter.clear_pending_batch()\n",
+      "prefix": "router.",
+      "expected": "resolve_route_binding(binding)"
+    },
+    {
+      "id": "python-unseen-router",
+      "language": "python",
+      "scenario": "unseen",
+      "group": "unseen",
+      "support": "router.resolve_route_binding(binding)\n",
+      "prefix": "router.",
+      "expected": "validate_pending_state(endpoint)"
+    },
+    {
+      "id": "python-receiver-router",
+      "language": "python",
+      "scenario": "receiver",
+      "group": "receiver_disambiguation",
+      "support": "router.resolve_route_binding(binding)\nother.clear_pending_batch(endpoint)\nrouter.resolve_route_binding(binding)\nother.clear_pending_batch(endpoint)\n",
+      "prefix": "router.",
+      "expected": "resolve_route_binding(binding)"
+    },
+    {
+      "id": "python-isolation-router",
+      "language": "python",
+      "scenario": "isolation",
+      "group": "isolation",
+      "support": "unrelated.clear_pending_batch()\n",
+      "foreignSupport": "router.resolve_route_binding(binding)\n",
+      "prefix": "router.",
+      "expected": "resolve_route_binding(binding)",
+      "forbiddenToken": "resolve_route_binding"
+    },
+    {
+      "id": "python-suppression-router",
+      "language": "python",
+      "scenario": "suppression",
+      "group": "suppression",
+      "support": "router.resolve_route_binding(binding)\n",
+      "prefix": "# router.",
+      "expected": "",
+      "expectEmpty": true
+    },
+    {
+      "id": "python-repeat-pipeline",
+      "language": "python",
+      "scenario": "repeat",
+      "group": "repeated",
+      "support": "pipeline.transform_input_batch(input)\n",
+      "prefix": "pipeline.",
+      "expected": "transform_input_batch(input)"
+    },
+    {
+      "id": "python-spacing-pipeline",
+      "language": "python",
+      "scenario": "spacing",
+      "group": "repeated",
+      "support": "pipeline.transform_input_batch( input, options )\n",
+      "prefix": "pipeline.",
+      "expected": "transform_input_batch( input, options )"
+    },
+    {
+      "id": "python-chain-pipeline",
+      "language": "python",
+      "scenario": "chain",
+      "group": "repeated",
+      "support": "pipeline.transform_input_batch(input).with_audit_context(options)\n",
+      "prefix": "pipeline.",
+      "expected": "transform_input_batch(input).with_audit_context(options)"
+    },
+    {
+      "id": "python-prefix-pipeline",
+      "language": "python",
+      "scenario": "prefix",
+      "group": "identifier_prefix",
+      "support": "pipeline.transform_input_batch(input)\n",
+      "prefix": "pipeline.transform_",
+      "expected": "input_batch(input)"
+    },
+    {
+      "id": "python-new-argument-pipeline",
+      "language": "python",
+      "scenario": "new-argument",
+      "group": "new_arguments",
+      "support": "pipeline.transform_input_batch(old_input)\n",
+      "prefix": "pipeline.",
+      "expected": "transform_input_batch(new_input)"
+    },
+    {
+      "id": "python-ambiguous-pipeline",
+      "language": "python",
+      "scenario": "ambiguous",
+      "group": "ambiguous",
+      "support": "pipeline.transform_input_batch(input)\npipeline.clear_pending_batch()\n",
+      "prefix": "pipeline.",
+      "expected": "clear_pending_batch()"
+    },
+    {
+      "id": "python-unseen-pipeline",
+      "language": "python",
+      "scenario": "unseen",
+      "group": "unseen",
+      "support": "pipeline.transform_input_batch(input)\n",
+      "prefix": "pipeline.",
+      "expected": "validate_pending_state(options)"
+    },
+    {
+      "id": "python-receiver-pipeline",
+      "language": "python",
+      "scenario": "receiver",
+      "group": "receiver_disambiguation",
+      "support": "pipeline.transform_input_batch(input)\nother.clear_pending_batch(options)\npipeline.transform_input_batch(input)\nother.clear_pending_batch(options)\n",
+      "prefix": "pipeline.",
+      "expected": "transform_input_batch(input)"
+    },
+    {
+      "id": "python-isolation-pipeline",
+      "language": "python",
+      "scenario": "isolation",
+      "group": "isolation",
+      "support": "unrelated.clear_pending_batch()\n",
+      "foreignSupport": "pipeline.transform_input_batch(input)\n",
+      "prefix": "pipeline.",
+      "expected": "transform_input_batch(input)",
+      "forbiddenToken": "transform_input_batch"
+    },
+    {
+      "id": "python-suppression-pipeline",
+      "language": "python",
+      "scenario": "suppression",
+      "group": "suppression",
+      "support": "pipeline.transform_input_batch(input)\n",
+      "prefix": "note = \"pipeline.",
+      "expected": "",
+      "expectEmpty": true
+    },
+    {
+      "id": "java-repeat-inventory",
+      "language": "java",
+      "scenario": "repeat",
+      "group": "repeated",
+      "support": "inventory.reserveStockBatch(stock);\n",
+      "prefix": "inventory.",
+      "expected": "reserveStockBatch(stock);"
+    },
+    {
+      "id": "java-spacing-inventory",
+      "language": "java",
+      "scenario": "spacing",
+      "group": "repeated",
+      "support": "inventory.reserveStockBatch( stock, warehouse );\n",
+      "prefix": "inventory.",
+      "expected": "reserveStockBatch( stock, warehouse );"
+    },
+    {
+      "id": "java-chain-inventory",
+      "language": "java",
+      "scenario": "chain",
+      "group": "repeated",
+      "support": "inventory.reserveStockBatch(stock).withAuditContext(warehouse);\n",
+      "prefix": "inventory.",
+      "expected": "reserveStockBatch(stock).withAuditContext(warehouse);"
+    },
+    {
+      "id": "java-prefix-inventory",
+      "language": "java",
+      "scenario": "prefix",
+      "group": "identifier_prefix",
+      "support": "inventory.reserveStockBatch(stock);\n",
+      "prefix": "inventory.reserveS",
+      "expected": "tockBatch(stock);"
+    },
+    {
+      "id": "java-new-argument-inventory",
+      "language": "java",
+      "scenario": "new-argument",
+      "group": "new_arguments",
+      "support": "inventory.reserveStockBatch(old_stock);\n",
+      "prefix": "inventory.",
+      "expected": "reserveStockBatch(new_stock);"
+    },
+    {
+      "id": "java-ambiguous-inventory",
+      "language": "java",
+      "scenario": "ambiguous",
+      "group": "ambiguous",
+      "support": "inventory.reserveStockBatch(stock);\ninventory.clearPendingBatch();\n",
+      "prefix": "inventory.",
+      "expected": "reserveStockBatch(stock);"
+    },
+    {
+      "id": "java-unseen-inventory",
+      "language": "java",
+      "scenario": "unseen",
+      "group": "unseen",
+      "support": "inventory.reserveStockBatch(stock);\n",
+      "prefix": "inventory.",
+      "expected": "validatePendingState(warehouse);"
+    },
+    {
+      "id": "java-receiver-inventory",
+      "language": "java",
+      "scenario": "receiver",
+      "group": "receiver_disambiguation",
+      "support": "inventory.reserveStockBatch(stock);\nother.clearPendingBatch(warehouse);\ninventory.reserveStockBatch(stock);\nother.clearPendingBatch(warehouse);\n",
+      "prefix": "inventory.",
+      "expected": "reserveStockBatch(stock);"
+    },
+    {
+      "id": "java-isolation-inventory",
+      "language": "java",
+      "scenario": "isolation",
+      "group": "isolation",
+      "support": "unrelated.clearPendingBatch();\n",
+      "foreignSupport": "inventory.reserveStockBatch(stock);\n",
+      "prefix": "inventory.",
+      "expected": "reserveStockBatch(stock);",
+      "forbiddenToken": "reserveStockBatch"
+    },
+    {
+      "id": "java-suppression-inventory",
+      "language": "java",
+      "scenario": "suppression",
+      "group": "suppression",
+      "support": "inventory.reserveStockBatch(stock);\n",
+      "prefix": "// inventory.",
+      "expected": "",
+      "expectEmpty": true
+    },
+    {
+      "id": "java-repeat-mailer",
+      "language": "java",
+      "scenario": "repeat",
+      "group": "repeated",
+      "support": "mailer.dispatchEnvelopeBatch(envelope);\n",
+      "prefix": "mailer.",
+      "expected": "dispatchEnvelopeBatch(envelope);"
+    },
+    {
+      "id": "java-spacing-mailer",
+      "language": "java",
+      "scenario": "spacing",
+      "group": "repeated",
+      "support": "mailer.dispatchEnvelopeBatch( envelope, recipient );\n",
+      "prefix": "mailer.",
+      "expected": "dispatchEnvelopeBatch( envelope, recipient );"
+    },
+    {
+      "id": "java-chain-mailer",
+      "language": "java",
+      "scenario": "chain",
+      "group": "repeated",
+      "support": "mailer.dispatchEnvelopeBatch(envelope).withAuditContext(recipient);\n",
+      "prefix": "mailer.",
+      "expected": "dispatchEnvelopeBatch(envelope).withAuditContext(recipient);"
+    },
+    {
+      "id": "java-prefix-mailer",
+      "language": "java",
+      "scenario": "prefix",
+      "group": "identifier_prefix",
+      "support": "mailer.dispatchEnvelopeBatch(envelope);\n",
+      "prefix": "mailer.dispatchEn",
+      "expected": "velopeBatch(envelope);"
+    },
+    {
+      "id": "java-new-argument-mailer",
+      "language": "java",
+      "scenario": "new-argument",
+      "group": "new_arguments",
+      "support": "mailer.dispatchEnvelopeBatch(old_envelope);\n",
+      "prefix": "mailer.",
+      "expected": "dispatchEnvelopeBatch(new_envelope);"
+    },
+    {
+      "id": "java-ambiguous-mailer",
+      "language": "java",
+      "scenario": "ambiguous",
+      "group": "ambiguous",
+      "support": "mailer.dispatchEnvelopeBatch(envelope);\nmailer.clearPendingBatch();\n",
+      "prefix": "mailer.",
+      "expected": "clearPendingBatch();"
+    },
+    {
+      "id": "java-unseen-mailer",
+      "language": "java",
+      "scenario": "unseen",
+      "group": "unseen",
+      "support": "mailer.dispatchEnvelopeBatch(envelope);\n",
+      "prefix": "mailer.",
+      "expected": "validatePendingState(recipient);"
+    },
+    {
+      "id": "java-receiver-mailer",
+      "language": "java",
+      "scenario": "receiver",
+      "group": "receiver_disambiguation",
+      "support": "mailer.dispatchEnvelopeBatch(envelope);\nother.clearPendingBatch(recipient);\nmailer.dispatchEnvelopeBatch(envelope);\nother.clearPendingBatch(recipient);\n",
+      "prefix": "mailer.",
+      "expected": "dispatchEnvelopeBatch(envelope);"
+    },
+    {
+      "id": "java-isolation-mailer",
+      "language": "java",
+      "scenario": "isolation",
+      "group": "isolation",
+      "support": "unrelated.clearPendingBatch();\n",
+      "foreignSupport": "mailer.dispatchEnvelopeBatch(envelope);\n",
+      "prefix": "mailer.",
+      "expected": "dispatchEnvelopeBatch(envelope);",
+      "forbiddenToken": "dispatchEnvelopeBatch"
+    },
+    {
+      "id": "java-suppression-mailer",
+      "language": "java",
+      "scenario": "suppression",
+      "group": "suppression",
+      "support": "mailer.dispatchEnvelopeBatch(envelope);\n",
+      "prefix": "String note = \"mailer.",
+      "expected": "",
+      "expectEmpty": true
+    },
+    {
+      "id": "java-repeat-renderer",
+      "language": "java",
+      "scenario": "repeat",
+      "group": "repeated",
+      "support": "renderer.renderSceneFrame(scene);\n",
+      "prefix": "renderer.",
+      "expected": "renderSceneFrame(scene);"
+    },
+    {
+      "id": "java-spacing-renderer",
+      "language": "java",
+      "scenario": "spacing",
+      "group": "repeated",
+      "support": "renderer.renderSceneFrame( scene, viewport );\n",
+      "prefix": "renderer.",
+      "expected": "renderSceneFrame( scene, viewport );"
+    },
+    {
+      "id": "java-chain-renderer",
+      "language": "java",
+      "scenario": "chain",
+      "group": "repeated",
+      "support": "renderer.renderSceneFrame(scene).withAuditContext(viewport);\n",
+      "prefix": "renderer.",
+      "expected": "renderSceneFrame(scene).withAuditContext(viewport);"
+    },
+    {
+      "id": "java-prefix-renderer",
+      "language": "java",
+      "scenario": "prefix",
+      "group": "identifier_prefix",
+      "support": "renderer.renderSceneFrame(scene);\n",
+      "prefix": "renderer.renderSc",
+      "expected": "eneFrame(scene);"
+    },
+    {
+      "id": "java-new-argument-renderer",
+      "language": "java",
+      "scenario": "new-argument",
+      "group": "new_arguments",
+      "support": "renderer.renderSceneFrame(old_scene);\n",
+      "prefix": "renderer.",
+      "expected": "renderSceneFrame(new_scene);"
+    },
+    {
+      "id": "java-ambiguous-renderer",
+      "language": "java",
+      "scenario": "ambiguous",
+      "group": "ambiguous",
+      "support": "renderer.renderSceneFrame(scene);\nrenderer.clearPendingBatch();\n",
+      "prefix": "renderer.",
+      "expected": "renderSceneFrame(scene);"
+    },
+    {
+      "id": "java-unseen-renderer",
+      "language": "java",
+      "scenario": "unseen",
+      "group": "unseen",
+      "support": "renderer.renderSceneFrame(scene);\n",
+      "prefix": "renderer.",
+      "expected": "validatePendingState(viewport);"
+    },
+    {
+      "id": "java-receiver-renderer",
+      "language": "java",
+      "scenario": "receiver",
+      "group": "receiver_disambiguation",
+      "support": "renderer.renderSceneFrame(scene);\nother.clearPendingBatch(viewport);\nrenderer.renderSceneFrame(scene);\nother.clearPendingBatch(viewport);\n",
+      "prefix": "renderer.",
+      "expected": "renderSceneFrame(scene);"
+    },
+    {
+      "id": "java-isolation-renderer",
+      "language": "java",
+      "scenario": "isolation",
+      "group": "isolation",
+      "support": "unrelated.clearPendingBatch();\n",
+      "foreignSupport": "renderer.renderSceneFrame(scene);\n",
+      "prefix": "renderer.",
+      "expected": "renderSceneFrame(scene);",
+      "forbiddenToken": "renderSceneFrame"
+    },
+    {
+      "id": "java-suppression-renderer",
+      "language": "java",
+      "scenario": "suppression",
+      "group": "suppression",
+      "support": "renderer.renderSceneFrame(scene);\n",
+      "prefix": "// renderer.",
+      "expected": "",
+      "expectEmpty": true
+    },
+    {
+      "id": "java-repeat-ledger",
+      "language": "java",
+      "scenario": "repeat",
+      "group": "repeated",
+      "support": "ledger.appendLedgerEntry(entry);\n",
+      "prefix": "ledger.",
+      "expected": "appendLedgerEntry(entry);"
+    },
+    {
+      "id": "java-spacing-ledger",
+      "language": "java",
+      "scenario": "spacing",
+      "group": "repeated",
+      "support": "ledger.appendLedgerEntry( entry, account );\n",
+      "prefix": "ledger.",
+      "expected": "appendLedgerEntry( entry, account );"
+    },
+    {
+      "id": "java-chain-ledger",
+      "language": "java",
+      "scenario": "chain",
+      "group": "repeated",
+      "support": "ledger.appendLedgerEntry(entry).withAuditContext(account);\n",
+      "prefix": "ledger.",
+      "expected": "appendLedgerEntry(entry).withAuditContext(account);"
+    },
+    {
+      "id": "java-prefix-ledger",
+      "language": "java",
+      "scenario": "prefix",
+      "group": "identifier_prefix",
+      "support": "ledger.appendLedgerEntry(entry);\n",
+      "prefix": "ledger.appendLe",
+      "expected": "dgerEntry(entry);"
+    },
+    {
+      "id": "java-new-argument-ledger",
+      "language": "java",
+      "scenario": "new-argument",
+      "group": "new_arguments",
+      "support": "ledger.appendLedgerEntry(old_entry);\n",
+      "prefix": "ledger.",
+      "expected": "appendLedgerEntry(new_entry);"
+    },
+    {
+      "id": "java-ambiguous-ledger",
+      "language": "java",
+      "scenario": "ambiguous",
+      "group": "ambiguous",
+      "support": "ledger.appendLedgerEntry(entry);\nledger.clearPendingBatch();\n",
+      "prefix": "ledger.",
+      "expected": "clearPendingBatch();"
+    },
+    {
+      "id": "java-unseen-ledger",
+      "language": "java",
+      "scenario": "unseen",
+      "group": "unseen",
+      "support": "ledger.appendLedgerEntry(entry);\n",
+      "prefix": "ledger.",
+      "expected": "validatePendingState(account);"
+    },
+    {
+      "id": "java-receiver-ledger",
+      "language": "java",
+      "scenario": "receiver",
+      "group": "receiver_disambiguation",
+      "support": "ledger.appendLedgerEntry(entry);\nother.clearPendingBatch(account);\nledger.appendLedgerEntry(entry);\nother.clearPendingBatch(account);\n",
+      "prefix": "ledger.",
+      "expected": "appendLedgerEntry(entry);"
+    },
+    {
+      "id": "java-isolation-ledger",
+      "language": "java",
+      "scenario": "isolation",
+      "group": "isolation",
+      "support": "unrelated.clearPendingBatch();\n",
+      "foreignSupport": "ledger.appendLedgerEntry(entry);\n",
+      "prefix": "ledger.",
+      "expected": "appendLedgerEntry(entry);",
+      "forbiddenToken": "appendLedgerEntry"
+    },
+    {
+      "id": "java-suppression-ledger",
+      "language": "java",
+      "scenario": "suppression",
+      "group": "suppression",
+      "support": "ledger.appendLedgerEntry(entry);\n",
+      "prefix": "String note = \"ledger.",
+      "expected": "",
+      "expectEmpty": true
+    },
+    {
+      "id": "java-repeat-scheduler",
+      "language": "java",
+      "scenario": "repeat",
+      "group": "repeated",
+      "support": "scheduler.enqueueScheduledJob(job);\n",
+      "prefix": "scheduler.",
+      "expected": "enqueueScheduledJob(job);"
+    },
+    {
+      "id": "java-spacing-scheduler",
+      "language": "java",
+      "scenario": "spacing",
+      "group": "repeated",
+      "support": "scheduler.enqueueScheduledJob( job, priority );\n",
+      "prefix": "scheduler.",
+      "expected": "enqueueScheduledJob( job, priority );"
+    },
+    {
+      "id": "java-chain-scheduler",
+      "language": "java",
+      "scenario": "chain",
+      "group": "repeated",
+      "support": "scheduler.enqueueScheduledJob(job).withAuditContext(priority);\n",
+      "prefix": "scheduler.",
+      "expected": "enqueueScheduledJob(job).withAuditContext(priority);"
+    },
+    {
+      "id": "java-prefix-scheduler",
+      "language": "java",
+      "scenario": "prefix",
+      "group": "identifier_prefix",
+      "support": "scheduler.enqueueScheduledJob(job);\n",
+      "prefix": "scheduler.enqueueSc",
+      "expected": "heduledJob(job);"
+    },
+    {
+      "id": "java-new-argument-scheduler",
+      "language": "java",
+      "scenario": "new-argument",
+      "group": "new_arguments",
+      "support": "scheduler.enqueueScheduledJob(old_job);\n",
+      "prefix": "scheduler.",
+      "expected": "enqueueScheduledJob(new_job);"
+    },
+    {
+      "id": "java-ambiguous-scheduler",
+      "language": "java",
+      "scenario": "ambiguous",
+      "group": "ambiguous",
+      "support": "scheduler.enqueueScheduledJob(job);\nscheduler.clearPendingBatch();\n",
+      "prefix": "scheduler.",
+      "expected": "enqueueScheduledJob(job);"
+    },
+    {
+      "id": "java-unseen-scheduler",
+      "language": "java",
+      "scenario": "unseen",
+      "group": "unseen",
+      "support": "scheduler.enqueueScheduledJob(job);\n",
+      "prefix": "scheduler.",
+      "expected": "validatePendingState(priority);"
+    },
+    {
+      "id": "java-receiver-scheduler",
+      "language": "java",
+      "scenario": "receiver",
+      "group": "receiver_disambiguation",
+      "support": "scheduler.enqueueScheduledJob(job);\nother.clearPendingBatch(priority);\nscheduler.enqueueScheduledJob(job);\nother.clearPendingBatch(priority);\n",
+      "prefix": "scheduler.",
+      "expected": "enqueueScheduledJob(job);"
+    },
+    {
+      "id": "java-isolation-scheduler",
+      "language": "java",
+      "scenario": "isolation",
+      "group": "isolation",
+      "support": "unrelated.clearPendingBatch();\n",
+      "foreignSupport": "scheduler.enqueueScheduledJob(job);\n",
+      "prefix": "scheduler.",
+      "expected": "enqueueScheduledJob(job);",
+      "forbiddenToken": "enqueueScheduledJob"
+    },
+    {
+      "id": "java-suppression-scheduler",
+      "language": "java",
+      "scenario": "suppression",
+      "group": "suppression",
+      "support": "scheduler.enqueueScheduledJob(job);\n",
+      "prefix": "// scheduler.",
+      "expected": "",
+      "expectEmpty": true
+    },
+    {
+      "id": "java-repeat-catalog",
+      "language": "java",
+      "scenario": "repeat",
+      "group": "repeated",
+      "support": "catalog.indexCatalogRecord(record);\n",
+      "prefix": "catalog.",
+      "expected": "indexCatalogRecord(record);"
+    },
+    {
+      "id": "java-spacing-catalog",
+      "language": "java",
+      "scenario": "spacing",
+      "group": "repeated",
+      "support": "catalog.indexCatalogRecord( record, category );\n",
+      "prefix": "catalog.",
+      "expected": "indexCatalogRecord( record, category );"
+    },
+    {
+      "id": "java-chain-catalog",
+      "language": "java",
+      "scenario": "chain",
+      "group": "repeated",
+      "support": "catalog.indexCatalogRecord(record).withAuditContext(category);\n",
+      "prefix": "catalog.",
+      "expected": "indexCatalogRecord(record).withAuditContext(category);"
+    },
+    {
+      "id": "java-prefix-catalog",
+      "language": "java",
+      "scenario": "prefix",
+      "group": "identifier_prefix",
+      "support": "catalog.indexCatalogRecord(record);\n",
+      "prefix": "catalog.indexCata",
+      "expected": "logRecord(record);"
+    },
+    {
+      "id": "java-new-argument-catalog",
+      "language": "java",
+      "scenario": "new-argument",
+      "group": "new_arguments",
+      "support": "catalog.indexCatalogRecord(old_record);\n",
+      "prefix": "catalog.",
+      "expected": "indexCatalogRecord(new_record);"
+    },
+    {
+      "id": "java-ambiguous-catalog",
+      "language": "java",
+      "scenario": "ambiguous",
+      "group": "ambiguous",
+      "support": "catalog.indexCatalogRecord(record);\ncatalog.clearPendingBatch();\n",
+      "prefix": "catalog.",
+      "expected": "clearPendingBatch();"
+    },
+    {
+      "id": "java-unseen-catalog",
+      "language": "java",
+      "scenario": "unseen",
+      "group": "unseen",
+      "support": "catalog.indexCatalogRecord(record);\n",
+      "prefix": "catalog.",
+      "expected": "validatePendingState(category);"
+    },
+    {
+      "id": "java-receiver-catalog",
+      "language": "java",
+      "scenario": "receiver",
+      "group": "receiver_disambiguation",
+      "support": "catalog.indexCatalogRecord(record);\nother.clearPendingBatch(category);\ncatalog.indexCatalogRecord(record);\nother.clearPendingBatch(category);\n",
+      "prefix": "catalog.",
+      "expected": "indexCatalogRecord(record);"
+    },
+    {
+      "id": "java-isolation-catalog",
+      "language": "java",
+      "scenario": "isolation",
+      "group": "isolation",
+      "support": "unrelated.clearPendingBatch();\n",
+      "foreignSupport": "catalog.indexCatalogRecord(record);\n",
+      "prefix": "catalog.",
+      "expected": "indexCatalogRecord(record);",
+      "forbiddenToken": "indexCatalogRecord"
+    },
+    {
+      "id": "java-suppression-catalog",
+      "language": "java",
+      "scenario": "suppression",
+      "group": "suppression",
+      "support": "catalog.indexCatalogRecord(record);\n",
+      "prefix": "String note = \"catalog.",
+      "expected": "",
+      "expectEmpty": true
+    },
+    {
+      "id": "java-repeat-storage",
+      "language": "java",
+      "scenario": "repeat",
+      "group": "repeated",
+      "support": "storage.persistSnapshotBlock(block);\n",
+      "prefix": "storage.",
+      "expected": "persistSnapshotBlock(block);"
+    },
+    {
+      "id": "java-spacing-storage",
+      "language": "java",
+      "scenario": "spacing",
+      "group": "repeated",
+      "support": "storage.persistSnapshotBlock( block, checkpoint );\n",
+      "prefix": "storage.",
+      "expected": "persistSnapshotBlock( block, checkpoint );"
+    },
+    {
+      "id": "java-chain-storage",
+      "language": "java",
+      "scenario": "chain",
+      "group": "repeated",
+      "support": "storage.persistSnapshotBlock(block).withAuditContext(checkpoint);\n",
+      "prefix": "storage.",
+      "expected": "persistSnapshotBlock(block).withAuditContext(checkpoint);"
+    },
+    {
+      "id": "java-prefix-storage",
+      "language": "java",
+      "scenario": "prefix",
+      "group": "identifier_prefix",
+      "support": "storage.persistSnapshotBlock(block);\n",
+      "prefix": "storage.persistSna",
+      "expected": "pshotBlock(block);"
+    },
+    {
+      "id": "java-new-argument-storage",
+      "language": "java",
+      "scenario": "new-argument",
+      "group": "new_arguments",
+      "support": "storage.persistSnapshotBlock(old_block);\n",
+      "prefix": "storage.",
+      "expected": "persistSnapshotBlock(new_block);"
+    },
+    {
+      "id": "java-ambiguous-storage",
+      "language": "java",
+      "scenario": "ambiguous",
+      "group": "ambiguous",
+      "support": "storage.persistSnapshotBlock(block);\nstorage.clearPendingBatch();\n",
+      "prefix": "storage.",
+      "expected": "persistSnapshotBlock(block);"
+    },
+    {
+      "id": "java-unseen-storage",
+      "language": "java",
+      "scenario": "unseen",
+      "group": "unseen",
+      "support": "storage.persistSnapshotBlock(block);\n",
+      "prefix": "storage.",
+      "expected": "validatePendingState(checkpoint);"
+    },
+    {
+      "id": "java-receiver-storage",
+      "language": "java",
+      "scenario": "receiver",
+      "group": "receiver_disambiguation",
+      "support": "storage.persistSnapshotBlock(block);\nother.clearPendingBatch(checkpoint);\nstorage.persistSnapshotBlock(block);\nother.clearPendingBatch(checkpoint);\n",
+      "prefix": "storage.",
+      "expected": "persistSnapshotBlock(block);"
+    },
+    {
+      "id": "java-isolation-storage",
+      "language": "java",
+      "scenario": "isolation",
+      "group": "isolation",
+      "support": "unrelated.clearPendingBatch();\n",
+      "foreignSupport": "storage.persistSnapshotBlock(block);\n",
+      "prefix": "storage.",
+      "expected": "persistSnapshotBlock(block);",
+      "forbiddenToken": "persistSnapshotBlock"
+    },
+    {
+      "id": "java-suppression-storage",
+      "language": "java",
+      "scenario": "suppression",
+      "group": "suppression",
+      "support": "storage.persistSnapshotBlock(block);\n",
+      "prefix": "// storage.",
+      "expected": "",
+      "expectEmpty": true
+    },
+    {
+      "id": "java-repeat-telemetry",
+      "language": "java",
+      "scenario": "repeat",
+      "group": "repeated",
+      "support": "telemetry.collectTelemetrySample(sample);\n",
+      "prefix": "telemetry.",
+      "expected": "collectTelemetrySample(sample);"
+    },
+    {
+      "id": "java-spacing-telemetry",
+      "language": "java",
+      "scenario": "spacing",
+      "group": "repeated",
+      "support": "telemetry.collectTelemetrySample( sample, timestamp );\n",
+      "prefix": "telemetry.",
+      "expected": "collectTelemetrySample( sample, timestamp );"
+    },
+    {
+      "id": "java-chain-telemetry",
+      "language": "java",
+      "scenario": "chain",
+      "group": "repeated",
+      "support": "telemetry.collectTelemetrySample(sample).withAuditContext(timestamp);\n",
+      "prefix": "telemetry.",
+      "expected": "collectTelemetrySample(sample).withAuditContext(timestamp);"
+    },
+    {
+      "id": "java-prefix-telemetry",
+      "language": "java",
+      "scenario": "prefix",
+      "group": "identifier_prefix",
+      "support": "telemetry.collectTelemetrySample(sample);\n",
+      "prefix": "telemetry.collectTele",
+      "expected": "metrySample(sample);"
+    },
+    {
+      "id": "java-new-argument-telemetry",
+      "language": "java",
+      "scenario": "new-argument",
+      "group": "new_arguments",
+      "support": "telemetry.collectTelemetrySample(old_sample);\n",
+      "prefix": "telemetry.",
+      "expected": "collectTelemetrySample(new_sample);"
+    },
+    {
+      "id": "java-ambiguous-telemetry",
+      "language": "java",
+      "scenario": "ambiguous",
+      "group": "ambiguous",
+      "support": "telemetry.collectTelemetrySample(sample);\ntelemetry.clearPendingBatch();\n",
+      "prefix": "telemetry.",
+      "expected": "clearPendingBatch();"
+    },
+    {
+      "id": "java-unseen-telemetry",
+      "language": "java",
+      "scenario": "unseen",
+      "group": "unseen",
+      "support": "telemetry.collectTelemetrySample(sample);\n",
+      "prefix": "telemetry.",
+      "expected": "validatePendingState(timestamp);"
+    },
+    {
+      "id": "java-receiver-telemetry",
+      "language": "java",
+      "scenario": "receiver",
+      "group": "receiver_disambiguation",
+      "support": "telemetry.collectTelemetrySample(sample);\nother.clearPendingBatch(timestamp);\ntelemetry.collectTelemetrySample(sample);\nother.clearPendingBatch(timestamp);\n",
+      "prefix": "telemetry.",
+      "expected": "collectTelemetrySample(sample);"
+    },
+    {
+      "id": "java-isolation-telemetry",
+      "language": "java",
+      "scenario": "isolation",
+      "group": "isolation",
+      "support": "unrelated.clearPendingBatch();\n",
+      "foreignSupport": "telemetry.collectTelemetrySample(sample);\n",
+      "prefix": "telemetry.",
+      "expected": "collectTelemetrySample(sample);",
+      "forbiddenToken": "collectTelemetrySample"
+    },
+    {
+      "id": "java-suppression-telemetry",
+      "language": "java",
+      "scenario": "suppression",
+      "group": "suppression",
+      "support": "telemetry.collectTelemetrySample(sample);\n",
+      "prefix": "String note = \"telemetry.",
+      "expected": "",
+      "expectEmpty": true
+    },
+    {
+      "id": "java-repeat-router",
+      "language": "java",
+      "scenario": "repeat",
+      "group": "repeated",
+      "support": "router.resolveRouteBinding(binding);\n",
+      "prefix": "router.",
+      "expected": "resolveRouteBinding(binding);"
+    },
+    {
+      "id": "java-spacing-router",
+      "language": "java",
+      "scenario": "spacing",
+      "group": "repeated",
+      "support": "router.resolveRouteBinding( binding, endpoint );\n",
+      "prefix": "router.",
+      "expected": "resolveRouteBinding( binding, endpoint );"
+    },
+    {
+      "id": "java-chain-router",
+      "language": "java",
+      "scenario": "chain",
+      "group": "repeated",
+      "support": "router.resolveRouteBinding(binding).withAuditContext(endpoint);\n",
+      "prefix": "router.",
+      "expected": "resolveRouteBinding(binding).withAuditContext(endpoint);"
+    },
+    {
+      "id": "java-prefix-router",
+      "language": "java",
+      "scenario": "prefix",
+      "group": "identifier_prefix",
+      "support": "router.resolveRouteBinding(binding);\n",
+      "prefix": "router.resolveRo",
+      "expected": "uteBinding(binding);"
+    },
+    {
+      "id": "java-new-argument-router",
+      "language": "java",
+      "scenario": "new-argument",
+      "group": "new_arguments",
+      "support": "router.resolveRouteBinding(old_binding);\n",
+      "prefix": "router.",
+      "expected": "resolveRouteBinding(new_binding);"
+    },
+    {
+      "id": "java-ambiguous-router",
+      "language": "java",
+      "scenario": "ambiguous",
+      "group": "ambiguous",
+      "support": "router.resolveRouteBinding(binding);\nrouter.clearPendingBatch();\n",
+      "prefix": "router.",
+      "expected": "resolveRouteBinding(binding);"
+    },
+    {
+      "id": "java-unseen-router",
+      "language": "java",
+      "scenario": "unseen",
+      "group": "unseen",
+      "support": "router.resolveRouteBinding(binding);\n",
+      "prefix": "router.",
+      "expected": "validatePendingState(endpoint);"
+    },
+    {
+      "id": "java-receiver-router",
+      "language": "java",
+      "scenario": "receiver",
+      "group": "receiver_disambiguation",
+      "support": "router.resolveRouteBinding(binding);\nother.clearPendingBatch(endpoint);\nrouter.resolveRouteBinding(binding);\nother.clearPendingBatch(endpoint);\n",
+      "prefix": "router.",
+      "expected": "resolveRouteBinding(binding);"
+    },
+    {
+      "id": "java-isolation-router",
+      "language": "java",
+      "scenario": "isolation",
+      "group": "isolation",
+      "support": "unrelated.clearPendingBatch();\n",
+      "foreignSupport": "router.resolveRouteBinding(binding);\n",
+      "prefix": "router.",
+      "expected": "resolveRouteBinding(binding);",
+      "forbiddenToken": "resolveRouteBinding"
+    },
+    {
+      "id": "java-suppression-router",
+      "language": "java",
+      "scenario": "suppression",
+      "group": "suppression",
+      "support": "router.resolveRouteBinding(binding);\n",
+      "prefix": "// router.",
+      "expected": "",
+      "expectEmpty": true
+    },
+    {
+      "id": "java-repeat-pipeline",
+      "language": "java",
+      "scenario": "repeat",
+      "group": "repeated",
+      "support": "pipeline.transformInputBatch(input);\n",
+      "prefix": "pipeline.",
+      "expected": "transformInputBatch(input);"
+    },
+    {
+      "id": "java-spacing-pipeline",
+      "language": "java",
+      "scenario": "spacing",
+      "group": "repeated",
+      "support": "pipeline.transformInputBatch( input, options );\n",
+      "prefix": "pipeline.",
+      "expected": "transformInputBatch( input, options );"
+    },
+    {
+      "id": "java-chain-pipeline",
+      "language": "java",
+      "scenario": "chain",
+      "group": "repeated",
+      "support": "pipeline.transformInputBatch(input).withAuditContext(options);\n",
+      "prefix": "pipeline.",
+      "expected": "transformInputBatch(input).withAuditContext(options);"
+    },
+    {
+      "id": "java-prefix-pipeline",
+      "language": "java",
+      "scenario": "prefix",
+      "group": "identifier_prefix",
+      "support": "pipeline.transformInputBatch(input);\n",
+      "prefix": "pipeline.transform",
+      "expected": "InputBatch(input);"
+    },
+    {
+      "id": "java-new-argument-pipeline",
+      "language": "java",
+      "scenario": "new-argument",
+      "group": "new_arguments",
+      "support": "pipeline.transformInputBatch(old_input);\n",
+      "prefix": "pipeline.",
+      "expected": "transformInputBatch(new_input);"
+    },
+    {
+      "id": "java-ambiguous-pipeline",
+      "language": "java",
+      "scenario": "ambiguous",
+      "group": "ambiguous",
+      "support": "pipeline.transformInputBatch(input);\npipeline.clearPendingBatch();\n",
+      "prefix": "pipeline.",
+      "expected": "clearPendingBatch();"
+    },
+    {
+      "id": "java-unseen-pipeline",
+      "language": "java",
+      "scenario": "unseen",
+      "group": "unseen",
+      "support": "pipeline.transformInputBatch(input);\n",
+      "prefix": "pipeline.",
+      "expected": "validatePendingState(options);"
+    },
+    {
+      "id": "java-receiver-pipeline",
+      "language": "java",
+      "scenario": "receiver",
+      "group": "receiver_disambiguation",
+      "support": "pipeline.transformInputBatch(input);\nother.clearPendingBatch(options);\npipeline.transformInputBatch(input);\nother.clearPendingBatch(options);\n",
+      "prefix": "pipeline.",
+      "expected": "transformInputBatch(input);"
+    },
+    {
+      "id": "java-isolation-pipeline",
+      "language": "java",
+      "scenario": "isolation",
+      "group": "isolation",
+      "support": "unrelated.clearPendingBatch();\n",
+      "foreignSupport": "pipeline.transformInputBatch(input);\n",
+      "prefix": "pipeline.",
+      "expected": "transformInputBatch(input);",
+      "forbiddenToken": "transformInputBatch"
+    },
+    {
+      "id": "java-suppression-pipeline",
+      "language": "java",
+      "scenario": "suppression",
+      "group": "suppression",
+      "support": "pipeline.transformInputBatch(input);\n",
+      "prefix": "String note = \"pipeline.",
+      "expected": "",
+      "expectEmpty": true
+    },
+    {
+      "id": "csharp-repeat-inventory",
+      "language": "csharp",
+      "scenario": "repeat",
+      "group": "repeated",
+      "support": "inventory.ReserveStockBatch(stock);\n",
+      "prefix": "inventory.",
+      "expected": "ReserveStockBatch(stock);"
+    },
+    {
+      "id": "csharp-spacing-inventory",
+      "language": "csharp",
+      "scenario": "spacing",
+      "group": "repeated",
+      "support": "inventory.ReserveStockBatch( stock, warehouse );\n",
+      "prefix": "inventory.",
+      "expected": "ReserveStockBatch( stock, warehouse );"
+    },
+    {
+      "id": "csharp-chain-inventory",
+      "language": "csharp",
+      "scenario": "chain",
+      "group": "repeated",
+      "support": "inventory.ReserveStockBatch(stock).WithAuditContext(warehouse);\n",
+      "prefix": "inventory.",
+      "expected": "ReserveStockBatch(stock).WithAuditContext(warehouse);"
+    },
+    {
+      "id": "csharp-prefix-inventory",
+      "language": "csharp",
+      "scenario": "prefix",
+      "group": "identifier_prefix",
+      "support": "inventory.ReserveStockBatch(stock);\n",
+      "prefix": "inventory.ReserveS",
+      "expected": "tockBatch(stock);"
+    },
+    {
+      "id": "csharp-new-argument-inventory",
+      "language": "csharp",
+      "scenario": "new-argument",
+      "group": "new_arguments",
+      "support": "inventory.ReserveStockBatch(old_stock);\n",
+      "prefix": "inventory.",
+      "expected": "ReserveStockBatch(new_stock);"
+    },
+    {
+      "id": "csharp-ambiguous-inventory",
+      "language": "csharp",
+      "scenario": "ambiguous",
+      "group": "ambiguous",
+      "support": "inventory.ReserveStockBatch(stock);\ninventory.ClearPendingBatch();\n",
+      "prefix": "inventory.",
+      "expected": "ReserveStockBatch(stock);"
+    },
+    {
+      "id": "csharp-unseen-inventory",
+      "language": "csharp",
+      "scenario": "unseen",
+      "group": "unseen",
+      "support": "inventory.ReserveStockBatch(stock);\n",
+      "prefix": "inventory.",
+      "expected": "ValidatePendingState(warehouse);"
+    },
+    {
+      "id": "csharp-receiver-inventory",
+      "language": "csharp",
+      "scenario": "receiver",
+      "group": "receiver_disambiguation",
+      "support": "inventory.ReserveStockBatch(stock);\nother.ClearPendingBatch(warehouse);\ninventory.ReserveStockBatch(stock);\nother.ClearPendingBatch(warehouse);\n",
+      "prefix": "inventory.",
+      "expected": "ReserveStockBatch(stock);"
+    },
+    {
+      "id": "csharp-isolation-inventory",
+      "language": "csharp",
+      "scenario": "isolation",
+      "group": "isolation",
+      "support": "unrelated.ClearPendingBatch();\n",
+      "foreignSupport": "inventory.ReserveStockBatch(stock);\n",
+      "prefix": "inventory.",
+      "expected": "ReserveStockBatch(stock);",
+      "forbiddenToken": "ReserveStockBatch"
+    },
+    {
+      "id": "csharp-suppression-inventory",
+      "language": "csharp",
+      "scenario": "suppression",
+      "group": "suppression",
+      "support": "inventory.ReserveStockBatch(stock);\n",
+      "prefix": "// inventory.",
+      "expected": "",
+      "expectEmpty": true
+    },
+    {
+      "id": "csharp-repeat-mailer",
+      "language": "csharp",
+      "scenario": "repeat",
+      "group": "repeated",
+      "support": "mailer.DispatchEnvelopeBatch(envelope);\n",
+      "prefix": "mailer.",
+      "expected": "DispatchEnvelopeBatch(envelope);"
+    },
+    {
+      "id": "csharp-spacing-mailer",
+      "language": "csharp",
+      "scenario": "spacing",
+      "group": "repeated",
+      "support": "mailer.DispatchEnvelopeBatch( envelope, recipient );\n",
+      "prefix": "mailer.",
+      "expected": "DispatchEnvelopeBatch( envelope, recipient );"
+    },
+    {
+      "id": "csharp-chain-mailer",
+      "language": "csharp",
+      "scenario": "chain",
+      "group": "repeated",
+      "support": "mailer.DispatchEnvelopeBatch(envelope).WithAuditContext(recipient);\n",
+      "prefix": "mailer.",
+      "expected": "DispatchEnvelopeBatch(envelope).WithAuditContext(recipient);"
+    },
+    {
+      "id": "csharp-prefix-mailer",
+      "language": "csharp",
+      "scenario": "prefix",
+      "group": "identifier_prefix",
+      "support": "mailer.DispatchEnvelopeBatch(envelope);\n",
+      "prefix": "mailer.DispatchEn",
+      "expected": "velopeBatch(envelope);"
+    },
+    {
+      "id": "csharp-new-argument-mailer",
+      "language": "csharp",
+      "scenario": "new-argument",
+      "group": "new_arguments",
+      "support": "mailer.DispatchEnvelopeBatch(old_envelope);\n",
+      "prefix": "mailer.",
+      "expected": "DispatchEnvelopeBatch(new_envelope);"
+    },
+    {
+      "id": "csharp-ambiguous-mailer",
+      "language": "csharp",
+      "scenario": "ambiguous",
+      "group": "ambiguous",
+      "support": "mailer.DispatchEnvelopeBatch(envelope);\nmailer.ClearPendingBatch();\n",
+      "prefix": "mailer.",
+      "expected": "ClearPendingBatch();"
+    },
+    {
+      "id": "csharp-unseen-mailer",
+      "language": "csharp",
+      "scenario": "unseen",
+      "group": "unseen",
+      "support": "mailer.DispatchEnvelopeBatch(envelope);\n",
+      "prefix": "mailer.",
+      "expected": "ValidatePendingState(recipient);"
+    },
+    {
+      "id": "csharp-receiver-mailer",
+      "language": "csharp",
+      "scenario": "receiver",
+      "group": "receiver_disambiguation",
+      "support": "mailer.DispatchEnvelopeBatch(envelope);\nother.ClearPendingBatch(recipient);\nmailer.DispatchEnvelopeBatch(envelope);\nother.ClearPendingBatch(recipient);\n",
+      "prefix": "mailer.",
+      "expected": "DispatchEnvelopeBatch(envelope);"
+    },
+    {
+      "id": "csharp-isolation-mailer",
+      "language": "csharp",
+      "scenario": "isolation",
+      "group": "isolation",
+      "support": "unrelated.ClearPendingBatch();\n",
+      "foreignSupport": "mailer.DispatchEnvelopeBatch(envelope);\n",
+      "prefix": "mailer.",
+      "expected": "DispatchEnvelopeBatch(envelope);",
+      "forbiddenToken": "DispatchEnvelopeBatch"
+    },
+    {
+      "id": "csharp-suppression-mailer",
+      "language": "csharp",
+      "scenario": "suppression",
+      "group": "suppression",
+      "support": "mailer.DispatchEnvelopeBatch(envelope);\n",
+      "prefix": "var note = @\"mailer.",
+      "expected": "",
+      "expectEmpty": true
+    },
+    {
+      "id": "csharp-repeat-renderer",
+      "language": "csharp",
+      "scenario": "repeat",
+      "group": "repeated",
+      "support": "renderer.RenderSceneFrame(scene);\n",
+      "prefix": "renderer.",
+      "expected": "RenderSceneFrame(scene);"
+    },
+    {
+      "id": "csharp-spacing-renderer",
+      "language": "csharp",
+      "scenario": "spacing",
+      "group": "repeated",
+      "support": "renderer.RenderSceneFrame( scene, viewport );\n",
+      "prefix": "renderer.",
+      "expected": "RenderSceneFrame( scene, viewport );"
+    },
+    {
+      "id": "csharp-chain-renderer",
+      "language": "csharp",
+      "scenario": "chain",
+      "group": "repeated",
+      "support": "renderer.RenderSceneFrame(scene).WithAuditContext(viewport);\n",
+      "prefix": "renderer.",
+      "expected": "RenderSceneFrame(scene).WithAuditContext(viewport);"
+    },
+    {
+      "id": "csharp-prefix-renderer",
+      "language": "csharp",
+      "scenario": "prefix",
+      "group": "identifier_prefix",
+      "support": "renderer.RenderSceneFrame(scene);\n",
+      "prefix": "renderer.RenderSc",
+      "expected": "eneFrame(scene);"
+    },
+    {
+      "id": "csharp-new-argument-renderer",
+      "language": "csharp",
+      "scenario": "new-argument",
+      "group": "new_arguments",
+      "support": "renderer.RenderSceneFrame(old_scene);\n",
+      "prefix": "renderer.",
+      "expected": "RenderSceneFrame(new_scene);"
+    },
+    {
+      "id": "csharp-ambiguous-renderer",
+      "language": "csharp",
+      "scenario": "ambiguous",
+      "group": "ambiguous",
+      "support": "renderer.RenderSceneFrame(scene);\nrenderer.ClearPendingBatch();\n",
+      "prefix": "renderer.",
+      "expected": "RenderSceneFrame(scene);"
+    },
+    {
+      "id": "csharp-unseen-renderer",
+      "language": "csharp",
+      "scenario": "unseen",
+      "group": "unseen",
+      "support": "renderer.RenderSceneFrame(scene);\n",
+      "prefix": "renderer.",
+      "expected": "ValidatePendingState(viewport);"
+    },
+    {
+      "id": "csharp-receiver-renderer",
+      "language": "csharp",
+      "scenario": "receiver",
+      "group": "receiver_disambiguation",
+      "support": "renderer.RenderSceneFrame(scene);\nother.ClearPendingBatch(viewport);\nrenderer.RenderSceneFrame(scene);\nother.ClearPendingBatch(viewport);\n",
+      "prefix": "renderer.",
+      "expected": "RenderSceneFrame(scene);"
+    },
+    {
+      "id": "csharp-isolation-renderer",
+      "language": "csharp",
+      "scenario": "isolation",
+      "group": "isolation",
+      "support": "unrelated.ClearPendingBatch();\n",
+      "foreignSupport": "renderer.RenderSceneFrame(scene);\n",
+      "prefix": "renderer.",
+      "expected": "RenderSceneFrame(scene);",
+      "forbiddenToken": "RenderSceneFrame"
+    },
+    {
+      "id": "csharp-suppression-renderer",
+      "language": "csharp",
+      "scenario": "suppression",
+      "group": "suppression",
+      "support": "renderer.RenderSceneFrame(scene);\n",
+      "prefix": "// renderer.",
+      "expected": "",
+      "expectEmpty": true
+    },
+    {
+      "id": "csharp-repeat-ledger",
+      "language": "csharp",
+      "scenario": "repeat",
+      "group": "repeated",
+      "support": "ledger.AppendLedgerEntry(entry);\n",
+      "prefix": "ledger.",
+      "expected": "AppendLedgerEntry(entry);"
+    },
+    {
+      "id": "csharp-spacing-ledger",
+      "language": "csharp",
+      "scenario": "spacing",
+      "group": "repeated",
+      "support": "ledger.AppendLedgerEntry( entry, account );\n",
+      "prefix": "ledger.",
+      "expected": "AppendLedgerEntry( entry, account );"
+    },
+    {
+      "id": "csharp-chain-ledger",
+      "language": "csharp",
+      "scenario": "chain",
+      "group": "repeated",
+      "support": "ledger.AppendLedgerEntry(entry).WithAuditContext(account);\n",
+      "prefix": "ledger.",
+      "expected": "AppendLedgerEntry(entry).WithAuditContext(account);"
+    },
+    {
+      "id": "csharp-prefix-ledger",
+      "language": "csharp",
+      "scenario": "prefix",
+      "group": "identifier_prefix",
+      "support": "ledger.AppendLedgerEntry(entry);\n",
+      "prefix": "ledger.AppendLe",
+      "expected": "dgerEntry(entry);"
+    },
+    {
+      "id": "csharp-new-argument-ledger",
+      "language": "csharp",
+      "scenario": "new-argument",
+      "group": "new_arguments",
+      "support": "ledger.AppendLedgerEntry(old_entry);\n",
+      "prefix": "ledger.",
+      "expected": "AppendLedgerEntry(new_entry);"
+    },
+    {
+      "id": "csharp-ambiguous-ledger",
+      "language": "csharp",
+      "scenario": "ambiguous",
+      "group": "ambiguous",
+      "support": "ledger.AppendLedgerEntry(entry);\nledger.ClearPendingBatch();\n",
+      "prefix": "ledger.",
+      "expected": "ClearPendingBatch();"
+    },
+    {
+      "id": "csharp-unseen-ledger",
+      "language": "csharp",
+      "scenario": "unseen",
+      "group": "unseen",
+      "support": "ledger.AppendLedgerEntry(entry);\n",
+      "prefix": "ledger.",
+      "expected": "ValidatePendingState(account);"
+    },
+    {
+      "id": "csharp-receiver-ledger",
+      "language": "csharp",
+      "scenario": "receiver",
+      "group": "receiver_disambiguation",
+      "support": "ledger.AppendLedgerEntry(entry);\nother.ClearPendingBatch(account);\nledger.AppendLedgerEntry(entry);\nother.ClearPendingBatch(account);\n",
+      "prefix": "ledger.",
+      "expected": "AppendLedgerEntry(entry);"
+    },
+    {
+      "id": "csharp-isolation-ledger",
+      "language": "csharp",
+      "scenario": "isolation",
+      "group": "isolation",
+      "support": "unrelated.ClearPendingBatch();\n",
+      "foreignSupport": "ledger.AppendLedgerEntry(entry);\n",
+      "prefix": "ledger.",
+      "expected": "AppendLedgerEntry(entry);",
+      "forbiddenToken": "AppendLedgerEntry"
+    },
+    {
+      "id": "csharp-suppression-ledger",
+      "language": "csharp",
+      "scenario": "suppression",
+      "group": "suppression",
+      "support": "ledger.AppendLedgerEntry(entry);\n",
+      "prefix": "var note = @\"ledger.",
+      "expected": "",
+      "expectEmpty": true
+    },
+    {
+      "id": "csharp-repeat-scheduler",
+      "language": "csharp",
+      "scenario": "repeat",
+      "group": "repeated",
+      "support": "scheduler.EnqueueScheduledJob(job);\n",
+      "prefix": "scheduler.",
+      "expected": "EnqueueScheduledJob(job);"
+    },
+    {
+      "id": "csharp-spacing-scheduler",
+      "language": "csharp",
+      "scenario": "spacing",
+      "group": "repeated",
+      "support": "scheduler.EnqueueScheduledJob( job, priority );\n",
+      "prefix": "scheduler.",
+      "expected": "EnqueueScheduledJob( job, priority );"
+    },
+    {
+      "id": "csharp-chain-scheduler",
+      "language": "csharp",
+      "scenario": "chain",
+      "group": "repeated",
+      "support": "scheduler.EnqueueScheduledJob(job).WithAuditContext(priority);\n",
+      "prefix": "scheduler.",
+      "expected": "EnqueueScheduledJob(job).WithAuditContext(priority);"
+    },
+    {
+      "id": "csharp-prefix-scheduler",
+      "language": "csharp",
+      "scenario": "prefix",
+      "group": "identifier_prefix",
+      "support": "scheduler.EnqueueScheduledJob(job);\n",
+      "prefix": "scheduler.EnqueueSc",
+      "expected": "heduledJob(job);"
+    },
+    {
+      "id": "csharp-new-argument-scheduler",
+      "language": "csharp",
+      "scenario": "new-argument",
+      "group": "new_arguments",
+      "support": "scheduler.EnqueueScheduledJob(old_job);\n",
+      "prefix": "scheduler.",
+      "expected": "EnqueueScheduledJob(new_job);"
+    },
+    {
+      "id": "csharp-ambiguous-scheduler",
+      "language": "csharp",
+      "scenario": "ambiguous",
+      "group": "ambiguous",
+      "support": "scheduler.EnqueueScheduledJob(job);\nscheduler.ClearPendingBatch();\n",
+      "prefix": "scheduler.",
+      "expected": "EnqueueScheduledJob(job);"
+    },
+    {
+      "id": "csharp-unseen-scheduler",
+      "language": "csharp",
+      "scenario": "unseen",
+      "group": "unseen",
+      "support": "scheduler.EnqueueScheduledJob(job);\n",
+      "prefix": "scheduler.",
+      "expected": "ValidatePendingState(priority);"
+    },
+    {
+      "id": "csharp-receiver-scheduler",
+      "language": "csharp",
+      "scenario": "receiver",
+      "group": "receiver_disambiguation",
+      "support": "scheduler.EnqueueScheduledJob(job);\nother.ClearPendingBatch(priority);\nscheduler.EnqueueScheduledJob(job);\nother.ClearPendingBatch(priority);\n",
+      "prefix": "scheduler.",
+      "expected": "EnqueueScheduledJob(job);"
+    },
+    {
+      "id": "csharp-isolation-scheduler",
+      "language": "csharp",
+      "scenario": "isolation",
+      "group": "isolation",
+      "support": "unrelated.ClearPendingBatch();\n",
+      "foreignSupport": "scheduler.EnqueueScheduledJob(job);\n",
+      "prefix": "scheduler.",
+      "expected": "EnqueueScheduledJob(job);",
+      "forbiddenToken": "EnqueueScheduledJob"
+    },
+    {
+      "id": "csharp-suppression-scheduler",
+      "language": "csharp",
+      "scenario": "suppression",
+      "group": "suppression",
+      "support": "scheduler.EnqueueScheduledJob(job);\n",
+      "prefix": "// scheduler.",
+      "expected": "",
+      "expectEmpty": true
+    },
+    {
+      "id": "csharp-repeat-catalog",
+      "language": "csharp",
+      "scenario": "repeat",
+      "group": "repeated",
+      "support": "catalog.IndexCatalogRecord(record);\n",
+      "prefix": "catalog.",
+      "expected": "IndexCatalogRecord(record);"
+    },
+    {
+      "id": "csharp-spacing-catalog",
+      "language": "csharp",
+      "scenario": "spacing",
+      "group": "repeated",
+      "support": "catalog.IndexCatalogRecord( record, category );\n",
+      "prefix": "catalog.",
+      "expected": "IndexCatalogRecord( record, category );"
+    },
+    {
+      "id": "csharp-chain-catalog",
+      "language": "csharp",
+      "scenario": "chain",
+      "group": "repeated",
+      "support": "catalog.IndexCatalogRecord(record).WithAuditContext(category);\n",
+      "prefix": "catalog.",
+      "expected": "IndexCatalogRecord(record).WithAuditContext(category);"
+    },
+    {
+      "id": "csharp-prefix-catalog",
+      "language": "csharp",
+      "scenario": "prefix",
+      "group": "identifier_prefix",
+      "support": "catalog.IndexCatalogRecord(record);\n",
+      "prefix": "catalog.IndexCata",
+      "expected": "logRecord(record);"
+    },
+    {
+      "id": "csharp-new-argument-catalog",
+      "language": "csharp",
+      "scenario": "new-argument",
+      "group": "new_arguments",
+      "support": "catalog.IndexCatalogRecord(old_record);\n",
+      "prefix": "catalog.",
+      "expected": "IndexCatalogRecord(new_record);"
+    },
+    {
+      "id": "csharp-ambiguous-catalog",
+      "language": "csharp",
+      "scenario": "ambiguous",
+      "group": "ambiguous",
+      "support": "catalog.IndexCatalogRecord(record);\ncatalog.ClearPendingBatch();\n",
+      "prefix": "catalog.",
+      "expected": "ClearPendingBatch();"
+    },
+    {
+      "id": "csharp-unseen-catalog",
+      "language": "csharp",
+      "scenario": "unseen",
+      "group": "unseen",
+      "support": "catalog.IndexCatalogRecord(record);\n",
+      "prefix": "catalog.",
+      "expected": "ValidatePendingState(category);"
+    },
+    {
+      "id": "csharp-receiver-catalog",
+      "language": "csharp",
+      "scenario": "receiver",
+      "group": "receiver_disambiguation",
+      "support": "catalog.IndexCatalogRecord(record);\nother.ClearPendingBatch(category);\ncatalog.IndexCatalogRecord(record);\nother.ClearPendingBatch(category);\n",
+      "prefix": "catalog.",
+      "expected": "IndexCatalogRecord(record);"
+    },
+    {
+      "id": "csharp-isolation-catalog",
+      "language": "csharp",
+      "scenario": "isolation",
+      "group": "isolation",
+      "support": "unrelated.ClearPendingBatch();\n",
+      "foreignSupport": "catalog.IndexCatalogRecord(record);\n",
+      "prefix": "catalog.",
+      "expected": "IndexCatalogRecord(record);",
+      "forbiddenToken": "IndexCatalogRecord"
+    },
+    {
+      "id": "csharp-suppression-catalog",
+      "language": "csharp",
+      "scenario": "suppression",
+      "group": "suppression",
+      "support": "catalog.IndexCatalogRecord(record);\n",
+      "prefix": "var note = @\"catalog.",
+      "expected": "",
+      "expectEmpty": true
+    },
+    {
+      "id": "csharp-repeat-storage",
+      "language": "csharp",
+      "scenario": "repeat",
+      "group": "repeated",
+      "support": "storage.PersistSnapshotBlock(block);\n",
+      "prefix": "storage.",
+      "expected": "PersistSnapshotBlock(block);"
+    },
+    {
+      "id": "csharp-spacing-storage",
+      "language": "csharp",
+      "scenario": "spacing",
+      "group": "repeated",
+      "support": "storage.PersistSnapshotBlock( block, checkpoint );\n",
+      "prefix": "storage.",
+      "expected": "PersistSnapshotBlock( block, checkpoint );"
+    },
+    {
+      "id": "csharp-chain-storage",
+      "language": "csharp",
+      "scenario": "chain",
+      "group": "repeated",
+      "support": "storage.PersistSnapshotBlock(block).WithAuditContext(checkpoint);\n",
+      "prefix": "storage.",
+      "expected": "PersistSnapshotBlock(block).WithAuditContext(checkpoint);"
+    },
+    {
+      "id": "csharp-prefix-storage",
+      "language": "csharp",
+      "scenario": "prefix",
+      "group": "identifier_prefix",
+      "support": "storage.PersistSnapshotBlock(block);\n",
+      "prefix": "storage.PersistSna",
+      "expected": "pshotBlock(block);"
+    },
+    {
+      "id": "csharp-new-argument-storage",
+      "language": "csharp",
+      "scenario": "new-argument",
+      "group": "new_arguments",
+      "support": "storage.PersistSnapshotBlock(old_block);\n",
+      "prefix": "storage.",
+      "expected": "PersistSnapshotBlock(new_block);"
+    },
+    {
+      "id": "csharp-ambiguous-storage",
+      "language": "csharp",
+      "scenario": "ambiguous",
+      "group": "ambiguous",
+      "support": "storage.PersistSnapshotBlock(block);\nstorage.ClearPendingBatch();\n",
+      "prefix": "storage.",
+      "expected": "PersistSnapshotBlock(block);"
+    },
+    {
+      "id": "csharp-unseen-storage",
+      "language": "csharp",
+      "scenario": "unseen",
+      "group": "unseen",
+      "support": "storage.PersistSnapshotBlock(block);\n",
+      "prefix": "storage.",
+      "expected": "ValidatePendingState(checkpoint);"
+    },
+    {
+      "id": "csharp-receiver-storage",
+      "language": "csharp",
+      "scenario": "receiver",
+      "group": "receiver_disambiguation",
+      "support": "storage.PersistSnapshotBlock(block);\nother.ClearPendingBatch(checkpoint);\nstorage.PersistSnapshotBlock(block);\nother.ClearPendingBatch(checkpoint);\n",
+      "prefix": "storage.",
+      "expected": "PersistSnapshotBlock(block);"
+    },
+    {
+      "id": "csharp-isolation-storage",
+      "language": "csharp",
+      "scenario": "isolation",
+      "group": "isolation",
+      "support": "unrelated.ClearPendingBatch();\n",
+      "foreignSupport": "storage.PersistSnapshotBlock(block);\n",
+      "prefix": "storage.",
+      "expected": "PersistSnapshotBlock(block);",
+      "forbiddenToken": "PersistSnapshotBlock"
+    },
+    {
+      "id": "csharp-suppression-storage",
+      "language": "csharp",
+      "scenario": "suppression",
+      "group": "suppression",
+      "support": "storage.PersistSnapshotBlock(block);\n",
+      "prefix": "// storage.",
+      "expected": "",
+      "expectEmpty": true
+    },
+    {
+      "id": "csharp-repeat-telemetry",
+      "language": "csharp",
+      "scenario": "repeat",
+      "group": "repeated",
+      "support": "telemetry.CollectTelemetrySample(sample);\n",
+      "prefix": "telemetry.",
+      "expected": "CollectTelemetrySample(sample);"
+    },
+    {
+      "id": "csharp-spacing-telemetry",
+      "language": "csharp",
+      "scenario": "spacing",
+      "group": "repeated",
+      "support": "telemetry.CollectTelemetrySample( sample, timestamp );\n",
+      "prefix": "telemetry.",
+      "expected": "CollectTelemetrySample( sample, timestamp );"
+    },
+    {
+      "id": "csharp-chain-telemetry",
+      "language": "csharp",
+      "scenario": "chain",
+      "group": "repeated",
+      "support": "telemetry.CollectTelemetrySample(sample).WithAuditContext(timestamp);\n",
+      "prefix": "telemetry.",
+      "expected": "CollectTelemetrySample(sample).WithAuditContext(timestamp);"
+    },
+    {
+      "id": "csharp-prefix-telemetry",
+      "language": "csharp",
+      "scenario": "prefix",
+      "group": "identifier_prefix",
+      "support": "telemetry.CollectTelemetrySample(sample);\n",
+      "prefix": "telemetry.CollectTele",
+      "expected": "metrySample(sample);"
+    },
+    {
+      "id": "csharp-new-argument-telemetry",
+      "language": "csharp",
+      "scenario": "new-argument",
+      "group": "new_arguments",
+      "support": "telemetry.CollectTelemetrySample(old_sample);\n",
+      "prefix": "telemetry.",
+      "expected": "CollectTelemetrySample(new_sample);"
+    },
+    {
+      "id": "csharp-ambiguous-telemetry",
+      "language": "csharp",
+      "scenario": "ambiguous",
+      "group": "ambiguous",
+      "support": "telemetry.CollectTelemetrySample(sample);\ntelemetry.ClearPendingBatch();\n",
+      "prefix": "telemetry.",
+      "expected": "ClearPendingBatch();"
+    },
+    {
+      "id": "csharp-unseen-telemetry",
+      "language": "csharp",
+      "scenario": "unseen",
+      "group": "unseen",
+      "support": "telemetry.CollectTelemetrySample(sample);\n",
+      "prefix": "telemetry.",
+      "expected": "ValidatePendingState(timestamp);"
+    },
+    {
+      "id": "csharp-receiver-telemetry",
+      "language": "csharp",
+      "scenario": "receiver",
+      "group": "receiver_disambiguation",
+      "support": "telemetry.CollectTelemetrySample(sample);\nother.ClearPendingBatch(timestamp);\ntelemetry.CollectTelemetrySample(sample);\nother.ClearPendingBatch(timestamp);\n",
+      "prefix": "telemetry.",
+      "expected": "CollectTelemetrySample(sample);"
+    },
+    {
+      "id": "csharp-isolation-telemetry",
+      "language": "csharp",
+      "scenario": "isolation",
+      "group": "isolation",
+      "support": "unrelated.ClearPendingBatch();\n",
+      "foreignSupport": "telemetry.CollectTelemetrySample(sample);\n",
+      "prefix": "telemetry.",
+      "expected": "CollectTelemetrySample(sample);",
+      "forbiddenToken": "CollectTelemetrySample"
+    },
+    {
+      "id": "csharp-suppression-telemetry",
+      "language": "csharp",
+      "scenario": "suppression",
+      "group": "suppression",
+      "support": "telemetry.CollectTelemetrySample(sample);\n",
+      "prefix": "var note = @\"telemetry.",
+      "expected": "",
+      "expectEmpty": true
+    },
+    {
+      "id": "csharp-repeat-router",
+      "language": "csharp",
+      "scenario": "repeat",
+      "group": "repeated",
+      "support": "router.ResolveRouteBinding(binding);\n",
+      "prefix": "router.",
+      "expected": "ResolveRouteBinding(binding);"
+    },
+    {
+      "id": "csharp-spacing-router",
+      "language": "csharp",
+      "scenario": "spacing",
+      "group": "repeated",
+      "support": "router.ResolveRouteBinding( binding, endpoint );\n",
+      "prefix": "router.",
+      "expected": "ResolveRouteBinding( binding, endpoint );"
+    },
+    {
+      "id": "csharp-chain-router",
+      "language": "csharp",
+      "scenario": "chain",
+      "group": "repeated",
+      "support": "router.ResolveRouteBinding(binding).WithAuditContext(endpoint);\n",
+      "prefix": "router.",
+      "expected": "ResolveRouteBinding(binding).WithAuditContext(endpoint);"
+    },
+    {
+      "id": "csharp-prefix-router",
+      "language": "csharp",
+      "scenario": "prefix",
+      "group": "identifier_prefix",
+      "support": "router.ResolveRouteBinding(binding);\n",
+      "prefix": "router.ResolveRo",
+      "expected": "uteBinding(binding);"
+    },
+    {
+      "id": "csharp-new-argument-router",
+      "language": "csharp",
+      "scenario": "new-argument",
+      "group": "new_arguments",
+      "support": "router.ResolveRouteBinding(old_binding);\n",
+      "prefix": "router.",
+      "expected": "ResolveRouteBinding(new_binding);"
+    },
+    {
+      "id": "csharp-ambiguous-router",
+      "language": "csharp",
+      "scenario": "ambiguous",
+      "group": "ambiguous",
+      "support": "router.ResolveRouteBinding(binding);\nrouter.ClearPendingBatch();\n",
+      "prefix": "router.",
+      "expected": "ResolveRouteBinding(binding);"
+    },
+    {
+      "id": "csharp-unseen-router",
+      "language": "csharp",
+      "scenario": "unseen",
+      "group": "unseen",
+      "support": "router.ResolveRouteBinding(binding);\n",
+      "prefix": "router.",
+      "expected": "ValidatePendingState(endpoint);"
+    },
+    {
+      "id": "csharp-receiver-router",
+      "language": "csharp",
+      "scenario": "receiver",
+      "group": "receiver_disambiguation",
+      "support": "router.ResolveRouteBinding(binding);\nother.ClearPendingBatch(endpoint);\nrouter.ResolveRouteBinding(binding);\nother.ClearPendingBatch(endpoint);\n",
+      "prefix": "router.",
+      "expected": "ResolveRouteBinding(binding);"
+    },
+    {
+      "id": "csharp-isolation-router",
+      "language": "csharp",
+      "scenario": "isolation",
+      "group": "isolation",
+      "support": "unrelated.ClearPendingBatch();\n",
+      "foreignSupport": "router.ResolveRouteBinding(binding);\n",
+      "prefix": "router.",
+      "expected": "ResolveRouteBinding(binding);",
+      "forbiddenToken": "ResolveRouteBinding"
+    },
+    {
+      "id": "csharp-suppression-router",
+      "language": "csharp",
+      "scenario": "suppression",
+      "group": "suppression",
+      "support": "router.ResolveRouteBinding(binding);\n",
+      "prefix": "// router.",
+      "expected": "",
+      "expectEmpty": true
+    },
+    {
+      "id": "csharp-repeat-pipeline",
+      "language": "csharp",
+      "scenario": "repeat",
+      "group": "repeated",
+      "support": "pipeline.TransformInputBatch(input);\n",
+      "prefix": "pipeline.",
+      "expected": "TransformInputBatch(input);"
+    },
+    {
+      "id": "csharp-spacing-pipeline",
+      "language": "csharp",
+      "scenario": "spacing",
+      "group": "repeated",
+      "support": "pipeline.TransformInputBatch( input, options );\n",
+      "prefix": "pipeline.",
+      "expected": "TransformInputBatch( input, options );"
+    },
+    {
+      "id": "csharp-chain-pipeline",
+      "language": "csharp",
+      "scenario": "chain",
+      "group": "repeated",
+      "support": "pipeline.TransformInputBatch(input).WithAuditContext(options);\n",
+      "prefix": "pipeline.",
+      "expected": "TransformInputBatch(input).WithAuditContext(options);"
+    },
+    {
+      "id": "csharp-prefix-pipeline",
+      "language": "csharp",
+      "scenario": "prefix",
+      "group": "identifier_prefix",
+      "support": "pipeline.TransformInputBatch(input);\n",
+      "prefix": "pipeline.Transform",
+      "expected": "InputBatch(input);"
+    },
+    {
+      "id": "csharp-new-argument-pipeline",
+      "language": "csharp",
+      "scenario": "new-argument",
+      "group": "new_arguments",
+      "support": "pipeline.TransformInputBatch(old_input);\n",
+      "prefix": "pipeline.",
+      "expected": "TransformInputBatch(new_input);"
+    },
+    {
+      "id": "csharp-ambiguous-pipeline",
+      "language": "csharp",
+      "scenario": "ambiguous",
+      "group": "ambiguous",
+      "support": "pipeline.TransformInputBatch(input);\npipeline.ClearPendingBatch();\n",
+      "prefix": "pipeline.",
+      "expected": "ClearPendingBatch();"
+    },
+    {
+      "id": "csharp-unseen-pipeline",
+      "language": "csharp",
+      "scenario": "unseen",
+      "group": "unseen",
+      "support": "pipeline.TransformInputBatch(input);\n",
+      "prefix": "pipeline.",
+      "expected": "ValidatePendingState(options);"
+    },
+    {
+      "id": "csharp-receiver-pipeline",
+      "language": "csharp",
+      "scenario": "receiver",
+      "group": "receiver_disambiguation",
+      "support": "pipeline.TransformInputBatch(input);\nother.ClearPendingBatch(options);\npipeline.TransformInputBatch(input);\nother.ClearPendingBatch(options);\n",
+      "prefix": "pipeline.",
+      "expected": "TransformInputBatch(input);"
+    },
+    {
+      "id": "csharp-isolation-pipeline",
+      "language": "csharp",
+      "scenario": "isolation",
+      "group": "isolation",
+      "support": "unrelated.ClearPendingBatch();\n",
+      "foreignSupport": "pipeline.TransformInputBatch(input);\n",
+      "prefix": "pipeline.",
+      "expected": "TransformInputBatch(input);",
+      "forbiddenToken": "TransformInputBatch"
+    },
+    {
+      "id": "csharp-suppression-pipeline",
+      "language": "csharp",
+      "scenario": "suppression",
+      "group": "suppression",
+      "support": "pipeline.TransformInputBatch(input);\n",
+      "prefix": "var note = @\"pipeline.",
+      "expected": "",
+      "expectEmpty": true
+    }
+  ]
+}
