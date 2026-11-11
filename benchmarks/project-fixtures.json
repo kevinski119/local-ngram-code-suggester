@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "description": "Original synthetic editing scenarios; support files are observed before a separate target prefix. Expected suffixes are never opened in the editor. Exact repetitions are intentional and labeled, not evidence of generalization.",
+  "cases": [
+    {"id":"rs-repeat-call","language":"rust","group":"repeated","support":"archive.compact(blocks);\n","prefix":"archive.","expected":"compact(blocks);"},
+    {"id":"rs-repeat-spacing","language":"rust","group":"repeated","support":"ledger.append_entry( record );\n","prefix":"ledger.","expected":"append_entry( record );"},
+    {"id":"rs-repeat-chain","language":"rust","group":"repeated","support":"channel.send_packet(packet).await?;\n","prefix":"channel.","expected":"send_packet(packet).await?;"},
+    {"id":"rs-transfer-argument","language":"rust","group":"new_arguments","support":"archive.compact(old_blocks);\n","prefix":"archive.","expected":"compact(new_blocks);"},
+    {"id":"rs-transfer-chain","language":"rust","group":"new_arguments","support":"channel.send_packet(old_packet).await?;\n","prefix":"channel.","expected":"send_packet(new_packet).await?;"},
+    {"id":"rs-ambiguous-earlier","language":"rust","group":"ambiguous","support":"ledger.append_entry(record);\nledger.clear_entries();\n","prefix":"ledger.","expected":"append_entry(record);"},
+    {"id":"rs-ambiguous-recent","language":"rust","group":"ambiguous","support":"ledger.append_entry(record);\nledger.clear_entries();\n","prefix":"ledger.","expected":"clear_entries();"},
+    {"id":"rs-unseen-member","language":"rust","group":"unseen","support":"archive.compact(blocks);\n","prefix":"archive.","expected":"verify_manifest(manifest);"},
+    {"id":"rs-cold-library","language":"rust","group":"unseen","support":"archive.compact(blocks);\n","prefix":"let values = Vec::","expected":"new();"},
+    {"id":"rs-prefix-transfer","language":"rust","group":"identifier_prefix","support":"archive.compact(blocks);\n","prefix":"archive.comp","expected":"act(blocks);"},
+    {"id":"rs-scope-isolation","language":"rust","group":"isolation","support":"unrelated.flush();\n","foreignSupport":"archive.compact(blocks);\n","prefix":"archive.","expected":"compact(blocks);","forbiddenToken":"compact"},
+    {"id":"rs-comment","language":"rust","group":"suppression","support":"archive.compact(blocks);\n","prefix":"// archive.","expected":"","expectEmpty":true},
+    {"id":"ts-repeat-call","language":"typescript","group":"repeated","support":"timeline.flushBatch(events);\n","prefix":"timeline.","expected":"flushBatch(events);"},
+    {"id":"ts-repeat-spacing","language":"typescript","group":"repeated","support":"catalog.attachRecord( record );\n","prefix":"catalog.","expected":"attachRecord( record );"},
+    {"id":"ts-repeat-chain","language":"typescript","group":"repeated","support":"queue.takeBatch(limit).filter(isReady);\n","prefix":"queue.","expected":"takeBatch(limit).filter(isReady);"},
+    {"id":"ts-transfer-argument","language":"typescript","group":"new_arguments","support":"timeline.flushBatch(oldEvents);\n","prefix":"timeline.","expected":"flushBatch(newEvents);"},
+    {"id":"ts-transfer-chain","language":"typescript","group":"new_arguments","support":"queue.takeBatch(oldLimit).filter(isReady);\n","prefix":"queue.","expected":"takeBatch(newLimit).filter(isReady);"},
+    {"id":"ts-ambiguous-earlier","language":"typescript","group":"ambiguous","support":"catalog.attachRecord(record);\ncatalog.clearRecords();\n","prefix":"catalog.","expected":"attachRecord(record);"},
+    {"id":"ts-ambiguous-recent","language":"typescript","group":"ambiguous","support":"catalog.attachRecord(record);\ncatalog.clearRecords();\n","prefix":"catalog.","expected":"clearRecords();"},
+    {"id":"ts-unseen-member","language":"typescript","group":"unseen","support":"timeline.flushBatch(events);\n","prefix":"timeline.","expected":"verifyReceipt(receipt);"},
+    {"id":"ts-cold-library","language":"typescript","group":"unseen","support":"timeline.flushBatch(events);\n","prefix":"console.","expected":"log(value);"},
+    {"id":"ts-prefix-transfer","language":"typescript","group":"identifier_prefix","support":"timeline.flushBatch(events);\n","prefix":"timeline.flushB","expected":"atch(events);"},
+    {"id":"ts-scope-isolation","language":"typescript","group":"isolation","support":"unrelated.flush();\n","foreignSupport":"timeline.flushBatch(events);\n","prefix":"timeline.","expected":"flushBatch(events);","forbiddenToken":"flushBatch"},
+    {"id":"ts-string","language":"typescript","group":"suppression","support":"timeline.flushBatch(events);\n","prefix":"const note = \"timeline.","expected":"","expectEmpty":true}
+  ]
+}

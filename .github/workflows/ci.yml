@@ -45,6 +45,19 @@ jobs:
       - name: Python trainer tests
         working-directory: .
         run: python -m unittest discover -s tests -v
+      - name: Project learning and sequence reuse benchmark
+        if: runner.os != 'Linux'
+        run: npm run benchmark:project:check
+      - name: Project learning and sequence reuse benchmark (Linux)
+        if: runner.os == 'Linux'
+        run: xvfb-run -a npm run benchmark:project:check
+      - name: Upload project benchmark results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: project-benchmark-${{ runner.os }}
+          path: benchmarks/project-latest.json
+          if-no-files-found: warn
       - name: Offline benchmark
         working-directory: .
         run: python benchmarks/run_benchmark.py --baseline benchmarks/v1.2-baseline.json
