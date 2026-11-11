@@ -153,8 +153,8 @@
                     "type": "number",
                     "default": 0.85,
                     "description": "Minimum confidence threshold for suggestions (0.0 - 1.0)",
-                    "minimum": 0.0,
-                    "maximum": 1.0
+                    "minimum": 0,
+                    "maximum": 1
                 },
                 "codeSuggester.enableFuzzyMatching": {
                     "type": "boolean",
@@ -328,12 +328,11 @@
         "@types/vscode": "^1.85.0",
         "@typescript-eslint/eslint-plugin": "^8.64.0",
         "@typescript-eslint/parser": "^8.64.0",
+        "@vscode/test-electron": "^3.1.0",
         "@vscode/vsce": "^3.9.2",
-        "@vscode/test-electron": "^3.0.0",
         "eslint": "^9.39.1",
         "typescript": "^5.9.3"
     },
-    "dependencies": {},
     "repository": {
         "type": "git",
         "url": "https://github.com/kevinski119/local-ngram-code-suggester.git"
