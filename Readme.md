@@ -1,16 +1,69 @@
 # Local N-Gram Code Suggester
 
-Fast, private code completion that runs entirely on your machine. Model v3 uses
+[![CI](https://github.com/kevinski119/local-ngram-code-suggester/actions/workflows/ci.yml/badge.svg)](https://github.com/kevinski119/local-ngram-code-suggester/actions/workflows/ci.yml)
+
+![Local N-Gram v3.1 overview](extension/assets/marketplace/hero-v31.png)
+
+Fast, private code completion that runs entirely on your machine. Extension v3 uses
 comment-aware language profiles, variable-order n-grams, exact backoff, local
 project adaptation, and bounded multi-token completion—without an account,
-subscription, telemetry, or mandatory network connection.
+subscription, telemetry, LLM, or mandatory network connection.
+
+## New in v3.1
+
+- **Reuse actual code:** inline suggestions can retrieve matching single-line
+  sequences from indexed open files, preserving internal spacing instead of
+  assembling every token independently. Matching is exact, stays in the same
+  workspace folder/language, and excludes literals and cross-comment/line gaps.
+  Existing token limits still apply. Open-file snapshots refresh on save, or
+  while editing if `updateOnFileChange` is enabled.
+- **Learn your choices:** accepting an inline or IntelliSense suggestion promotes
+  that choice when the same context recurs. Preferences are bounded, session-only,
+  and never persisted or transmitted. Reset them from the N-Gram menu or disable
+  `learnFromAcceptedSuggestions` to erase and stop learning preferences.
+- **Do less repeated work:** ghost text and IntelliSense share cached prefix scans.
+  Edits, language changes, cursor movement and closed documents invalidate entries.
+  Profile preparation is cached rather than repeated at every character.
+- **Honor the length setting:** Quality mode now permits up to twelve tokens when
+  configured, fixing the hidden five-token cap. The default remains five.
+
+For example, after indexing `client.send_request( payload ).await?;`, typing
+`client.` can reuse `send_request( payload ).await?;` when the token limit allows
+it. This is local pattern reuse, not type-aware reasoning.
+
+Scanner measurements and methodology are recorded in
+[v3.1-runtime.json](benchmarks/v3.1-runtime.json). They are synthetic microbenchmarks,
+not end-to-end editor latency or general completion-quality measurements.
+
+## New in extension v3.0
+
+- Rust completion ships offline: `.rs` activation, a bundled starter model,
+  trainer support, and shared tokenizer fixtures for nested comments, raw/byte/C
+  strings, character literals, lifetimes, raw identifiers, macros, paths and ranges.
+- Exact project contexts distinguish receivers such as `screen.height()` and
+  `player.health()`. Partial identifiers come from open project files as well as
+  the bundled vocabulary. Multi-token continuations can use project patterns.
+- Project context is isolated by workspace folder; standalone documents are
+  isolated individually. Learning is bounded to 128 documents and 50,000 tokens,
+  with a 100,000-character limit per document. Oldest indexed files are evicted.
+- Explicit completion edit ranges preserve typed prefixes and matching text after
+  the cursor, including existing closing brackets. Conflicting word suffixes are
+  suppressed. Code suggestions are suppressed inside unfinished strings.
+- Click **N-Gram** in the status bar for pause/resume, settings, diagnostics,
+  relearning, clearing project context, and language packs.
+
+This is a local v3 preview. The bundled **model format remains v3** and legacy
+v2 models still load. Project context learns from open files, not a disk-wide
+workspace crawl. Completion scanning stops after 100,000 characters before the
+cursor to bound synchronous work. Rust is lexical pattern completion, not type
+inference; use it alongside rust-analyzer.
 
 > This is an attributed MIT-licensed fork of Erik Klabukov's
 > [amest/vscode-ngram-code-suggester](https://github.com/amest/vscode-ngram-code-suggester).
 > The original extension remains available on the
 > [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=nb47.vscode-ngram-suggester).
 
-## What v2 adds
+## Existing features retained from v2
 
 - Stateful comment/string handling for C#, Java, JavaScript/TypeScript, JSON,
   JSONC, Python, JSX/TSX, Vue, and Razor.
@@ -33,7 +86,21 @@ subscription, telemetry, or mandatory network connection.
 
 ## Build and test
 
-Requirements: Python 3.9+, Node.js 20+, and VS Code 1.85+.
+Requirements: Python 3.9+, Node.js 22+, and VS Code 1.85+.
+
+CI runs compilation, lint, runtime and trainer tests, Extension Host integration,
+benchmarks, and clean-profile VSIX installation on Windows, Ubuntu and macOS.
+The Actions run publishes a separate installer artifact for each runner platform.
+
+## Illustrated Rust demo
+
+![Rust project-pattern completion](extension/assets/marketplace/rust-demo-v31.gif)
+
+This is an illustrated demo using verified output from the v3.1 project engine,
+not a screen recording or latency benchmark. It uses Quality mode with a
+12-token limit; the default is five. [MP4 version](extension/assets/marketplace/rust-demo-v31.mp4).
+
+## Build commands
 
 ```bash
 cd extension
@@ -49,7 +116,7 @@ python benchmarks/run_benchmark.py
 Install the resulting VSIX:
 
 ```bash
-code --install-extension extension/local-ngram-code-suggester-2.1.0.vsix
+code --install-extension extension/local-ngram-code-suggester-3.1.0.vsix
 ```
 
 ## Train a model v3
@@ -66,16 +133,23 @@ python code_model_trainer.py \
   --fresh
 ```
 
-Use `--language cs|java|js|json|ts|py|all`, or supply one or more source globs
+Use `--language cs|java|js|json|ts|py|rust|all`, or supply one or more source globs
 with `--pattern`. The optional starter corpus is original MIT-licensed,
 deterministically generated training data for stronger cold-start structure.
 Without `--fresh`, training merges into a compatible existing model. Public
 packs must document corpus sources and redistribution licenses.
 
+To rebuild only the Rust portion of the bundled model while retaining the other
+languages, run `python extend_rust_model.py extension/models/model.json.gz`.
+This command replaces existing Rust counts and is safe to repeat.
+
 ## Settings
 
 | Setting | Default | Purpose |
 | --- | ---: | --- |
+| `codeSuggester.enabled` | `true` | Pause/resume all suggestions |
+| `codeSuggester.reuseProjectSequences` | `true` | Prefer matching source sequences for inline completion |
+| `codeSuggester.learnFromAcceptedSuggestions` | `true` | Remember accepted choices only for this session |
 | `codeSuggester.performancePreset` | `quality` | Fast, Balanced, or Quality behavior |
 | `codeSuggester.maxLatencyMs` | `35` | Inline completion computation budget |
 | `codeSuggester.minConfidence` | `0.85` | Hide weak cold-start predictions |
@@ -92,9 +166,9 @@ packs must document corpus sources and redistribution licenses.
 
 ## Marketplace release status
 
-The code and VSIX are ready for manual upload under the `KevinJarz`
-Marketplace publisher. Run `npm run release:check` from `extension/` to rebuild
-and validate the upload artifact.
+The v3 preview is packaged locally for review, not published. Run
+`npm run release:check` from `extension/` to rebuild and validate the upload
+artifact. Publishing remains a separate release step under `KevinJarz`.
 
 The Marketplace preview images and feature animation are deterministic,
 privacy-safe Pillow renders driven by the bundled n-gram model. Optional
@@ -121,6 +195,12 @@ accuracy and latency regressions. Missing predictions count as zero.
 Results: [v1.2 baseline](benchmarks/v1.2-baseline.json) and
 [current v2](benchmarks/latest.json). Public quality claims must additionally
 use held-out repositories supplied through repeated `--test-root` arguments.
+
+The v3 core smoke result is in [v3-core.json](benchmarks/v3-core.json); it retains
+the v2 baseline accuracy. The separate original Rust smoke fixture is evaluated
+with `python benchmarks/run_benchmark.py --test-root benchmarks/rust-fixtures
+--min-confidence 0.85`. These measure global next-token lookup only, not project
+adaptation or end-to-end editor latency. They are not broad quality estimates.
 
 ## License and attribution
 

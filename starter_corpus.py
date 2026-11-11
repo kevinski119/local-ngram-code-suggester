@@ -290,9 +290,63 @@ def current_surface_size() -> tuple[int, int]:
 """
 
 
+def _rust_sample(name):
+    return f'''
+use std::collections::HashMap;
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct {name} {{
+    pub id: u64,
+    pub name: String,
+    pub active: bool,
+}}
+
+impl {name} {{
+    pub fn new(id: u64, name: String) -> Self {{
+        Self {{ id, name, active: true }}
+    }}
+
+    pub fn name(&self) -> &str {{
+        self.name.as_str()
+    }}
+
+    pub fn find<'a>(items: &'a [{name}], id: u64) -> Option<&'a {name}> {{
+        items.iter().find(|item| item.id == id)
+    }}
+
+    pub fn names(items: &[{name}]) -> Vec<String> {{
+        items.iter().filter(|item| item.active).map(|item| item.name.clone()).collect()
+    }}
+
+    pub fn validate(&self) -> Result<(), String> {{
+        if self.name.is_empty() {{
+            return Err(String::from("name is required"));
+        }}
+        Ok(())
+    }}
+}}
+
+pub fn index_items(items: Vec<{name}>) -> HashMap<u64, {name}> {{
+    let mut index = HashMap::new();
+    for item in items {{
+        index.insert(item.id, item);
+    }}
+    index
+}}
+
+pub fn show(item: Option<{name}>) {{
+    match item {{
+        Some(value) => println!("{{}}", value.name),
+        None => eprintln!("missing item"),
+    }}
+}}
+'''
+
+
 def iter_starter_samples():
     """Yield (extension, generated source) pairs in a stable order."""
     for index, name in enumerate(DOMAINS):
+        yield '.rs', _rust_sample(name)
         yield '.java', _java_sample(name)
         yield '.json', _json_sample(name, index)
         yield '.ts', _typescript_sample(name)

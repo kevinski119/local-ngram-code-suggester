@@ -14,6 +14,7 @@ from ngram_tokenizer import (
 )
 
 LANGUAGE_EXTENSIONS = {
+    'rust': ('.rs',),
     'cs': ('.cs', '.cshtml'),
     'js': ('.js', '.jsx', '.vue'),
     'ts': ('.ts', '.tsx'),
@@ -23,7 +24,7 @@ LANGUAGE_EXTENSIONS = {
 }
 IGNORED_DIRECTORIES = {
     '.git', '.hg', '.svn', '.venv', 'venv', 'node_modules',
-    'dist', 'build', 'out', '__pycache__', 'benchmarks',
+    'dist', 'build', 'out', 'target', '__pycache__', 'benchmarks',
     'test', 'tests', 'fixtures',
 }
 IGNORED_FILENAMES = {
@@ -285,7 +286,7 @@ def main():
     parser.add_argument(
         '--language',
         '-l',
-        choices=['cs', 'js', 'ts', 'py', 'java', 'json', 'all'],
+        choices=['cs', 'js', 'ts', 'py', 'java', 'json', 'rust', 'all'],
         help='Language to train on',
     )
     parser.add_argument('--n-gram', '-n', type=ngram_size, default=6, help='Maximum n-gram order, 2-6 (default: 6)')
@@ -363,7 +364,7 @@ def main():
         print(f"Found {len(filtered_files)} files for pattern: {pattern}")
 
     all_files = sorted(set(all_files))
-    if not all_files:
+    if not all_files and not args.include_starter_corpus:
         parser.error('no source files matched the requested language or pattern')
 
     for i, filepath in enumerate(all_files):
@@ -376,6 +377,8 @@ def main():
         sample_count = 0
         token_count = 0
         for extension, content in iter_starter_samples():
+            if args.language and args.language != 'all' and extension not in LANGUAGE_EXTENSIONS[args.language]:
+                continue
             token_count += model.train_on_text(content, extension)
             sample_count += 1
         print(

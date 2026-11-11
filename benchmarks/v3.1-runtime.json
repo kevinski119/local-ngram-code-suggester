@@ -1,0 +1,35 @@
+{
+  "note": "Synthetic scanner microbenchmark; not end-to-end editor latency.",
+  "languages": {
+    "typescript": {
+      "characters": 37600,
+      "v3_0": {
+        "medianMs": 4.583399999999983,
+        "p95Ms": 5.584100000000035
+      },
+      "v3_1": {
+        "medianMs": 1.2703000000000202,
+        "p95Ms": 2.072999999999979
+      },
+      "cached": {
+        "medianMs": 0.0001999999999497959,
+        "p95Ms": 0.00029999999992469384
+      }
+    },
+    "rust": {
+      "characters": 48800,
+      "v3_0": {
+        "medianMs": 5.265300000000025,
+        "p95Ms": 6.185399999999959
+      },
+      "v3_1": {
+        "medianMs": 3.458599999999933,
+        "p95Ms": 3.8858999999999924
+      },
+      "cached": {
+        "medianMs": 0.0001999999999497959,
+        "p95Ms": 0.00029999999992469384
+      }
+    }
+  }
+}

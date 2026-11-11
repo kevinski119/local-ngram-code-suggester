@@ -14,7 +14,9 @@ export class CodeInlineCompletionProvider implements vscode.InlineCompletionItem
         token: vscode.CancellationToken
     ): vscode.ProviderResult<vscode.InlineCompletionItem[] | vscode.InlineCompletionList> {
         const config = vscode.workspace.getConfiguration('codeSuggester');
-        if (!config.get<boolean>('enableInlineSuggestions', true) || token.isCancellationRequested) {
+        if (!config.get<boolean>('enabled', true) ||
+            !config.get<boolean>('enableInlineSuggestions', true) || token.isCancellationRequested ||
+            context.selectedCompletionInfo) {
             return [];
         }
 
@@ -31,7 +33,7 @@ export class CodeInlineCompletionProvider implements vscode.InlineCompletionItem
             return [];
         }
 
-        if (!useTriggerCharacters)
+        if (explicit || !useTriggerCharacters)
             return this.suggester.getInlineSuggestions(document, position, token);
 
         const triggerCharacters = new Set(['.', ',', ' ', '(', ')', '=', '{', '[', ':', ';']);

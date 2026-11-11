@@ -54,6 +54,10 @@ export function detectExternalLibraries(text: string, languageId: string): strin
                 add(packageName);
             }
         }
+    } else if (languageId === 'rust') {
+        for (const match of text.matchAll(/^\s*(?:(?:pub(?:\([^)]*\))?\s+)?use\s+|extern\s+crate\s+)([A-Za-z_][A-Za-z0-9_]*)/gm)) {
+            if (!['std', 'core', 'alloc', 'crate', 'self', 'super'].includes(match[1])) add(match[1]);
+        }
     } else if (languageId === 'java') {
         for (const match of text.matchAll(/^\s*import\s+([A-Za-z_][\w.]*)/gm)) {
             const parts = match[1].split('.');

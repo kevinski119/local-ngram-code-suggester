@@ -1,11 +1,24 @@
 # Local N-Gram Code Suggester
 
-Fast, private, comment-aware code completion that runs locally.
+Fast, private completion for Rust and more. Runs locally with no LLM or account.
 
-![Local N-Gram icon](assets/icon.png)
+![Local N-Gram v3.1 overview](https://raw.githubusercontent.com/kevinski119/local-ngram-code-suggester/main/extension/assets/marketplace/hero-v31.png)
 
 ## Highlights
 
+- Reuse matching single-line code sequences from indexed open files, preserving
+  spacing. Strings and comments are excluded, and configured token caps apply.
+- Accepted suggestions personalize ranking for the same context during this
+  session. Preferences stay in memory and can be reset or disabled.
+- Share cached scans between completion providers and prepare tokenization rules
+  once for faster repeated requests. Quality mode now honors lengths up to twelve
+  tokens when configured; the default remains five.
+- Rust support with a bundled starter model: nested comments, raw strings,
+  lifetimes, macros and paths share tokenizer coverage with the Python trainer.
+- Learn exact patterns and identifier prefixes from open files in the same
+  workspace folder, including project-aware multi-token continuation.
+- Preserve typed prefixes and matching text after the cursor when accepting.
+- Click **N-Gram** in the status bar to pause/resume or open the controls menu.
 - Inline and IntelliSense completion without an account or subscription.
 - Comments are excluded from code context and training.
 - Variable-order n-grams with exact backoff instead of model-wide fuzzy scans.
@@ -17,23 +30,29 @@ Fast, private, comment-aware code completion that runs locally.
 - Optional local project adaptation and free language-pack support.
 - Local diagnostics with no telemetry.
 
-Supported profiles: C#, Java, JavaScript, TypeScript, JSON/JSONC, Python,
+Supported profiles: Rust, C#, Java, JavaScript, TypeScript, JSON/JSONC, Python,
 JSX/TSX, Vue, and Razor.
+
+Project learning uses open files, up to 128 files and 50,000 tokens. Files over
+100,000 characters are skipped; completion is skipped past that cursor offset.
+Rust suggestions are based on lexical patterns and complement rust-analyzer.
+This v3 preview keeps model format v3 and compatibility with legacy v2 models.
+Open-file learning snapshots refresh on save; enable `updateOnFileChange` for
+updates while editing. Use `reuseProjectSequences` and
+`learnFromAcceptedSuggestions` to control the new v3.1 features.
 
 Source, releases, and issue tracking:
 [kevinski119/local-ngram-code-suggester](https://github.com/kevinski119/local-ngram-code-suggester).
 
-## Offline model demo
+## Offline project-pattern demo
 
-The following animation is a deterministic Pillow-rendered editor simulation.
-Its completion is queried from the bundled n-gram model; it is not an API
-response or a recording containing personal desktop data.
+The animation is an illustrated editor demo using verified output from the real
+v3.1 project-context engine. It is not a screen recording or latency benchmark.
+It uses Quality mode with a 12-token limit; the default is five tokens.
 
-![Offline n-gram completion demo](https://raw.githubusercontent.com/kevinski119/local-ngram-code-suggester/main/extension/assets/marketplace/completion-demo.gif)
+![Offline Rust completion demo](https://raw.githubusercontent.com/kevinski119/local-ngram-code-suggester/main/extension/assets/marketplace/rust-demo-v31.gif)
 
-![Local model diagnostics](https://raw.githubusercontent.com/kevinski119/local-ngram-code-suggester/main/extension/assets/marketplace/diagnostics.png)
-
-![Free language-pack manager](https://raw.githubusercontent.com/kevinski119/local-ngram-code-suggester/main/extension/assets/marketplace/pack-manager.png)
+![Local N-Gram controls illustration](https://raw.githubusercontent.com/kevinski119/local-ngram-code-suggester/main/extension/assets/marketplace/controls-v31.png)
 
 Run **Local N-Gram: Show Model Diagnostics** to inspect the active model and
 latency. Run **Local N-Gram: Manage Language Packs** to import a local pack or

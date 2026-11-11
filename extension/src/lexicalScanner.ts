@@ -13,6 +13,7 @@ export interface ScannedToken {
 export interface ScanResult {
     tokens: ScannedToken[];
     cursorInComment: boolean;
+    cursorInString?: boolean;
     cursorInSupportedRegion: boolean;
     profileId: string;
 }
@@ -24,6 +25,25 @@ const REGEX_PREFIX_TOKENS = new Set([
     '&&', '||', '?', 'return', 'case', '=>'
 ]);
 
+const preparedProfiles = new WeakMap<LanguageProfile, {
+    keywords: Set<string>; strings: StringDefinition[];
+    lineComments: string[]; blockComments: LanguageProfile['blockComments'];
+}>();
+
+function prepareProfile(profile: LanguageProfile) {
+    let prepared = preparedProfiles.get(profile);
+    if (!prepared) {
+        prepared = {
+            keywords: new Set(profile.keywords),
+            strings: [...profile.strings].sort((a, b) => b.start.length - a.start.length),
+            lineComments: [...profile.lineComments].sort((a, b) => b.length - a.length),
+            blockComments: [...profile.blockComments].sort((a, b) => b.start.length - a.start.length)
+        };
+        preparedProfiles.set(profile, prepared);
+    }
+    return prepared;
+}
+
 function startsWithAt(text: string, needle: string, offset: number, caseInsensitive = false): boolean {
     const candidate = text.slice(offset, offset + needle.length);
     return caseInsensitive
@@ -34,18 +54,17 @@ function startsWithAt(text: string, needle: string, offset: number, caseInsensit
 function findStringDefinition(
     text: string,
     offset: number,
-    profile: LanguageProfile
+    strings: StringDefinition[]
 ): StringDefinition | undefined {
-    return [...profile.strings]
-        .sort((a, b) => b.start.length - a.start.length)
+    return strings
         .find(definition => startsWithAt(text, definition.start, offset, definition.caseInsensitive));
 }
 
-function consumeString(text: string, offset: number, definition: StringDefinition): number {
+function consumeString(text: string, offset: number, definition: StringDefinition): { end: number; closed: boolean } {
     let cursor = offset + definition.start.length;
     while (cursor < text.length) {
         if (!definition.multiline && (text[cursor] === '\n' || text[cursor] === '\r')) {
-            return cursor;
+            return { end: cursor, closed: false };
         }
         if (definition.escape && startsWithAt(text, definition.escape, cursor)) {
             cursor += definition.escape.length;
@@ -55,11 +74,11 @@ function consumeString(text: string, offset: number, definition: StringDefinitio
             continue;
         }
         if (startsWithAt(text, definition.end, cursor, definition.caseInsensitive)) {
-            return cursor + definition.end.length;
+            return { end: cursor + definition.end.length, closed: true };
         }
         cursor++;
     }
-    return cursor;
+    return { end: cursor, closed: false };
 }
 
 function consumeJavaScriptRegex(text: string, offset: number): number | undefined {
@@ -97,14 +116,15 @@ export function scanText(
         return scanVueScriptRegions(text, cursorOffset);
     }
     const profile = getLanguageProfile(languageIdOrExtension, text);
-    const keywordSet = new Set(profile.keywords);
+    const prepared = prepareProfile(profile);
+    const keywordSet = prepared.keywords;
     const tokens: ScannedToken[] = [];
     let cursor = 0;
     let cursorInComment = false;
+    let cursorInString = false;
 
     while (cursor < text.length) {
-        const lineComment = profile.lineComments
-            .sort((a, b) => b.length - a.length)
+        const lineComment = prepared.lineComments
             .find(marker => startsWithAt(text, marker, cursor));
         if (lineComment) {
             const end = text.indexOf('\n', cursor + lineComment.length);
@@ -116,8 +136,7 @@ export function scanText(
             continue;
         }
 
-        const blockComment = profile.blockComments
-            .sort((a, b) => b.start.length - a.start.length)
+        const blockComment = prepared.blockComments
             .find(definition => startsWithAt(text, definition.start, cursor));
         if (blockComment) {
             let depth = 1;
@@ -140,9 +159,50 @@ export function scanText(
             continue;
         }
 
-        const stringDefinition = findStringDefinition(text, cursor, profile);
+        if (profile.id === 'rust') {
+            const rest = text.slice(cursor);
+            const rawString = /^(?:br|cr|r)(#{0,255})"/.exec(rest);
+            if (rawString) {
+                const closing = '"' + rawString[1];
+                const closingAt = text.indexOf(closing, cursor + rawString[0].length);
+                const end = closingAt < 0 ? text.length : closingAt + closing.length;
+                if (cursorOffset > cursor && (cursorOffset < end || (closingAt < 0 && cursorOffset === end))) cursorInString = true;
+                tokens.push({ value: '<STR>', normalized: '<STR>', kind: 'string', start: cursor, end });
+                cursor = end;
+                continue;
+            }
+            const character = /^(?:b)?'(?:\\(?:u\{[0-9a-fA-F_]+\}|x[0-9a-fA-F]{2}|[^\r\n])|[^'\\\r\n])'/u.exec(rest);
+            const lifetime = /^'(?:r#)?[A-Za-z_][A-Za-z0-9_]*/.exec(rest);
+            const rawIdentifier = /^r#[A-Za-z_][A-Za-z0-9_]*/.exec(rest);
+            const special = character ?? lifetime ?? rawIdentifier;
+            if (special) {
+                const value = character ? '<STR>' : special[0];
+                const end = cursor + special[0].length;
+                tokens.push({ value, normalized: character ? '<STR>' : '<ID>', kind: character ? 'string' : 'identifier', start: cursor, end });
+                cursor = end;
+                continue;
+            }
+            const number = /^(?:0x[0-9a-fA-F_]+|0o[0-7_]+|0b[01_]+|[0-9][0-9_]*(?:\.(?!\.)[0-9][0-9_]*)?(?:[eE][+-]?[0-9_]+)?)(?:[iu](?:8|16|32|64|128|size)|f(?:32|64))?/.exec(rest);
+            if (number) {
+                const end = cursor + number[0].length;
+                tokens.push({ value: number[0], normalized: '<NUM>', kind: 'number', start: cursor, end });
+                cursor = end;
+                continue;
+            }
+            const operator = /^(?:<<=|>>=|\.\.=|::|->|=>|\.\.|&&|\|\||==|!=|<=|>=|<<|>>|[+\-*/%&|^]=|[+\-*/=<>!&|^~%?:#@])/.exec(rest);
+            if (operator) {
+                const value = operator[0];
+                tokens.push({ value, normalized: value, kind: 'operator', start: cursor, end: cursor + value.length });
+                cursor += value.length;
+                continue;
+            }
+        }
+
+        const stringDefinition = findStringDefinition(text, cursor, prepared.strings);
         if (stringDefinition) {
-            const end = consumeString(text, cursor, stringDefinition);
+            const { end, closed } = consumeString(text, cursor, stringDefinition);
+            // Scan the prefix through the cursor: an unfinished literal must not receive code.
+            if (cursorOffset > cursor && (cursorOffset < end || (!closed && cursorOffset === end))) cursorInString = true;
             tokens.push({
                 value: '<STR>',
                 normalized: '<STR>',
@@ -236,6 +296,7 @@ export function scanText(
     return {
         tokens,
         cursorInComment,
+        cursorInString,
         cursorInSupportedRegion: true,
         profileId: profile.id
     };
@@ -245,6 +306,7 @@ function scanVueScriptRegions(text: string, cursorOffset: number): ScanResult {
     const tokens: ScannedToken[] = [];
     let cursorInComment = false;
     let cursorInSupportedRegion = false;
+    let cursorInString = false;
     const openingPattern = /<script\b[^>]*>/gi;
     let opening: RegExpExecArray | null;
     while ((opening = openingPattern.exec(text)) !== null) {
@@ -268,6 +330,7 @@ function scanVueScriptRegions(text: string, cursorOffset: number): ScanResult {
         if (cursorOffset >= contentStart && cursorOffset <= contentEnd) {
             cursorInSupportedRegion = true;
             cursorInComment = result.cursorInComment;
+            cursorInString = result.cursorInString ?? false;
         }
         openingPattern.lastIndex = closingStart < 0
             ? text.length
@@ -276,6 +339,7 @@ function scanVueScriptRegions(text: string, cursorOffset: number): ScanResult {
     return {
         tokens,
         cursorInComment,
+        cursorInString,
         cursorInSupportedRegion,
         profileId: 'typescript'
     };

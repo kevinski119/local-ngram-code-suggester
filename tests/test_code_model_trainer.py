@@ -1,6 +1,8 @@
 import gzip
 import json
 import os
+import subprocess
+import sys
 import tempfile
 import unittest
 
@@ -15,6 +17,21 @@ from starter_corpus import iter_starter_samples
 
 
 class CodeModelTrainerTests(unittest.TestCase):
+    def test_rust_starter_training_without_source_files(self):
+        trainer = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'code_model_trainer.py')
+        with tempfile.TemporaryDirectory() as directory:
+            output = os.path.join(directory, 'rust.json.gz')
+            result = subprocess.run([
+                sys.executable, trainer, '--language', 'rust', '--include-starter-corpus',
+                '--fresh', '--model', output,
+            ], cwd=directory, capture_output=True, text=True)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            with gzip.open(output, 'rt', encoding='utf-8') as model_file:
+                data = json.load(model_file)
+            self.assertEqual(data['file_extensions'], ['.rs'])
+            self.assertGreater(data['token_frequencies']['.rs']['fn'], 0)
+        self.assertTrue(is_ignored_path(os.path.join('project', 'target', 'generated.rs')))
+
     def test_golden_tokenizer_fixtures(self):
         fixture_path = os.path.join(
             os.path.dirname(os.path.dirname(__file__)),
@@ -104,7 +121,7 @@ class CodeModelTrainerTests(unittest.TestCase):
         extensions = {extension for extension, _ in samples}
         self.assertEqual(
             extensions,
-            {'.cs', '.java', '.js', '.json', '.py', '.ts'},
+            {'.cs', '.java', '.js', '.json', '.py', '.ts', '.rs'},
         )
         self.assertGreaterEqual(len(samples), 250)
 
@@ -114,6 +131,8 @@ class CodeModelTrainerTests(unittest.TestCase):
         self.assertGreater(model.total_patterns, 40000)
         self.assertGreater(model.token_frequencies['.java']['return'], 0)
         self.assertGreater(model.token_frequencies['.json'][':'], 0)
+        self.assertGreater(model.token_frequencies['.rs']['fn'], 0)
+        self.assertGreater(model.token_frequencies['.rs']['::'], 0)
         self.assertGreater(
             model.member_access['.py']['screen']['get_height'],
             0,

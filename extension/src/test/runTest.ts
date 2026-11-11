@@ -23,6 +23,8 @@ import {
     detectExternalLibraries
 } from '../crossProjectLearningModel';
 import tokenizerCases from './fixtures/tokenizer_cases.json';
+import { v3Tests } from './v3Tests';
+import { v31Tests } from './v31Tests';
 
 type TestCase = {
     name: string;
@@ -30,6 +32,8 @@ type TestCase = {
 };
 
 const tests: TestCase[] = [
+    ...v3Tests,
+    ...v31Tests,
     {
         name: 'tokenizes identifiers, operators, punctuation, and strings',
         run: () => {

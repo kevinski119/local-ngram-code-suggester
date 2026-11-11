@@ -27,18 +27,22 @@ export async function activate(
     ];
     const output = vscode.window.createOutputChannel('Local N-Gram Code Suggester');
     const status = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 90);
-    status.command = 'codeSuggester.showDiagnostics';
+    status.command = 'codeSuggester.showMenu';
     status.name = 'Local N-Gram Code Suggester';
 
     const updateStatus = () => {
         const diagnostics = suggester.getDiagnostics();
-        if (!suggester.isModelLoaded) {
+        const enabled = vscode.workspace.getConfiguration('codeSuggester').get<boolean>('enabled', true);
+        if (!enabled) {
+            status.text = '$(debug-pause) N-Gram';
+            status.tooltip = 'Suggestions paused. Click to resume or change settings.';
+        } else if (!suggester.isModelLoaded) {
             status.text = '$(warning) N-Gram';
             status.tooltip = 'Local N-Gram model is not loaded';
         } else {
-            status.text = `$(sparkle) N-Gram ${diagnostics.formatVersion}`;
+            status.text = '$(sparkle) N-Gram';
             status.tooltip = `Local model • ${diagnostics.patterns.toLocaleString()} patterns • ` +
-                `p95 ${diagnostics.p95LatencyMs.toFixed(1)} ms`;
+                `${diagnostics.projectFiles} open files learned • p95 ${diagnostics.p95LatencyMs.toFixed(1)} ms\nClick for controls`;
         }
         status.show();
     };
@@ -59,6 +63,9 @@ export async function activate(
         output.appendLine(`p95 latency: ${diagnostics.p95LatencyMs.toFixed(1)} ms`);
         output.appendLine(`Cache hit rate: ${(diagnostics.cacheHitRate * 100).toFixed(1)}%`);
         output.appendLine(`Cache entries: ${diagnostics.cacheEntries}`);
+        output.appendLine(`Prefix scans reused: ${diagnostics.scanCacheHits}; computed: ${diagnostics.scanCacheMisses}`);
+        output.appendLine(`Accepted suggestions this session: ${diagnostics.acceptedSuggestions}`);
+        output.appendLine(`Session preference contexts: ${diagnostics.preferenceContexts}`);
         output.appendLine(`Project files: ${diagnostics.projectFiles}`);
         output.appendLine(`Cross-project learned contexts: ${diagnostics.learnedContexts}`);
         output.appendLine(`Cross-project support projects: ${diagnostics.learnedProjects}`);
@@ -85,6 +92,40 @@ export async function activate(
         suggester,
         output,
         status,
+        vscode.commands.registerCommand('codeSuggester.acceptSuggestion', (key: unknown, text: unknown) => {
+            suggester.recordAcceptedSuggestion(key, text);
+        }),
+        vscode.commands.registerCommand('codeSuggester.clearAcceptanceMemory', () => {
+            suggester.clearAcceptanceMemory();
+            vscode.window.showInformationMessage('Session suggestion preferences cleared.');
+        }),
+        vscode.commands.registerCommand('codeSuggester.toggleEnabled', async () => {
+            const config = vscode.workspace.getConfiguration('codeSuggester');
+            const target = config.inspect<boolean>('enabled')?.workspaceValue === undefined
+                ? vscode.ConfigurationTarget.Global : vscode.ConfigurationTarget.Workspace;
+            await config.update('enabled', !config.get<boolean>('enabled', true), target);
+            updateStatus();
+        }),
+        vscode.commands.registerCommand('codeSuggester.showMenu', async () => {
+            const enabled = vscode.workspace.getConfiguration('codeSuggester').get<boolean>('enabled', true);
+            const items = [
+                { label: enabled ? '$(debug-pause) Pause suggestions' : '$(play) Resume suggestions', description: 'Local completion only', command: 'codeSuggester.toggleEnabled' },
+                { label: '$(settings-gear) Settings', description: 'Frequency, length, confidence and learning', command: 'workbench.action.openSettings' },
+                { label: '$(pulse) Diagnostics', description: 'Model, learned files and latency', command: 'codeSuggester.showDiagnostics' },
+                { label: '$(refresh) Relearn open files', description: 'Refresh project patterns', command: 'codeSuggester.reloadProjectContext' },
+                { label: '$(clear-all) Clear project context', description: 'Forget patterns from this window', command: 'codeSuggester.clearProjectContext' },
+                { label: '$(discard) Reset session preferences', description: 'Forget which suggestions you accepted', command: 'codeSuggester.clearAcceptanceMemory' },
+                { label: '$(package) Language packs', description: 'Import a local model or browse a configured catalog', command: 'codeSuggester.manageLanguagePacks' }
+            ];
+            const choice = await vscode.window.showQuickPick(items, {
+                title: 'Local N-Gram · Offline completion', placeHolder: 'Runs on your machine. No account or LLM required.'
+            });
+            if (choice) await vscode.commands.executeCommand(choice.command,
+                ...(choice.command === 'workbench.action.openSettings' ? ['@ext:KevinJarz.local-ngram-code-suggester'] : []));
+        }),
+        vscode.workspace.onDidChangeConfiguration(event => {
+            if (event.affectsConfiguration('codeSuggester')) updateStatus();
+        }),
         vscode.languages.registerCompletionItemProvider(
             selector,
             new CodeCompletionProvider(suggester),
