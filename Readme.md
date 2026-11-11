@@ -184,23 +184,47 @@ See [ROADMAP.md](ROADMAP.md), [SUPPORT.md](SUPPORT.md),
 
 ## Reproducible offline benchmark
 
-The checked-in smoke corpus is intentionally small, but it prevents silent
-accuracy and latency regressions. Missing predictions count as zero.
+The bundled model can be evaluated offline using the Python next-token reference
+benchmark. These small, checked-in fixtures are smoke checks, not evidence of
+accuracy across real projects. The following v3.1 results use a `0.85` score gate;
+their accuracy values were reproduced on 2026-11-11.
 
-| Engine | Coverage | Top-1 | Top-3 | MRR | Lookup p95 |
+| Fixture | Token positions | Coverage | Top-1 | Top-3 | MRR |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| v1.2 fixed-order baseline | 8.6% | 4.3% | 5.4% | 0.048 | 0.006 ms |
-| v2.1 Quality (`0.85` gate) | 74.6% | 55.1% | 57.4% | 0.563 | 0.087 ms |
+| [Core](benchmarks/v3-core.json) | 272 | 74.6% | 55.1% | 57.4% | 0.5625 |
+| [Rust](benchmarks/v3-rust.json) | 200 | 63.0% | 44.0% | 45.5% | 0.4475 |
 
-Results: [v1.2 baseline](benchmarks/v1.2-baseline.json) and
-[current v2](benchmarks/latest.json). Public quality claims must additionally
-use held-out repositories supplied through repeated `--test-root` arguments.
+Run from the repository root with Python 3.11 or later; no package installation
+or network access is needed:
 
-The v3 core smoke result is in [v3-core.json](benchmarks/v3-core.json); it retains
-the v2 baseline accuracy. The separate original Rust smoke fixture is evaluated
-with `python benchmarks/run_benchmark.py --test-root benchmarks/rust-fixtures
---min-confidence 0.85`. These measure global next-token lookup only, not project
-adaptation or end-to-end editor latency. They are not broad quality estimates.
+```bash
+python benchmarks/run_benchmark.py --min-confidence 0.85 --json-out core-result.json
+python benchmarks/run_benchmark.py --test-root benchmarks/rust-fixtures --min-confidence 0.85 --json-out rust-result.json
+```
+
+Coverage is the fraction of positions with a prediction. Top-1 and Top-3 measure
+whether the actual next token appears first or within the first three choices.
+MRR averages its reciprocal rank within those three choices. All use every
+evaluated position as the denominator; missing predictions and misses score zero.
+The score gate is a ranking threshold, not a calibrated probability.
+
+The script also reports Python lookup timings and fails if p95 exceeds 35 ms.
+Timings vary by hardware and load and include context slicing and prediction;
+they exclude tokenization, VS Code, and rendering. This benchmark does not measure
+v3.1 project-sequence reuse, acceptance preferences, multi-token usefulness, or
+end-to-end editor latency. See [the scanner microbenchmark](benchmarks/v3.1-runtime.json)
+for a separate measurement of scanning and caching.
+
+CI runs both fixture sets on Windows, Ubuntu, and macOS. Its core invocation
+currently uses the default `0.0` gate and checks for a 25% MRR improvement over
+the historical v1.2 JSON; its Rust invocation uses `0.85`. That historical check
+is a loose smoke threshold, not a strict regression comparison with the table
+above. The [v1.2 record](benchmarks/v1.2-baseline.json) contains only 93 positions,
+so it should not be presented as a controlled comparison with the current 272.
+
+For broader quality evaluation, supply repositories never used for training via
+repeated `--test-root` arguments. Compare model versions using identical files,
+tokenization, and score gates, and record the model and corpus revisions.
 
 ## License and attribution
 
