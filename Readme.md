@@ -226,6 +226,49 @@ For broader quality evaluation, supply repositories never used for training via
 repeated `--test-root` arguments. Compare model versions using identical files,
 tokenization, and score gates, and record the model and corpus revisions.
 
+### Project learning and sequence reuse
+
+This separate benchmark runs the actual VS Code completion engine on identical
+Rust and TypeScript editing cases, switching features on and off. It includes
+20 scored cases and 4 safety controls. Expected continuations are never opened
+or indexed; observed support files and unfinished target files are separate.
+
+| Configuration, default 5-token limit | Next token correct, first choice | Full continuation correct, first choice | Exact text, first choice |
+| --- | ---: | ---: | ---: |
+| Bundled model only | 5% (1/20) | 0% (0/20) | 0% |
+| Project learning | 75% (15/20) | 20% (4/20) | 15% |
+| Project learning + sequence reuse | 75% (15/20) | 40% (8/20) | 40% |
+
+**Sequence reuse adds 20 percentage points to full-continuation matches at the
+default limit in this fixture set.** With a 12-token limit it matches 50% (10/20),
+including all six deliberately repeated examples. The 5% to 75% next-token gain
+comes from project learning, which predates v3.1; it is not all a v3.1 improvement.
+This is a feature ablation of the current engine, not a run of historical binaries.
+
+The benchmark also exposes misses: reuse does not invent new argument names,
+ambiguous calls are only 50% correct as the first choice, and project learning
+increases wrong suggestions on unseen cases. The corpus deliberately exercises
+project-specific identifiers and repeated expressions, so these percentages are
+not estimates for arbitrary repositories or claims of general intelligence.
+
+```bash
+cd extension
+npm ci
+npm run benchmark:project:check
+```
+
+On Linux, run the last command through `xvfb-run -a` when no display is available.
+Initial dependencies and the test copy of VS Code require network access. With
+dependencies installed, set `VSCODE_EXECUTABLE_PATH` to a local VS Code executable
+to avoid the test runner's download/version lookup. Benchmark inference is local.
+
+See [methodology, subgroup results, and limitations](benchmarks/PROJECT_BENCHMARK.md),
+[all recorded suggestions](benchmarks/project-v31.json), and
+[the exact fixtures](benchmarks/project-fixtures.json). CI runs this benchmark on
+Windows, Ubuntu, and macOS, checks every case against the reviewed baseline,
+and uploads `project-benchmark-*` JSON artifacts. Timings are reported separately
+and are not used as cross-machine regression gates.
+
 ## License and attribution
 
 MIT. The original copyright notice remains unchanged in [LICENSE](LICENSE).

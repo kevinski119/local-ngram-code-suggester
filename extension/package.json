@@ -317,6 +317,8 @@
         "lint": "eslint src",
         "test": "node ./out/test/runTest.js",
         "test:integration": "npm run compile && node ./out/test/integration/runTest.js",
+        "benchmark:project": "npm run compile && node ./out/test/integration/runProjectBenchmark.js",
+        "benchmark:project:check": "npm run benchmark:project && node ../benchmarks/check_project_benchmark.js",
         "test:vsix": "npm run compile && node ./out/test/integration/vsixSmoke.js",
         "test:all": "npm test && npm run test:integration && npm run test:vsix",
         "package": "vsce package",

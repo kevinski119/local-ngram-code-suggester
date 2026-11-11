@@ -265,4 +265,5 @@ extension/CHANGELOG.md
 extension/SUPPORT.md
 extension/SECURITY.md
 *.vsix
+benchmarks/project-latest.json
 pre_trained_models/
