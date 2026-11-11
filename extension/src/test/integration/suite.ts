@@ -14,13 +14,15 @@ export async function run(): Promise<void> {
     const diagnostics = api.getDiagnostics();
     assert.ok(diagnostics.patterns > 0, 'bundled model should load');
     assert.ok(diagnostics.formatVersion >= 3, 'bundled model should use format v3');
+    assert.ok(diagnostics.languages.includes('.rs'), 'Rust model must ship in the package');
 
     const commands = await vscode.commands.getCommands(true);
     for (const command of [
         'codeSuggester.reloadModel',
         'codeSuggester.showDiagnostics',
         'codeSuggester.manageLanguagePacks',
-        'codeSuggester.clearCrossProjectLearning'
+        'codeSuggester.clearCrossProjectLearning',
+        'codeSuggester.toggleEnabled', 'codeSuggester.showMenu'
     ]) {
         assert.ok(commands.includes(command), `${command} should be registered`);
     }
@@ -46,10 +48,10 @@ export async function run(): Promise<void> {
         )
     );
 
-    for (const language of ['java', 'json', 'jsonc']) {
+    for (const language of ['java', 'json', 'jsonc', 'rust']) {
         const supportedDocument = await vscode.workspace.openTextDocument({
             language,
-            content: language === 'java'
+            content: language === 'rust' ? 'let values = Vec::' : language === 'java'
                 ? 'public final class Example {'
                 : '{"enabled": true,'
         });
@@ -160,4 +162,85 @@ export async function run(): Promise<void> {
     );
 
     assert.equal(await api.reloadModel(), true, 'model reload should succeed');
+
+    const rustDocument = await vscode.workspace.openTextDocument({
+        language: 'rust', content: 'fn sample() { let counter = 1; }\ncouter'
+    });
+    const prefixPosition = new vscode.Position(1, 3);
+    const rustItems = api.getInlineSuggestions(rustDocument, prefixPosition);
+    const counter = rustItems.find(item => typeof item.insertText === 'string' && item.insertText.startsWith('counter'));
+    assert.ok(counter?.range, 'Rust project identifier should be available in the middle of a word');
+    assert.equal(counter.range.start.character, 0, 'edit should include the typed prefix');
+    assert.equal(counter.range.end.character, 6, 'edit should include the matching word suffix');
+    const list = await vscode.commands.executeCommand<vscode.CompletionList>(
+        'vscode.executeCompletionItemProvider', rustDocument.uri, prefixPosition
+    );
+    const listCounter = list.items.find(item => typeof item.detail === 'string' && item.detail.startsWith('Project') && item.label === 'counter');
+    assert.ok(listCounter, 'IntelliSense should offer the learned Rust identifier');
+    assert.equal(listCounter.insertText, 'counter', 'IntelliSense must retain the typed prefix');
+
+    const projectSequence = await vscode.workspace.openTextDocument({language: 'rust',
+        content: 'fn run() { custom_store.flush(); custom_store.flush(); }\ncustom_store.'});
+    const sequenceItems = api.getInlineSuggestions(projectSequence, new vscode.Position(1, 13));
+    assert.ok(sequenceItems.some(item => typeof item.insertText === 'string' && item.insertText.startsWith('flush()')),
+        'multi-token completion must continue a locally learned member call');
+
+    await vscode.commands.executeCommand('codeSuggester.clearProjectContext');
+    const rustPrefix = await vscode.workspace.openTextDocument({language: 'rust', content: 'prin'});
+    assert.ok(api.getInlineSuggestions(rustPrefix, new vscode.Position(0, 4)).length > 0,
+        'clearing project context must not erase bundled prefix completions');
+    for (const content of ['let text = r##"unfinished //', '/* outside /* inside */ still outside']) {
+        const doc = await vscode.workspace.openTextDocument({language: 'rust', content});
+        assert.deepEqual(api.getInlineSuggestions(doc, doc.positionAt(content.length)), [],
+            'Rust literals and nested comments must not receive code suggestions');
+    }
+    const originalEnabled = configuration.inspect<boolean>('enabled')?.globalValue;
+    try {
+        await configuration.update('enabled', false, vscode.ConfigurationTarget.Global);
+        assert.deepEqual(api.getInlineSuggestions(rustPrefix, new vscode.Position(0, 4)), [], 'pause must suppress suggestions');
+        await configuration.update('enabled', true, vscode.ConfigurationTarget.Global);
+        assert.ok(api.getInlineSuggestions(rustPrefix, new vscode.Position(0, 4)).length > 0, 'resume must restore suggestions');
+    } finally {
+        await configuration.update('enabled', originalEnabled, vscode.ConfigurationTarget.Global);
+    }
+
+    const savedSettings = {
+        tokens: configuration.inspect<number>('maxInlineTokens')?.globalValue,
+        latency: configuration.inspect<number>('maxLatencyMs')?.globalValue,
+        reuse: configuration.inspect<boolean>('reuseProjectSequences')?.globalValue,
+        learn: configuration.inspect<boolean>('learnFromAcceptedSuggestions')?.globalValue
+    };
+    try {
+        await configuration.update('maxInlineTokens', 12, vscode.ConfigurationTarget.Global);
+        await configuration.update('maxLatencyMs', 250, vscode.ConfigurationTarget.Global);
+        await configuration.update('reuseProjectSequences', true, vscode.ConfigurationTarget.Global);
+        await configuration.update('learnFromAcceptedSuggestions', true, vscode.ConfigurationTarget.Global);
+        const source = await vscode.workspace.openTextDocument({language: 'rust', content:
+            'client.send_request( payload ).await?;\nclient.reset();\nclient.'});
+        const cursor = new vscode.Position(2, 7);
+        const items = api.getInlineSuggestions(source, cursor);
+        assert.ok(items.some(item => item.insertText === 'send_request( payload ).await?;'),
+            'retrieval should preserve an actual project expression, including original spacing');
+        const alternative = items.find(item => item.insertText === 'reset();');
+        assert.ok(alternative?.command, 'acceptance command must be attached to actual suggestions');
+        const acceptedBefore = api.getDiagnostics().acceptedSuggestions;
+        await vscode.commands.executeCommand(alternative.command.command, ...(alternative.command.arguments ?? []));
+        assert.equal(api.getDiagnostics().acceptedSuggestions, acceptedBefore + 1);
+        const ranked = api.getInlineSuggestions(source, cursor);
+        assert.equal(ranked[0].insertText, 'reset();', 'accepting a choice should promote it in the same context');
+        const hitsBefore = api.getDiagnostics().scanCacheHits;
+        await vscode.commands.executeCommand('vscode.executeCompletionItemProvider', source.uri, cursor);
+        assert.ok(api.getDiagnostics().scanCacheHits > hitsBefore, 'IntelliSense should reuse the prefix scan');
+        await configuration.update('learnFromAcceptedSuggestions', false, vscode.ConfigurationTarget.Global);
+        assert.equal(api.getDiagnostics().preferenceContexts, 0, 'disabling preferences must erase them');
+        assert.ok(api.getInlineSuggestions(source, cursor).every(item => !item.command), 'disabled preference learning must not attach callbacks');
+        await configuration.update('reuseProjectSequences', false, vscode.ConfigurationTarget.Global);
+        assert.ok(api.getInlineSuggestions(source, cursor).every(item => item.insertText !== 'send_request( payload ).await?;'),
+            'turning off sequence reuse should restore model-generated suggestions');
+    } finally {
+        await configuration.update('maxInlineTokens', savedSettings.tokens, vscode.ConfigurationTarget.Global);
+        await configuration.update('maxLatencyMs', savedSettings.latency, vscode.ConfigurationTarget.Global);
+        await configuration.update('reuseProjectSequences', savedSettings.reuse, vscode.ConfigurationTarget.Global);
+        await configuration.update('learnFromAcceptedSuggestions', savedSettings.learn, vscode.ConfigurationTarget.Global);
+    }
 }

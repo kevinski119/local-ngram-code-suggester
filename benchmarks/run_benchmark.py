@@ -19,7 +19,7 @@ from ngram_tokenizer import scan_text
 
 SUPPORTED_EXTENSIONS = {
     '.cs', '.cshtml', '.java', '.js', '.json', '.jsonc', '.jsx',
-    '.py', '.ts', '.tsx', '.vue',
+    '.py', '.rs', '.ts', '.tsx', '.vue',
 }
 
 
@@ -190,6 +190,8 @@ def main():
     roots = args.test_root or [os.path.join('benchmarks', 'fixtures')]
 
     result = run(load_model(args.model), roots, args.min_confidence)
+    if result['observations'] == 0:
+        raise SystemExit('No supported test tokens found; benchmark would be empty.')
     result['min_confidence'] = args.min_confidence
     print(json.dumps(result, indent=2))
     if args.json_out:

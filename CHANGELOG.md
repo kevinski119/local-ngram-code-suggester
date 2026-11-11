@@ -2,7 +2,36 @@
 
 All notable changes are documented here.
 
-## 2.1.0 - Unreleased
+## 3.1.0 — local preview
+
+- Retrieve exact single-line code sequences from indexed open files for inline
+  completions, preserving spacing. Matches require exact receiver/context tokens,
+  respect workspace isolation and length limits, and exclude string literals.
+- Rank available suggestions using choices accepted in the same context during
+  this session. Preferences stay in bounded memory and can be reset or disabled.
+- Reuse cursor-prefix scans between providers with version/language/position
+  invalidation and bounded LRU storage. Prepare lexical profiles once instead of
+  sorting comment and string definitions at every character.
+- Show scan reuse and acceptance counters in diagnostics.
+- Fix Quality mode's hidden five-token cap and honor the configured soft latency
+  budget. Default length remains five tokens; Quality can now use up to twelve.
+
+## 3.0.0 — local preview
+
+- Add Rust activation, language profile, trainer support, bundled starter data,
+  and tokenizer parity fixtures covering nested comments, literals, lifetimes,
+  raw identifiers, macros, paths and ranges. Exclude Cargo `target` directories.
+- Learn exact project contexts and identifier prefixes; use project patterns in
+  multi-token continuation, with workspace-folder isolation and bounded memory.
+- Preserve completion prefixes and matching right-hand text in both providers.
+- Add a status-bar controls menu and pause/resume setting.
+- Suppress code suggestions in unfinished strings; honor explicit inline requests
+  regardless of automatic trigger-character restrictions.
+- Cancel pending learning on close/clear and remove stale oversized documents.
+  Clearing project context no longer erases the bundled prefix vocabulary.
+- Label ranking values as scores rather than misleading percentages.
+
+## 2.1.0
 
 - Added first-class Java and JSON/JSONC language profiles, activation, training,
   project adaptation, and comment-safe tokenizer fixtures.

@@ -1,8 +1,8 @@
 {
     "name": "local-ngram-code-suggester",
     "displayName": "Local N-Gram Code Suggester",
-    "description": "Fast, private, comment-aware local code completion with adaptive n-gram models",
-    "version": "2.1.0",
+    "description": "Private offline completion for Rust and more, with adaptive project patterns and no LLM or account",
+    "version": "3.1.0",
     "publisher": "KevinJarz",
     "author": {
         "name": "Local N-Gram contributors"
@@ -36,7 +36,8 @@
         "JavaScript",
         "TypeScript",
         "Java",
-        "JSON"
+        "JSON",
+        "Rust"
     ],
     "galleryBanner": {
         "color": "#1e1e1e",
@@ -65,7 +66,8 @@
         "onCommand:codeSuggester.reloadProjectContext",
         "onCommand:codeSuggester.clearCrossProjectLearning",
         "onCommand:codeSuggester.manageLanguagePacks",
-        "onCommand:codeSuggester.checkLanguagePackUpdates"
+        "onCommand:codeSuggester.checkLanguagePackUpdates",
+        "onLanguage:rust"
     ],
     "main": "./out/extension.js",
     "contributes": {
@@ -97,7 +99,11 @@
                 },
                 "codeSuggester.performancePreset": {
                     "type": "string",
-                    "enum": ["fast", "balanced", "quality"],
+                    "enum": [
+                        "fast",
+                        "balanced",
+                        "quality"
+                    ],
                     "enumDescriptions": [
                         "Single-token suggestions with the smallest latency budget",
                         "Short multi-token suggestions within the configured latency budget",
@@ -191,6 +197,21 @@
                     "type": "string",
                     "default": "",
                     "description": "Optional HTTPS URL of a trusted language-pack catalog"
+                },
+                "codeSuggester.enabled": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Enable Local N-Gram suggestions. Pause or resume from the status bar."
+                },
+                "codeSuggester.reuseProjectSequences": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Prefer matching single-line code sequences from open project files for inline suggestions. Preserves internal spacing and excludes string literals."
+                },
+                "codeSuggester.learnFromAcceptedSuggestions": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Prefer suggestions you accepted in the same context during this session. Stored only in memory; disabling clears preferences."
                 }
             }
         },
@@ -233,6 +254,21 @@
             {
                 "command": "codeSuggester.checkLanguagePackUpdates",
                 "title": "Local N-Gram: Check for Language Pack Updates",
+                "category": "Local N-Gram"
+            },
+            {
+                "command": "codeSuggester.showMenu",
+                "title": "Controls",
+                "category": "Local N-Gram"
+            },
+            {
+                "command": "codeSuggester.clearAcceptanceMemory",
+                "title": "Reset Session Suggestion Preferences",
+                "category": "Local N-Gram"
+            },
+            {
+                "command": "codeSuggester.toggleEnabled",
+                "title": "Pause or Resume Suggestions",
                 "category": "Local N-Gram"
             }
         ],

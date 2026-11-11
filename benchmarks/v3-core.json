@@ -1,0 +1,11 @@
+{
+  "observations": 272,
+  "coverage": 0.7463235294117647,
+  "top1_accuracy": 0.5514705882352942,
+  "top3_accuracy": 0.5735294117647058,
+  "mrr": 0.5625,
+  "mean_latency_ms": 0.023233088300270644,
+  "p95_latency_ms": 0.05199999941396527,
+  "max_latency_ms": 0.09750000026542693,
+  "min_confidence": 0.85
+}

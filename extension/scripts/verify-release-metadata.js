@@ -14,9 +14,9 @@ const marketplaceReadme = fs.readFileSync(
 if (marketplaceReadme.includes('REPLACE_WITH_')) {
     failures.push('replace Marketplace README image placeholders with public HTTPS URLs');
 }
-for (const filename of ['completion-demo.gif', 'diagnostics.png', 'pack-manager.png']) {
+for (const filename of ['hero-v31.png', 'rust-demo-v31.gif', 'controls-v31.png']) {
     if (!fs.existsSync(path.resolve(__dirname, '..', 'assets', 'marketplace', filename))) {
-        failures.push(`capture assets/marketplace/${filename} from a clean Extension Host`);
+        failures.push(`render the verified v3.1 media asset assets/marketplace/${filename}`);
     }
 }
 const modelBytes = fs.readFileSync(

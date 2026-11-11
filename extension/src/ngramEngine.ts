@@ -108,7 +108,8 @@ export function generateBackoffSuggestions(
 
 export function formatTokenSequence(
     tokens: string[],
-    display: (token: string) => string
+    display: (token: string) => string,
+    profileId = ''
 ): string {
     let output = '';
     for (const rawToken of tokens) {
@@ -116,6 +117,10 @@ export function formatTokenSequence(
         if (!token) continue;
         if (!output) {
             output = token;
+        } else if (profileId === 'rust' && (token === '::' || output.endsWith('::') ||
+            token === '!' || (token === '[' && output.endsWith('#')) ||
+            token === '..' || token === '..=' || output.endsWith('..') || output.endsWith('..='))) {
+            output += token;
         } else if (/^[,.;:)\]}]$/.test(token)) {
             output += token;
         } else if (/^[([{]$/.test(token) || /[.([{]$/.test(output)) {

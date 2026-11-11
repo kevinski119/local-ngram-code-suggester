@@ -7,6 +7,7 @@ training available anywhere Python 3.9+ is installed.
 
 import json
 import os
+import re
 from dataclasses import dataclass
 
 
@@ -219,6 +220,39 @@ def scan_text(text, language_id_or_extension=None, cursor_offset=None):
                 cursor_in_comment = True
             cursor = end
             continue
+
+        if profile['id'] == 'rust':
+            rest = text[cursor:]
+            raw_string = re.match(r'(?:br|cr|r)(#{0,255})"', rest)
+            if raw_string:
+                closing = '"' + raw_string[1]
+                closing_at = text.find(closing, cursor + len(raw_string[0]))
+                end = len(text) if closing_at < 0 else closing_at + len(closing)
+                tokens.append(Token('<STR>', '<STR>', 'string', cursor, end))
+                cursor = end
+                continue
+            character = re.match(r"(?:b)?'(?:\\(?:u\{[0-9a-fA-F_]+\}|x[0-9a-fA-F]{2}|[^\r\n])|[^'\\\r\n])'", rest)
+            lifetime = re.match(r"'(?:r#)?[A-Za-z_][A-Za-z0-9_]*", rest)
+            raw_identifier = re.match(r'r#[A-Za-z_][A-Za-z0-9_]*', rest)
+            special = character or lifetime or raw_identifier
+            if special:
+                value = '<STR>' if character else special[0]
+                end = cursor + len(special[0])
+                tokens.append(Token(value, '<STR>' if character else '<ID>', 'string' if character else 'identifier', cursor, end))
+                cursor = end
+                continue
+            number = re.match(r'(?:0x[0-9a-fA-F_]+|0o[0-7_]+|0b[01_]+|[0-9][0-9_]*(?:\.(?!\.)[0-9][0-9_]*)?(?:[eE][+-]?[0-9_]+)?)(?:[iu](?:8|16|32|64|128|size)|f(?:32|64))?', rest)
+            if number:
+                end = cursor + len(number[0])
+                tokens.append(Token(number[0], '<NUM>', 'number', cursor, end))
+                cursor = end
+                continue
+            operator = re.match(r'<<=|>>=|\.\.=|::|->|=>|\.\.|&&|\|\||==|!=|<=|>=|<<|>>|[+\-*/%&|^]=|[+\-*/=<>!&|^~%?:#@]', rest)
+            if operator:
+                value = operator[0]
+                tokens.append(Token(value, value, 'operator', cursor, cursor + len(value)))
+                cursor += len(value)
+                continue
 
         string_definition = _find_string_definition(text, cursor, profile)
         if string_definition:

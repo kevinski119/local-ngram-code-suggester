@@ -23,6 +23,9 @@ import {
 } from './ngramEngine';
 import { InstalledPack, PACK_STATE_KEY } from './packTypes';
 import { ProjectContextModel } from './projectContextModel';
+import { completionEdit } from './completionEdit';
+import { AcceptanceMemory } from './acceptanceMemory';
+import { PrefixScanCache } from './prefixScanCache';
 import {
     EXTENSION_TO_LANGUAGE,
     LANGUAGE_EXTENSIONS,
@@ -37,6 +40,10 @@ interface PerformanceOptions {
 }
 
 export interface SuggesterDiagnostics {
+    acceptedSuggestions: number;
+    preferenceContexts: number;
+    scanCacheHits: number;
+    scanCacheMisses: number;
     modelVersion: string;
     formatVersion: number;
     tokenizerProfileVersion: string;
@@ -57,6 +64,7 @@ interface Beam {
     tokens: string[];
     normalized: string[];
     score: number;
+    source?: Suggestion['source'];
 }
 
 interface LoadedModel {
@@ -86,6 +94,8 @@ export class CodeSuggester implements vscode.Disposable {
     private prefixIndex = new Map<string, Map<string, string[]>>();
     private pendingDocumentUpdates = new Map<string, NodeJS.Timeout>();
     private crossProjectModel: CrossProjectLearningModel;
+    private acceptanceMemory = new AcceptanceMemory();
+    private scanCache = new PrefixScanCache();
 
     constructor(private context: vscode.ExtensionContext) {
         this.crossProjectModel = new CrossProjectLearningModel(context.globalState);
@@ -186,15 +196,18 @@ export class CodeSuggester implements vscode.Disposable {
         this.documentListeners.push(
             vscode.workspace.onDidOpenTextDocument(document => {
                 if (this.useProjectContext() && this.isDocumentSafeToLearn(document)) {
-                    this.projectModel.addDocument(document);
+                    this.projectModel.addDocument(document, this.getProjectFingerprint(document));
                 }
             }),
             vscode.workspace.onDidCloseTextDocument(document => {
-                if (this.useProjectContext()) {
-                    this.projectModel.removeDocument(document);
-                }
+                this.scanCache.remove(document.uri.toString());
+                const key = document.uri.toString();
+                clearTimeout(this.pendingDocumentUpdates.get(key));
+                this.pendingDocumentUpdates.delete(key);
+                this.projectModel.removeDocument(document);
             }),
             vscode.workspace.onDidChangeTextDocument(event => {
+                this.scanCache.remove(event.document.uri.toString());
                 const config = vscode.workspace.getConfiguration('codeSuggester');
                 if (
                     this.useProjectContext() &&
@@ -205,8 +218,10 @@ export class CodeSuggester implements vscode.Disposable {
                     if (pending) clearTimeout(pending);
                     this.pendingDocumentUpdates.set(key, setTimeout(() => {
                         this.pendingDocumentUpdates.delete(key);
-                        if (this.isDocumentSafeToLearn(event.document)) {
-                            this.projectModel.updateDocument(event.document);
+                        if (this.useProjectContext() && !event.document.isClosed && this.isDocumentSafeToLearn(event.document)) {
+                            this.projectModel.updateDocument(event.document, this.getProjectFingerprint(event.document));
+                        } else {
+                            this.projectModel.removeDocument(event.document);
                         }
                         this.suggestionCache.clear();
                     }, 250));
@@ -214,11 +229,14 @@ export class CodeSuggester implements vscode.Disposable {
             }),
             vscode.workspace.onDidSaveTextDocument(document => {
                 if (this.useProjectContext() && this.isDocumentSafeToLearn(document)) {
-                    this.projectModel.updateDocument(document);
+                    this.projectModel.updateDocument(document, this.getProjectFingerprint(document));
+                } else {
+                    this.projectModel.removeDocument(document);
                 }
                 const config = vscode.workspace.getConfiguration('codeSuggester');
                 if (
                     config.get<boolean>('crossProjectLearning', true) &&
+                    vscode.workspace.getWorkspaceFolder(document.uri) &&
                     this.isDocumentSafeToLearn(document)
                 ) {
                     const extension = this.getFileExtension(document);
@@ -243,6 +261,7 @@ export class CodeSuggester implements vscode.Disposable {
                         this.clearProjectContext();
                     }
                 } else if (event.affectsConfiguration('codeSuggester')) {
+                    if (event.affectsConfiguration('codeSuggester.learnFromAcceptedSuggestions')) this.acceptanceMemory.clear();
                     this.suggestionCache.clear();
                 }
             })
@@ -364,7 +383,9 @@ export class CodeSuggester implements vscode.Disposable {
         position: vscode.Position
     ): vscode.CompletionItem[] {
         const result = this.createSuggestions(document, position, false);
-        return result.map((suggestion, index) => {
+        return result.flatMap((suggestion, index) => {
+            const edit = this.createCompletionEdit(suggestion, document, position);
+            if (!edit) return [];
             const item = new vscode.CompletionItem(
                 this.displayToken(suggestion.token),
                 vscode.CompletionItemKind.Text
@@ -375,15 +396,12 @@ export class CodeSuggester implements vscode.Disposable {
                     ? 'Cross-project'
                     : 'Global';
             item.detail = `${source} • order ${suggestion.order ?? '?'} • ` +
-                `${(suggestion.confidence * 100).toFixed(1)}%`;
+                `score ${suggestion.confidence.toFixed(2)}`;
             item.sortText = index.toString().padStart(5, '0');
-            item.insertText = this.prepareInsertion(
-                suggestion.token,
-                document,
-                position,
-                suggestion.prefix
-            );
-            return item;
+            item.insertText = edit.text;
+            item.range = edit.range;
+            item.command = this.acceptanceCommand(suggestion);
+            return [item];
         });
     }
 
@@ -392,18 +410,42 @@ export class CodeSuggester implements vscode.Disposable {
         position: vscode.Position,
         cancellationToken?: vscode.CancellationToken
     ): vscode.InlineCompletionItem[] {
-        return this.createSuggestions(document, position, true, cancellationToken).map(suggestion =>
-            new vscode.InlineCompletionItem(
-                this.prepareInsertion(
-                    suggestion.token,
-                    document,
-                    position,
-                    suggestion.prefix
-                ),
-                new vscode.Range(position, position)
-            )
-        );
+        return this.createSuggestions(document, position, true, cancellationToken).flatMap(suggestion => {
+            const edit = this.createCompletionEdit(suggestion, document, position);
+            if (!edit) return [];
+            const item = new vscode.InlineCompletionItem(edit.text, edit.range);
+            item.filterText = document.getText(edit.range) + edit.text;
+            item.command = this.acceptanceCommand(suggestion);
+            return [item];
+        });
     }
+
+    private createCompletionEdit(suggestion: Suggestion, document: vscode.TextDocument, position: vscode.Position) {
+        if (!this.displayToken(suggestion.token)) return undefined;
+        const prefix = suggestion.prefix ?? '';
+        let insertion = prefix ? suggestion.token : this.prepareInsertion(suggestion.token, document, position);
+        if (!prefix && suggestion.leadingSpace && !/^\s/.test(insertion) &&
+            /\S$/.test(document.lineAt(position.line).text.slice(0, position.character))) insertion = ` ${insertion}`;
+        const edit = completionEdit(insertion, prefix, document.lineAt(position.line).text.slice(position.character));
+        return edit ? {
+            text: edit.text,
+            range: new vscode.Range(position.translate(0, -edit.before), position.translate(0, edit.after))
+        } : undefined;
+    }
+
+    private acceptanceCommand(suggestion: Suggestion): vscode.Command | undefined {
+        return suggestion.acceptanceKey ? { title: 'Remember accepted suggestion',
+            command: 'codeSuggester.acceptSuggestion', arguments: [suggestion.acceptanceKey, suggestion.token] } : undefined;
+    }
+
+    public recordAcceptedSuggestion(key: unknown, text: unknown): void {
+        if (typeof key === 'string' && typeof text === 'string' &&
+            vscode.workspace.getConfiguration('codeSuggester').get<boolean>('learnFromAcceptedSuggestions', true)) {
+            this.acceptanceMemory.record(key, text);
+        }
+    }
+
+    public clearAcceptanceMemory(): void { this.acceptanceMemory.clear(); }
 
     private createSuggestions(
         document: vscode.TextDocument,
@@ -411,15 +453,19 @@ export class CodeSuggester implements vscode.Disposable {
         allowMultiToken: boolean,
         cancellationToken?: vscode.CancellationToken
     ): Suggestion[] {
-        if (!this.model || cancellationToken?.isCancellationRequested) {
+        if (!this.model || cancellationToken?.isCancellationRequested ||
+            !vscode.workspace.getConfiguration('codeSuggester').get<boolean>('enabled', true)) {
             return [];
         }
         const started = performance.now();
-        const text = document.getText(new vscode.Range(new vscode.Position(0, 0), position));
-        const scan = scanText(text, document.languageId, text.length);
+        // Keep synchronous scanning bounded without starting in the middle of a comment/string.
+        if (document.offsetAt(position) > 100_000) return [];
+        const { text, scan } = this.scanCache.get(document.uri.toString(), document.version,
+            document.languageId, document.offsetAt(position),
+            () => document.getText(new vscode.Range(new vscode.Position(0, 0), position)));
         const config = vscode.workspace.getConfiguration('codeSuggester');
         if (
-            (!scan.cursorInSupportedRegion ||
+            (!scan.cursorInSupportedRegion || scan.cursorInString ||
                 (scan.cursorInComment &&
                     !config.get<boolean>('suggestInComments', false)))
         ) {
@@ -454,13 +500,21 @@ export class CodeSuggester implements vscode.Disposable {
         const contextNormalized = activePrefix ? normalized.slice(0, -1) : normalized;
         const options = this.getPerformanceOptions();
         const deadline = started + options.latencyMs;
+        const projectFingerprint = this.getProjectFingerprint(document);
+        const externalLibraries = detectExternalLibraries(text, document.languageId);
+        const sequenceSuggestions = allowMultiToken && this.useProjectContext() &&
+            config.get<boolean>('reuseProjectSequences', true) && config.get<boolean>('enableMultiToken', true) && options.maxTokens > 1
+            ? this.projectModel.generateSequenceSuggestions(contextRaw, activePrefix ?? '', languageExtensions,
+                projectFingerprint, options.maxTokens,
+                () => performance.now() >= deadline || (cancellationToken?.isCancellationRequested ?? false)) : [];
         let suggestions = this.generateCombinedSuggestions(
             contextRaw,
             contextNormalized,
             languageExtensions,
             config.get<number>('maxSuggestions', 5),
-            this.getProjectFingerprint(document),
-            detectExternalLibraries(text, document.languageId)
+            projectFingerprint,
+            externalLibraries,
+            activePrefix
         );
         if (activePrefix) {
             const contextual = suggestions
@@ -480,6 +534,10 @@ export class CodeSuggester implements vscode.Disposable {
             );
             suggestions = this.deduplicateSuggestions([
                 ...contextual,
+                ...(this.useProjectContext() ? this.projectModel.generatePrefixSuggestions(
+                    activePrefix, languageExtensions, projectFingerprint,
+                    config.get<number>('maxSuggestions', 5)
+                ) : []),
                 ...prefixFallback
             ]).slice(0, config.get<number>('maxSuggestions', 5));
         }
@@ -500,10 +558,20 @@ export class CodeSuggester implements vscode.Disposable {
                 new Set(profile.statementBoundaries),
                 profile.id,
                 currentLineTokens,
+                projectFingerprint,
+                externalLibraries,
                 deadline,
                 () => cancellationToken?.isCancellationRequested ?? false
             );
         }
+        const sequenceTokens = new Set(sequenceSuggestions.map(suggestion => suggestion.token));
+        suggestions = [...sequenceSuggestions, ...suggestions.filter(suggestion => !sequenceTokens.has(suggestion.token))];
+        if (config.get<boolean>('learnFromAcceptedSuggestions', true)) {
+            const acceptanceKey = JSON.stringify([projectFingerprint, extension, contextRaw.slice(-5), activePrefix ?? '']);
+            suggestions = this.acceptanceMemory.rank(acceptanceKey, suggestions)
+                .map(suggestion => ({ ...suggestion, acceptanceKey }));
+        }
+        suggestions = suggestions.slice(0, config.get<number>('maxSuggestions', 5));
         if (activePrefix) {
             suggestions = suggestions.map(suggestion => ({
                 ...suggestion,
@@ -520,10 +588,12 @@ export class CodeSuggester implements vscode.Disposable {
         languageExtensions: string[],
         maxSuggestions: number,
         currentProjectFingerprint: string,
-        externalLibraries: string[]
+        externalLibraries: string[],
+        prefix = '',
+        confidenceOverride?: number
     ): Suggestion[] {
         const config = vscode.workspace.getConfiguration('codeSuggester');
-        const minConfidence = config.get<number>('minConfidence', 0.85);
+        const minConfidence = confidenceOverride ?? config.get<number>('minConfidence', 0.85);
         const global = this.generateGlobalSuggestions(
             raw,
             normalized,
@@ -536,7 +606,10 @@ export class CodeSuggester implements vscode.Disposable {
                 normalized,
                 languageExtensions,
                 Math.max(maxSuggestions, 8),
-                Math.max(minConfidence * 0.5, 0.01)
+                Math.max(minConfidence * 0.5, 0.01),
+                currentProjectFingerprint,
+                raw,
+                prefix
             )
             : [];
         const learned = config.get<boolean>('crossProjectLearning', true)
@@ -561,6 +634,7 @@ export class CodeSuggester implements vscode.Disposable {
         }
         return Array.from(merged.values())
             .filter(suggestion => suggestion.token.length > 0)
+            .filter(suggestion => !prefix || (suggestion.token.startsWith(prefix) && suggestion.token !== prefix))
             .sort((a, b) => b.confidence - a.confidence)
             .slice(0, maxSuggestions);
     }
@@ -756,13 +830,16 @@ export class CodeSuggester implements vscode.Disposable {
         stopTokens: ReadonlySet<string>,
         profileId: string,
         currentLineTokens: string[],
+        projectFingerprint: string,
+        externalLibraries: string[],
         deadline: number,
         isCancelled: () => boolean
     ): Suggestion[] {
         let beams: Beam[] = initial.slice(0, options.beamWidth).map(suggestion => ({
             tokens: [suggestion.token],
             normalized: [...normalized, normalizeToken(suggestion.token, languageExtensions[0])],
-            score: Math.max(suggestion.confidence, 0.0001)
+            score: Math.max(suggestion.confidence, 0.0001),
+            source: suggestion.source
         }));
         const completed: Beam[] = [];
 
@@ -778,11 +855,14 @@ export class CodeSuggester implements vscode.Disposable {
                     completed.push(beam);
                     continue;
                 }
-                let next = this.generateGlobalSuggestions(
+                let next = this.generateCombinedSuggestions(
                     [...raw, ...beam.tokens],
                     beam.normalized,
                     languageExtensions,
                     options.beamWidth,
+                    projectFingerprint,
+                    externalLibraries,
+                    '',
                     options.continuationMinConfidence
                 ).filter(suggestion =>
                     isPlausibleTokenTransition(last, suggestion.token, profileId)
@@ -815,7 +895,8 @@ export class CodeSuggester implements vscode.Disposable {
                             ...beam.normalized,
                             normalizeToken(suggestion.token, languageExtensions[0])
                         ],
-                        score: beam.score * Math.max(suggestion.confidence, 0.0001)
+                        score: beam.score * Math.max(suggestion.confidence, 0.0001),
+                        source: beam.source
                     });
                 }
             }
@@ -831,9 +912,9 @@ export class CodeSuggester implements vscode.Disposable {
             .sort((a, b) => b.score - a.score)
             .slice(0, Math.max(1, Math.min(initial.length, options.beamWidth)))
             .map(beam => ({
-                token: formatTokenSequence(beam.tokens, token => this.displayToken(token)),
+                token: formatTokenSequence(beam.tokens, token => this.displayToken(token), profileId),
                 confidence: beam.score,
-                source: 'global'
+                source: beam.source
             }));
     }
 
@@ -856,7 +937,7 @@ export class CodeSuggester implements vscode.Disposable {
         if (prefix && displayed.startsWith(prefix)) {
             return displayed.slice(prefix.length);
         }
-        return this.shouldAddSpaceBeforeSuggestion(document, position)
+        return this.shouldAddSpaceBeforeSuggestion(document, position, displayed)
             ? ` ${displayed}`
             : displayed;
     }
@@ -877,9 +958,9 @@ export class CodeSuggester implements vscode.Disposable {
         }
         if (preset === 'quality') {
             return {
-                latencyMs: Math.max(configuredLatency, 60),
+                latencyMs: configuredLatency,
                 beamWidth: 5,
-                maxTokens: Math.max(1, Math.min(configuredMaxTokens, 5)),
+                maxTokens: Math.max(1, Math.min(configuredMaxTokens, 12)),
                 continuationMinConfidence: Math.max(minConfidence * 0.5, 0.15)
             };
         }
@@ -914,6 +995,10 @@ export class CodeSuggester implements vscode.Disposable {
         const project = this.projectModel.getProjectStats();
         const learned = this.crossProjectModel.getStats();
         return {
+            acceptedSuggestions: this.acceptanceMemory.accepted,
+            preferenceContexts: this.acceptanceMemory.size,
+            scanCacheHits: this.scanCache.hits,
+            scanCacheMisses: this.scanCache.misses,
             modelVersion: this.model?.version ?? 'not loaded',
             formatVersion: this.model?.format_version ?? (this.model ? 2 : 0),
             tokenizerProfileVersion: this.model?.tokenizer_profile_version ?? 'legacy',
@@ -943,9 +1028,11 @@ export class CodeSuggester implements vscode.Disposable {
     }
 
     public clearProjectContext() {
+        this.acceptanceMemory.clear();
+        this.pendingDocumentUpdates.forEach(timeout => clearTimeout(timeout));
+        this.pendingDocumentUpdates.clear();
         this.projectModel.clear();
         this.suggestionCache.clear();
-        this.prefixIndex.clear();
     }
 
     public reloadProjectContext() {
@@ -953,7 +1040,7 @@ export class CodeSuggester implements vscode.Disposable {
         if (this.useProjectContext()) {
             vscode.workspace.textDocuments.forEach(document =>
                 this.isDocumentSafeToLearn(document) &&
-                    this.projectModel.addDocument(document)
+                    this.projectModel.addDocument(document, this.getProjectFingerprint(document))
             );
         }
         this.suggestionCache.clear();
@@ -991,28 +1078,27 @@ export class CodeSuggester implements vscode.Disposable {
 
     private getProjectFingerprint(document: vscode.TextDocument): string {
         const folder = vscode.workspace.getWorkspaceFolder(document.uri);
-        if (!folder) return '';
         return createHash('sha256')
-            .update(folder.uri.toString())
+            .update(folder?.uri.toString() ?? document.uri.toString())
             .digest('hex')
             .slice(0, 16);
     }
 
     private shouldAddSpaceBeforeSuggestion(
         document: vscode.TextDocument,
-        position: vscode.Position
+        position: vscode.Position,
+        suggestion: string
     ): boolean {
-        const before = document.getText(
-            new vscode.Range(new vscode.Position(0, 0), position)
-        );
+        const before = document.lineAt(position.line).text.slice(0, position.character);
         const lastCharacter = before.trimEnd().slice(-1);
         const lastWord = before.trim().split(/\s+/).pop();
         return (
+            (/[A-Za-z0-9_$]/.test(lastCharacter) && /^[A-Za-z_$']/.test(suggestion)) ||
             lastCharacter === '=' ||
             lastWord === 'new' ||
             lastWord === 'await' ||
             lastWord === 'return'
-        ) && !before.endsWith(' ');
+        ) && !/\s$/.test(before);
     }
 
     private useProjectContext(): boolean {
@@ -1022,6 +1108,8 @@ export class CodeSuggester implements vscode.Disposable {
     }
 
     public dispose() {
+        this.scanCache.clear();
+        this.acceptanceMemory.clear();
         this.loadGeneration++;
         this.documentListeners.forEach(disposable => disposable.dispose());
         this.documentListeners = [];
