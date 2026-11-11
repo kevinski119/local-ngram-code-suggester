@@ -1,5 +1,7 @@
 # Project learning and sequence reuse benchmark
 
+For the additional 100-per-language experiment, see [the 500-case suite](PROJECT_500.md).
+
 This measures feature effects in extension 3.1.0 using its actual
 `getInlineSuggestions` API inside VS Code 1.146.0. It does not reimplement the
 completion algorithm and does not compare historical v3.0 and v3.1 binaries.
