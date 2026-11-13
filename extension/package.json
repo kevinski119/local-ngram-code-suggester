@@ -212,6 +212,16 @@
                     "type": "boolean",
                     "default": true,
                     "description": "Prefer suggestions you accepted in the same context during this session. Stored only in memory; disabling clears preferences."
+                },
+                "codeSuggester.quickFix.enabled": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Offer N-Gram Quick Fixes (lightbulb or Ctrl+.) for code you already typed, such as quoting `print(hello world)` or closing a bracket. Fixes are ranked by the local model; nothing is applied automatically."
+                },
+                "codeSuggester.quickFix.showHints": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Experimental: after you edit a line and move on, mark it with a faint hint when the local model finds a much more natural version. Only edited lines are checked."
                 }
             }
         },

@@ -26,6 +26,7 @@ import { ProjectContextModel } from './projectContextModel';
 import { completionEdit } from './completionEdit';
 import { AcceptanceMemory } from './acceptanceMemory';
 import { PrefixScanCache } from './prefixScanCache';
+import { findRepairs, NgramScorer, RepairFix, RepairOptions } from './repairEngine';
 import {
     EXTENSION_TO_LANGUAGE,
     LANGUAGE_EXTENSIONS,
@@ -74,6 +75,8 @@ interface LoadedModel {
 }
 
 const MAX_MODEL_BYTES = 512 * 1024 * 1024;
+/** Quick Fix rescans the document; skip very large files to keep it interactive. */
+const MAX_REPAIR_DOCUMENT_CHARS = 300_000;
 
 export class CodeSuggester implements vscode.Disposable {
     public model: CodeModel | null = null;
@@ -96,6 +99,7 @@ export class CodeSuggester implements vscode.Disposable {
     private crossProjectModel: CrossProjectLearningModel;
     private acceptanceMemory = new AcceptanceMemory();
     private scanCache = new PrefixScanCache();
+    private repairScorers = new Map<string, NgramScorer | undefined>();
 
     constructor(private context: vscode.ExtensionContext) {
         this.crossProjectModel = new CrossProjectLearningModel(context.globalState);
@@ -157,6 +161,7 @@ export class CodeSuggester implements vscode.Disposable {
 
             this.model = model;
             this.loadedModels = loadedModels;
+            this.repairScorers.clear();
             this.rebuildPrefixIndex();
             this.modelSource = displaySources.join('; ');
             this.isModelLoaded = true;
@@ -181,6 +186,7 @@ export class CodeSuggester implements vscode.Disposable {
             }
             this.model = null;
             this.loadedModels = [];
+            this.repairScorers.clear();
             this.isModelLoaded = false;
             const message = error instanceof Error ? error.message : String(error);
             console.error('Error loading Local N-Gram model:', error);
@@ -1101,6 +1107,22 @@ export class CodeSuggester implements vscode.Disposable {
         ) && !/\s$/.test(before);
     }
 
+    /** Model-ranked repairs for already-typed code on the given zero-based lines. */
+    public findRepairs(document: vscode.TextDocument, lines: number[], options: RepairOptions): RepairFix[] {
+        if (!this.isModelLoaded || lines.length === 0) return [];
+        const languageExtensions = this.getLanguageExtensions(this.getFileExtension(document));
+        if (!languageExtensions) return [];
+        const text = document.getText();
+        if (text.length > MAX_REPAIR_DOCUMENT_CHARS) return [];
+        const profileId = getLanguageProfile(document.languageId, text.slice(0, 256)).id;
+        const key = `${profileId}|${languageExtensions.join(',')}`;
+        if (!this.repairScorers.has(key)) {
+            this.repairScorers.set(key, NgramScorer.create(
+                this.loadedModels.map(loaded => loaded.model), languageExtensions, profileId));
+        }
+        return findRepairs(text, document.languageId, this.repairScorers.get(key), options, lines);
+    }
+
     private useProjectContext(): boolean {
         return vscode.workspace
             .getConfiguration('codeSuggester')
@@ -1109,6 +1131,7 @@ export class CodeSuggester implements vscode.Disposable {
 
     public dispose() {
         this.scanCache.clear();
+        this.repairScorers.clear();
         this.acceptanceMemory.clear();
         this.loadGeneration++;
         this.documentListeners.forEach(disposable => disposable.dispose());

@@ -243,4 +243,20 @@ export async function run(): Promise<void> {
         await configuration.update('reuseProjectSequences', savedSettings.reuse, vscode.ConfigurationTarget.Global);
         await configuration.update('learnFromAcceptedSuggestions', savedSettings.learn, vscode.ConfigurationTarget.Global);
     }
+
+    const broken = await vscode.workspace.openTextDocument({ language: 'python', content: 'print(hello world)\n' });
+    const actions = await vscode.commands.executeCommand<vscode.CodeAction[]>(
+        'vscode.executeCodeActionProvider', broken.uri, new vscode.Range(0, 0, 0, 18), vscode.CodeActionKind.QuickFix.value);
+    const quote = actions?.find(action => action.title === 'N-Gram: Make `hello world` a string');
+    assert.ok(quote?.edit, `quick fix should offer the string repair: ${actions?.map(action => action.title).join(', ')}`);
+    assert.ok(await vscode.workspace.applyEdit(quote.edit));
+    assert.equal(broken.getText(), 'print("hello world")\n', 'applying the quick fix should quote the words');
+    await configuration.update('quickFix.enabled', false, vscode.ConfigurationTarget.Global);
+    try {
+        const off = await vscode.commands.executeCommand<vscode.CodeAction[]>(
+            'vscode.executeCodeActionProvider', broken.uri, new vscode.Range(0, 0, 0, 0));
+        assert.ok(!off?.some(action => action.title.startsWith('N-Gram:')), 'disabling quick fixes must hide them');
+    } finally {
+        await configuration.update('quickFix.enabled', undefined, vscode.ConfigurationTarget.Global);
+    }
 }
