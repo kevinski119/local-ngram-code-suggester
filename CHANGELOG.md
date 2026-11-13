@@ -2,6 +2,18 @@
 
 All notable changes are documented here.
 
+## Unreleased
+
+- Add N-Gram Quick Fixes (lightbulb / Ctrl+.) for code that is already typed.
+  The local model ranks small edits (quote a run of bare words such as
+  `print(hello world)`, or insert, remove or swap one punctuation token) and
+  offers up to three. Two line-shape checks the model cannot see also run: a
+  missing `:` on a Python block header and a bracket left open at the end of
+  a statement. Nothing is applied automatically. Disable with
+  `codeSuggester.quickFix.enabled`.
+- Experimental `codeSuggester.quickFix.showHints` (off by default) marks edited
+  lines with a faint hint after you move off them.
+
 ## 3.1.0 — local preview
 
 - Retrieve exact single-line code sequences from indexed open files for inline

@@ -25,6 +25,7 @@ import {
 import tokenizerCases from './fixtures/tokenizer_cases.json';
 import { v3Tests } from './v3Tests';
 import { v31Tests } from './v31Tests';
+import { repairTests } from './repairTests';
 
 type TestCase = {
     name: string;
@@ -34,6 +35,7 @@ type TestCase = {
 const tests: TestCase[] = [
     ...v3Tests,
     ...v31Tests,
+    ...repairTests,
     {
         name: 'tokenizes identifiers, operators, punctuation, and strings',
         run: () => {

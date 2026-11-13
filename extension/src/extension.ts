@@ -5,6 +5,7 @@ import { CodeSuggester, SuggesterDiagnostics } from './codeSuggester';
 import { LanguagePackManager } from './languagePackManager';
 import { CodeCompletionProvider } from './providers/codeCompletionProvider';
 import { CodeInlineCompletionProvider } from './providers/codeInlineCompletionProvider';
+import { CodeRepairProvider, RepairHints } from './providers/codeRepairProvider';
 import { SUPPORTED_LANGUAGE_IDS } from './utils/constants';
 
 export interface LocalNGramExtensionApi {
@@ -135,6 +136,12 @@ export async function activate(
             selector,
             new CodeInlineCompletionProvider(suggester)
         ),
+        vscode.languages.registerCodeActionsProvider(
+            selector,
+            new CodeRepairProvider(suggester),
+            CodeRepairProvider.metadata
+        ),
+        new RepairHints(suggester, selector),
         vscode.commands.registerCommand(
             'codeSuggester.reloadModel',
             guarded(() => vscode.window.withProgress(
